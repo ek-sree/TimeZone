@@ -12,7 +12,7 @@ usrouter.use(bodyParser.urlencoded({extended:true}))
 
 usrouter.get('/', usercontroller.home)
 
-usrouter.get('/signup',auth.checkSessionVariable('signuppressed','/'), usercontroller.signup)
+usrouter.get('/signup',auth.iflogged, auth.checkSessionVariable('signuppressed','/'), usercontroller.signup)
 
 usrouter.post('/signuppost', auth.iflogged,usercontroller.signuppost)
 
@@ -22,7 +22,7 @@ usrouter.post('/verifyOtp',auth.iflogged, usercontroller.verifyotp)
 
 usrouter.post('/resendotp',auth.iflogged, usercontroller.resendotp)
 
-usrouter.get('/login',auth.checkSessionVariable('loginpressed','/'), usercontroller.login)
+usrouter.get('/login',auth.iflogged, auth.checkSessionVariable('loginpressed','/'), usercontroller.login)
 
 usrouter.post('/loginaction',auth.iflogged, usercontroller.loginaction)
 
@@ -34,7 +34,7 @@ usrouter.get('/newpassword',auth.checkSessionVariable('newpasspressed','/forgotp
 
 usrouter.post('/newpasswordpost',usercontroller.newpasswordpost)
 
-usrouter.get('/profile',usercontroller.profile)
+usrouter.get('/profile', usercontroller.profile)
 
 usrouter.get('/logout',auth.islogged, usercontroller.logout)
 

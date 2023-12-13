@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Login</title>
+    <style>
+        body {
+            background-color: #fff;
+            color: #000;
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 2px;
+            font-size: 16px;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        .container {
+            margin-top: 50px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card {
+            background-color: #fff;
+            border: 2px solid #000;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        .card-header {
+            background-color: #fff;
+            color: #000;
+            border-radius: 15px 15px 0 0;
+            font-size: 36px;
+            text-align: center;
+            padding: 30px;
+            font-family: 'Courier New', Courier, monospace;
+            border-bottom: 2px solid #000;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .form-control {
+            background-color: #fff;
+            color: #000;
+            border: 2px solid #000;
+            border-radius: 10px;
+            font-size: 18px;
+            padding: 10px;
+        }
+
+        .form-control:focus {
+            background-color: #fff;
+            color: #000;
+            border: 2px solid #000;
+            box-shadow: 0 0 15px #000;
+        }
+
+        .btn-dark {
+            background-color: #fff;
+            color: #000;
+            font-size: 24px;
+            letter-spacing: 1px;
+            padding: 15px;
+            border: 2px solid #000;
+        }
+
+        .btn-dark:hover {
+            background-color: #555;
+            border-color: #555;
+        }
+
+        .text-danger {
+            font-size: 20px;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">TimeZone Admin Console</div>
+                    <div class="card-body">
+                        <form action="/admin/adminlogin" method="post">
+                            <div class="form-group">
+                                <label for="email">E-mail</label>
+                                <input type="text" class="form-control" id="email" name="email" required>
+                                <% if(locals.emailerror) { %>
+                                    <div class="text-danger"><%= emailerror %></div>
+                                <% } %>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                                <% if(locals.passworderror) { %>
+                                    <div class="text-danger"><%= passworderror %></div>
+                                <% } %>
+                            </div>
+                            <button type="submit" class="btn btn-dark btn-block">Access System</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

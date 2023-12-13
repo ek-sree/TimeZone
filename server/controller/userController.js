@@ -8,7 +8,6 @@ const {nameValid,emailValid,phoneValid,passwordValid,confirmPasswordValid}=requi
 
 
 
-
 //    <<<<<<<<<---------- RENDERING HOMEPAGE ---------->>>>>>>>>>
 const home=async(req,res)=>{
     try {
@@ -258,7 +257,7 @@ console.log("here orrrr")
 console.log("reached hereee");
         const passwordmatch = await bcrypt.compare(req.body.password,user.password)
 
-        if(passwordmatch && !user.status){
+        if(passwordmatch && user.status){
             req.session.userId = user._id
             req.session.username = user.username
             req.session.isAuth = true

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Breeze Admin</title>
+    <link rel="stylesheet" href="/adminassets/vendors/mdi/css/materialdesignicons.min.css" />
+    <link rel="stylesheet" href="/adminassets/vendors/flag-icon-css/css/flag-icon.min.css" />
+    <link rel="stylesheet" href="/adminassets/vendors/css/vendor.bundle.base.css" />
+    <link rel="stylesheet" href="/adminassets/vendors/font-awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="/adminassets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css" />
+    <link rel="stylesheet" href="/adminassets/css/style.css" />
+    <link rel="shortcut icon" href="/adminassets/images/favicon.png" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+  </head>
+  <body>
+    <div class="container-scroller">
+      <%- include('partials/sidebar')%>
+      <div class="container-fluid page-body-wrapper">
+        <div id="theme-settings" class="settings-panel">
+          <i class="settings-close mdi mdi-close"></i>
+          <p class="settings-heading">SIDEBAR SKINS</p>
+          <div class="sidebar-bg-options selected" id="sidebar-default-theme">
+            <div class="img-ss rounded-circle bg-light border mr-3"></div> Default
+          </div>
+          <div class="sidebar-bg-options" id="sidebar-dark-theme">
+            <div class="img-ss rounded-circle bg-dark border mr-3"></div> Dark
+          </div>
+          <p class="settings-heading mt-2">HEADER SKINS</p>
+          <div class="color-tiles mx-0 px-4">
+            <div class="tiles light"></div>
+            <div class="tiles dark"></div>
+          </div>
+        </div>
+        <%- include('partials/nav')%>
+        <div class="main-panel">
+         
+
+          <div class="container mt-5">
+            <h1 class="mb-4 text-center text-primary">Product Management</h1>
+    
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="/admin/newproduct" class="btn btn-success">Add New Product</a>
+                    <!-- <form class="d-flex align-items-center" action="/admin/adhome" method="post">
+                        <input type="text" name="search" class="form-control search-input" placeholder="Search by User Name">
+                        <button type="submit" class="btn btn-success ml-2">Search</button>
+                    </form> -->
+                </div>
+            </div>
+            
+    
+            <table class="table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        
+                        <th>Name</th>
+                        <!-- <th>image</th> -->
+                        <th>Category</th>
+                        <th>Stock</th>
+                        <th>Price</th>
+                        <th>Image</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if(locals.product) { %>
+                    <% product.forEach(function(data,index) { %>
+                    <tr>
+                       
+                        <td><%= data.name %></td>
+                        <td><%= data.category.name %></td>
+                        <td>
+                            <!-- <select style="float:left;" onchange="updateStock(this, '<%= JSON.stringify(data.stock) %>','<%= index %>')">
+                              !-- <option value="">Select Size</option> -->
+                              <!-- <option value="<%= data.stock %>"><%= data.stock %></option>
+                            </select> --> 
+                            <%= data.stock %>
+                            <!-- <div id="stock_<%= index %>" style="float:left; margin-left: 10px;"></div> -->
+                          </td>
+                          
+                      <td><%= data.price %></td>
+                      <td>
+                        <% if ( data.images.length > 0) { %>
+                        <img style="border-radius: 0%; width: 100px;height: 100px;"src="/<%= data.images[0] %>"></td>
+                        <% } %>
+                      <!-- <td><%= data.description %></td> -->
+                      <td><%= data.status? 'Listed' : 'Unlisted' %></td>
+                        <td>
+                          <a  class="btn btn-secondary btn-sm" onclick="confirmUnlist('<%= data._id %>')"><%= data.status ? 'Unlist' : 'List' %></a>
+
+                          <a href="/admin/updatepro/<%= data._id%>" class="btn btn-primary btn-sm">Edit</a>
+                        </td>
+                       
+                        
+                    </tr>
+                    <% }); %>
+                    <% } else { %>
+                      <tr>
+                          <td colspan="5">No results found.</td>
+                      </tr>
+                      <% } %>
+                </tbody>
+            </table>
+
+
+
+         
+        </div>
+        <!-- main-panel ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+    <!-- container-scroller -->
+    <!-- plugins:js -->
+    <script>
+      function updateStock(select, stockJson,rowIndex) {
+    const selectedSize = parseInt(select.value);
+    const stock = JSON.parse(stockJson); // Parse the JSON string into an array
+    const stockDiv = document.getElementById(`stock_${rowIndex}`);
+    const selectedStock = stock.find(item => item.size === selectedSize);
+    if (selectedStock) {
+        stockDiv.textContent = ` ${selectedStock.quantity}`;
+    } else {
+        stockDiv.textContent = 'No stock available for the selected size.';
+    }
+}
+
+function confirmUnlist(itemId) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Are you sure you want to proceed?",
+        icon: "warning",
+        showCancelButton: true,  
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Confirm",
+        cancelButtonText: "Cancel",  
+        dangerMode: true,
+    })
+    .then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "/admin/unlist/" + itemId;
+        } else {
+            console.log("User canceled");
+        }
+    });
+}
+
+  </script>
+
+    <script src="/adminassets/vendors/js/vendor.bundle.base.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <script src="/adminassets/vendors/chart.js/Chart.min.js"></script>
+    <script src="/adminassets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+    <script src="/adminassets/vendors/flot/jquery.flot.js"></script>
+    <script src="/adminassets/vendors/flot/jquery.flot.resize.js"></script>
+    <script src="/adminassets/vendors/flot/jquery.flot.categories.js"></script>
+    <script src="/adminassets/vendors/flot/jquery.flot.fillbetween.js"></script>
+    <script src="assets/vendors/flot/jquery.flot.stack.js"></script>
+    <script src="/adminassets/vendors/flot/jquery.flot.pie.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="/adminassets/js/off-canvas.js"></script>
+    <script src="/adminassets/js/hoverable-collapse.js"></script>
+    <script src="/adminassets/js/misc.js"></script>
+    <!-- endinject -->
+    <!-- Custom js for this page -->
+    <script src="/adminassets/js/dashboard.js"></script>
+    <!-- End custom js for this page -->
+  </body>
+</html>

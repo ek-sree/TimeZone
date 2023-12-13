@@ -15,13 +15,13 @@ const islogged= (req,res,next)=>{
     }
 }
 
-const loggedout = (req,res,next)=>{
-    if(req.session.user){
-        next()
-    }else{
-        res.redirect('/')
-    }
-}
+// const loggedout = (req,res,next)=>{
+//     if(req.session.user){
+//         next()
+//     }else{
+//         res.redirect('/')
+//     }
+// }
 
 const checkSessionVariable = (variableName,redirectPath)=>{
     return (req,res,next)=>{
@@ -35,4 +35,4 @@ const checkSessionVariable = (variableName,redirectPath)=>{
 
 
 
-module.exports={iflogged, islogged, loggedout, checkSessionVariable }
+module.exports={iflogged, islogged, checkSessionVariable }
