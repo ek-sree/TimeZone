@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/login.css">
+    <style>
+        /* .margin-ls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        } */
+
+        .margin-ls a {
+             margin-left: 20px; 
+             margin-top: 10px; 
+        }
+    </style>
+    <title>Login</title>
+</head>
+<body>
+    <div class="d-flex align-items-center" style="min-height: 100vh">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card mt-5">
+                        <div style="padding-left: 200px;" class="card-header">
+                            create a new account
+                        </div>
+                        <div class="card-body">
+                            <form class="login" action="/signuppost" method="post">
+                                <div class="form-group mt-3">
+                                    <label for="username">First name</label>
+                                    <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username" required>
+                                    <% if(locals.nameerror){%>
+                                        <div class="alter text-danger text-start"><%= nameerror%></div>
+                        
+                                    <%}%>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label for="email">Email</label>
+                                    <input type="text" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+                                    <% if(locals.emailerror){%>
+                                        <div class="alter text-danger text-start"><%= emailerror%></div>
+                        
+                                    <%}%>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label for="phoneNumber">Phone Number</label>
+                                    <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="Enter your phone number" required>
+                                    <% if(locals.phoneerror){%>
+                                        <div class="alter text-danger text-start"><%= phoneerror%></div>
+                        
+                                    <%}%>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label for="password">Password</label>
+                                    <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+                                    <% if(locals.passworderror){%>
+                                        <div class="alter text-danger text-start"><%= passworderror%></div>
+                        
+                                    <%}%>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label for="password">Conform Password</label>
+                                    <input type="password" class="form-control" id="password" name="conform-password" placeholder="Conform password" required>
+                                    <% if(locals.cpassworderror){%>
+                                        <div class="alter text-danger text-start"><%= cpassworderror%></div>
+                        
+                                    <%}%>
+                                </div>
+                                <div class="margin-ls">
+                                    <button type="submit" class="btn btn-primary mt-4">Create</button>
+                                    <div class="mb-3"><a href="login">Already have an account</a></div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+</html>

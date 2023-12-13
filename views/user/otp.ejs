@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/login.css">
+    <title>Login</title>
+</head>
+<body>
+    <div class="d-flex align-items-center" style="min-height: 100vh">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card mt-5">
+                        <div class="card-header">
+                            OTP verification
+                        </div>
+                        <div class="card-body">
+                            <form class="login" action="/verifyOtp" method="post">
+                                <div class="form-group mt-3">
+                                    <label for="otp">OTP</label>
+                                    <input type="text" class="form-control" id="email" name="otp" placeholder="Enter otp">
+                                    <% if(locals.otperror){%>
+                                        <div class="alter text-danger text-start"><%= otperror%></div>
+                                    <%}%>
+                                </div>
+                                <button type="submit" name="submit" class="btn btn-primary mt-4">Verify OTP</button>
+                            </form>
+                            <form action="/resendotp" method="post">
+                                <button id="resendButton" class="btn btn-primary mt-4" type="submit">Resend OTP</button>
+                                <p id="textintimer" >Resend OTP in &nbsp;&nbsp;<span id="timer">30</span>&nbsp;&nbsp;Seconds</p>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+
+<script>
+    let remainingTime = 30;
+
+    function updateTimer(){
+        document.getElementById('timer').textContent = remainingTime
+
+        //Hide the Resend otp button when the timer reach 0
+        const resendButton = document.getElementById('resendButton')
+        const timerElement = document.getElementById('textintimer')
+
+        if(remainingTime === 0){
+            resendButton.style.display ='block'
+            timerElement.style.display = 'none'
+        }
+        else{
+            resendButton.style.display = 'none'
+            timerElement.style.display = 'inline'
+        }
+    }
+
+    function startTimer(){
+        remainingTime = 30
+        updateTimer()
+
+        //update the timer in every second
+
+        const timeInterval = setInterval(()=>{
+            if(remainingTime > 0){
+                remainingTime--;
+                updateTimer()
+            }else{
+                clearInterval(timeInterval)
+            }
+        },1000)
+    }
+
+    //Attach the event listner to the "Resend OTP button"
+    document.getElementById('resendButton').addEventListener('click', ()=>{
+        //Restart the timer when the button is clicked
+        startTimer()
+
+        //Create a hidden form dynamically
+        const form = document.createElement('form')
+        form.method = 'POST'
+        form.action = '/resendotp'
+        document.body.appendChild(form)
+
+        form.submit()
+    })
+
+    startTimer()
+</script>
+</html>

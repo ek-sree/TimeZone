@@ -1,0 +1,163 @@
+<!-- UserProfile Page -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="author" content="Untree.co">
+  <link rel="shortcut icon" href="favicon.png">
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="bootstrap, bootstrap4" />
+
+  <!-- Bootstrap CSS -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="css/tiny-slider.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <title>Profile-Furnify</title>
+
+  <style>
+    .username{
+        font-weight: 600;
+        color: #F0EAD6;
+    }
+.heroprofile{
+    max-height: 100px;
+}
+    .welcome{
+        color: #efeeee;
+        font-weight: 200;
+    }
+    .category-options {
+      display: none;
+    }
+    .search-bar {
+      background-color: #3b5d50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 35px;
+      margin: 0;
+      display: flex;
+      border: 2px solid #efeeee;
+      border-radius: 30px;
+      overflow: hidden;
+    }
+
+    .search-input {
+      border: none;
+      padding: 10px;
+      width: 800px;
+      background-color: #3b5d50;
+      color: white;
+    }
+
+    .search-button {
+      background-color: #3d5d50;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-top-right-radius: 20px;
+      border-bottom-right-radius: 20px;
+      cursor: pointer;
+    }
+
+    .ftup{
+      margin-top: 80px;
+    }
+
+    .welcome{
+      color: black;
+    }
+    .name{
+      color: red;
+      font-weight: 500;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Start Header/Navigation -->
+  
+  <%- include('./partials/header.ejs') %>
+  <!-- End Header/Navigation -->
+
+  <!-- Start Hero Section -->
+  <div class="hero">
+    <div class="container">
+        <div class="row justify-content-between">
+            <div class="col-lg-5">
+                <div class="intro-excerpt">
+                    <h2 class="welcome">Welcome <span class="name">"<%=name%>"</span></h2>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Hero Section -->
+
+  <!-- User Profile Page Content -->
+  <div class="container mt-4">
+    
+
+    <!-- User Details Section -->
+    <a href="/userdetails"><section class="user-details-section mt-4">
+      <h3>User Details</h3>
+      <!-- Add user details content here -->
+    </section></a>
+
+    <!-- Favorites Section -->
+    <a href="/favouritespage">
+    <section class="favorites-section mt-4">
+      <h3>Favorites</h3>
+      <!-- Add favorites content here -->
+    </section>
+    </a>
+
+    <!-- Your Cart Section -->
+    <a href="/cartpage">
+    <section class="your-cart-section mt-4">
+      <h3>Your Cart</h3>
+      <!-- Add cart content here -->
+    </section></a>
+
+    <!-- Your Orders Section -->
+    <a href="/orderHistory">
+    <section class="your-orders-section mt-4">
+      <h3>Your Orders</h3>
+      <!-- Add orders content here -->
+    </section></a>
+
+    <a href="/wallet">
+      <section class="your-orders-section mt-4">
+        <h3>Your Wallet</h3>
+        <!-- Add orders content here -->
+      </section></a>
+
+    <!-- Logout Button -->
+    <section class="logout-section mt-4">
+        <form method="get"action="/logout">
+      <button class="btn btn-danger">Logout</button>
+    </form>
+    </section>
+  </div>
+  <!-- End User Profile Page Content -->
+  <div class="ftup">
+  <%- include("./partials/shopmethods.ejs") %>
+</div>
+ 		<!-- Start Footer Section -->
+     <%- include("./partials/footer.ejs") %>
+		<!-- End Footer Section -->	
+
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/tiny-slider.js"></script>
+  <script src="js/custom.js"></script>
+</body>
+
+</html>
