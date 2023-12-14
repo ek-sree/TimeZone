@@ -389,4 +389,12 @@ const forgot = (req,res)=>{
     }
  }
 
-module.exports = { home, signup, signuppost, generateotp, otp, verifyotp, resendotp ,login ,loginaction ,forgot ,forgotpasspost ,newpassword ,newpasswordpost ,profile ,logout};
+ const shop = (req,res)=>{
+    try {
+        res.render('user/shop')
+    } catch (error) {
+        
+    }
+ }
+
+module.exports = { home, signup, signuppost, generateotp, otp, verifyotp, resendotp ,login ,loginaction ,forgot ,forgotpasspost ,newpassword ,newpasswordpost ,profile ,logout, shop};

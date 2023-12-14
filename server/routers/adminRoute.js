@@ -1,5 +1,8 @@
 const express = require('express')
+const multer =require('multer')
+const upload = multer({dest:'uploads/'})
 const adminController = require('../controller/adminController')
+
 
 const adrouter = express.Router()
 
@@ -23,7 +26,13 @@ adrouter.post('/searchUser',adminController.searchpost)
 
 adrouter.get('/searchView', adminController.searchView)
 
-adrouter.get('/filter/:filtered', adminController.sort)
+adrouter.get('/filter/:option', adminController.sort)
+
+adrouter.get('/addcategories',adminController.addcategory)
+
+adrouter.post('/add-category',adminController.addcategorypost)
+
+adrouter.post('/addproduct',upload.array('images'),adminController.newproductpost)
 
 
 module.exports= adrouter

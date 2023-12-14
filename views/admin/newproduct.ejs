@@ -54,18 +54,15 @@
 
                     <div class="mb-3">
                       <label for="parentCategory" class="form-label">Category:</label>
-                      <select class="form-select" id="parentCategory" name="parentCategory"   required>
+                      <select class="form-select" id="Category" name="category"   required>
                         <option value="" disabled selected>Select Category</option>
                         <% category.forEach(category => { %>
-                            <option value="<%= category._id %>"><%= category.name %></option>
-                        <% }); %>
+                          <option value="<%= category._id %>"><%= category.name %></option>
+                      <% }); %>
                     </select>
                     
                   </div>
-                  <div class="mb-3">
-                    <label for="productType" class="form-label">Product Type:</label>
-                    <input type="text" class="form-control" id="productType" name="productType" required>
-                </div>
+                 
                   <!-- <div class="mb-3">
                       <label for="subCategory" class="form-label">Sub Category:</label>
                       <select class="form-select" id="subCategory" name="subCategory" required>
@@ -85,22 +82,11 @@
                   
               </div>
 
-                    <!-- <div class="mb-3">
-                        <label for="sizeVariation" class="form-label">Size</label>
-                        <select class="form-select" id="size" name="size" required>
-                            <option value="" disabled selected>Select Size</option>
-                                <option value="5">5</option>
-                                <option value="6">6</option>
-                                <option value="7">7</option>
-                                <option value="8">8</option>
-                           
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="stock" class="form-label">Stock:</label>
-                        <input type="text" class="form-control" id="stock" name="stock" required>
-                    </div> -->
+              <div class="mb-3">
+                <label for="mrp" class="form-label">MRP:</label>
+                <input type="text" class="form-control" id="mrp" name="mrp" required>
+            </div>
+          
 
                     <div class="mb-3">
                       <label for="price" class="form-label">Price:</label>
@@ -111,6 +97,47 @@
                         <label for="description" class="form-label">Description:</label>
                         <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
                     </div>
+
+                    <div class="mb-3 d-flex">
+                      <label for="height" class="form-label">Display type:</label><br>
+                      <input type="text" class="form-control ml-3" id="productName" name="displayType" required>
+                      
+                      
+                  </div>
+
+                  <div class="mb-3 d-flex">
+                    <label for="height" class="form-label">Strap type:</label><br>
+                    <input type="text" class="form-control ml-3" id="productName" name="strapType" required>
+                    
+                    
+                </div>
+
+                  <div class="mb-3 d-flex">
+                    <label for="width" class="form-label">Strap material:</label><br>
+                    <input type="text" class="form-control ml-3" id="width" name="strapMaterial" required>
+                </div>
+
+                <div class="mb-3 d-flex">
+                  <label for="sidelength" class="form-label">Strap color:</label><br>
+                  <input type="text" class="form-control ml-3" id="sidelength" name="strapColor" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="madeof" class="form-label">Power source:</label>
+                <input type="text" class="form-control" id="price" name="powerSource" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="color" class="form-label">Dial color:</label>
+              <input type="text" class="form-control" id="color" name="dialColor" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="manufacturer" class="form-label">Novelty feature:</label>
+            <input type="text" class="form-control" id="manufacturer" name="feature" required>
+        </div>
+
+
         
                     <button type="submit" class="btn btn-primary">Add Product</button>
                 </form>

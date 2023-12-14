@@ -38,4 +38,6 @@ usrouter.get('/profile', usercontroller.profile)
 
 usrouter.get('/logout',auth.islogged, usercontroller.logout)
 
+usrouter.get('/shop', usercontroller.shop)
+
 module.exports = usrouter

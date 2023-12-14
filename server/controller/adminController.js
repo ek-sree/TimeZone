@@ -1,9 +1,11 @@
 const session = require('express-session');
 const userModels = require('../model/userModels')
+const categoryModel = require('../model/categoryModel')
+const productModel = require('../model/productModels')
 const bcrypt = require('bcrypt');
+const { name } = require('ejs');
+const path = require('path')
 
-
-const isAdmin = (req) => req.session.admin === true;
 
 const login = (req,res)=>{
     try {
@@ -97,46 +99,119 @@ const searchView =(req,res)=>{
 
 
 const sort = async(req,res)=>{
-    const filtered = req.params.filter
-    let user
-    if(filtered === "A-Z" && isAdmin(req)){
-         user = await userModels.find().sort({name:1})
+    console.log("getting");
+    try {
+        const option = req.params.option
+    console.log(option);
+    if(option === 'A-Z' ){
+        console.log("nnnooooo");
+         user = await userModels.find({isAdmin:false}).sort({name:1})
+         console.log("hhh");
     }
-    else if(filtered === 'Z-A' && isAdmin(req)){
-         user = await userModels.find().sort({name:-1})
+    else if(option === 'Z-A' ){
+        console.log("tttt");
+         user = await userModels.find({isAdmin:false}).sort({name:-1})
     }
-    else if(filtered === "Blocked" && isAdmin(req)){
+    else if(option === 'Blocked' ){
          user = await userModels.find({status:false})
     }
     else{
-         user = await userModels.find({})
+         user = await userModels.find({isAdmin:false})
     }
     res.render('admin/userlist',{users:user})
+    } catch (error) {
+        console.log("error occuring while loading the page", error);
+        res.render('admin/userlist',{users:[]})
+    }
 }
 
 
-const product = (req,res)=>{
+const categories = async(req,res)=>{
     try {
-        res.render('admin/product')
+        const category = await categoryModel.find({})
+        res.render('admin/categories',{cat:category})
+    } catch (error) {
+        console.log("error occured loading page", error);
+        res.send("error occured", error)
+    }
+}
+
+const addcategory = async(req,res)=>{
+    try {
+        res.render('admin/addcategories')
+    } catch (error) {
+        console.log("error occured");
+    }
+}
+
+const addcategorypost = async(req,res)=>{
+    try {
+        const categoryName = req.body.categoryName
+        const description = req.body.description
+        const  categoryExist = await categoryModel.findOne({name:categoryName})
+        if(categoryExist){
+            res.render('admin/addcategories',{catexist:"already exist"})
+        }
+        else{
+            await categoryModel.create({name:categoryName, description:description})
+            res.redirect('/admin/addcategories')
+            console.log("added");
+        }
+    } catch (error) {
+        console.log("error add post categories",error);
+        res.send("error occured loading ")
+    }
+}
+
+const product = async(req,res)=>{
+    try {
+        const product = await productModel.find({}).populate({
+            path:'category',
+            select:'name'
+        })
+        res.render('admin/product',{product:product})
     } catch (error) {
         console.log("error occured cant load the page", error);
     }
 }
 
-const categories = (req,res)=>{
+const newproduct = async(req,res)=>{
     try {
-        res.render('admin/categories')
+        const category = await categoryModel.find()
+        console.log("category",category);
+        res.render('admin/newproduct',{category:category})
     } catch (error) {
         console.log("error occured loading page", error);
     }
 }
 
-const newproduct = (req,res)=>{
+const newproductpost = async(req,res)=>{
     try {
-        res.render('admin/newproduct')
+        const {productName, category, images, stock, mrp, price, description, displayType, strapType, strapMaterial, strapColor, powerSource,dialColor,feature} = req.body
+        const newproduct = await productModel.create({
+            name:productName,
+            category:category,
+            mrp:mrp,
+            price:price,
+            stock:stock,
+            description:description,
+            displayType:displayType,
+            straptype:strapType,
+            strapmaterial:strapMaterial,
+            strapcolor:strapColor,
+            powersource:powerSource,
+            dialcolor:dialColor,
+            feature:feature,
+            images:req.files.map(file => file.path)
+        })
+        await newproduct.save()
+        res.redirect('/admin/newproduct')
     } catch (error) {
-        console.log("error occured loading page", error);
+        res.status(400).send("error adding"+ error.message)
+        console.log("error adding",error);
     }
 }
 
-module.exports={login, adminloginpost, adminpanel, userslist, product, categories, newproduct, userupdate, searchView, searchpost, sort}
+
+
+module.exports={login, adminloginpost, adminpanel, userslist, product, categories, newproduct, userupdate, searchView, searchpost, sort, addcategory, addcategorypost, newproductpost}
