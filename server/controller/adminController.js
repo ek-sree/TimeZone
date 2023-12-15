@@ -4,7 +4,8 @@ const categoryModel = require('../model/categoryModel')
 const productModel = require('../model/productModels')
 const bcrypt = require('bcrypt');
 const { name } = require('ejs');
-const path = require('path')
+const path = require('path');
+const { constants } = require('buffer');
 
 
 const login = (req,res)=>{
@@ -154,7 +155,7 @@ const addcategorypost = async(req,res)=>{
         }
         else{
             await categoryModel.create({name:categoryName, description:description})
-            res.redirect('/admin/addcategories')
+            res.redirect('/admin/category')
             console.log("added");
         }
     } catch (error) {
@@ -163,12 +164,59 @@ const addcategorypost = async(req,res)=>{
     }
 }
 
+
+const unlistcat = async(req,res)=>{
+   try {
+    const id = req.params.id
+    const category = await categoryModel.findOne({_id:id})
+
+    category.status = !category.status
+    await category.save()
+    res.redirect("/admin/Category")
+    console.log("unlist done");
+   } catch (error) {
+    console.log('error cant load this',error);
+   }
+}
+
+
+const editcat = async(req,res)=>{
+    try {
+    const id = req.params.id
+    const category = await categoryModel.findOne({_id:id})
+    console.log("edit cat page");
+    res.render("admin/editcat",{itemcat:category})
+    } catch (error) {
+        console.log("error editing", error);
+        res.status(400).send("cant load this page")
+    }
+}
+
+const editcatppost = async(req,res)=>{
+    try {
+        const id = req.params.id
+        console.log(id);
+        const catName = req.body.categoryName
+        const catDes = req.body.description
+
+        await categoryModel.updateOne({_id:id},{$set:{name:catName, description:catDes}})
+        console.log("working post cat");
+        res.redirect('/admin/Category')
+    } catch (error) {
+        console.log("error editing category", error);
+        res.status(400).send("error loading this page", error)
+    }
+}
+
+
 const product = async(req,res)=>{
     try {
         const product = await productModel.find({}).populate({
             path:'category',
             select:'name'
         })
+        console.log("Image Path:", product[0].images[0]);
+
         res.render('admin/product',{product:product})
     } catch (error) {
         console.log("error occured cant load the page", error);
@@ -213,5 +261,71 @@ const newproductpost = async(req,res)=>{
 }
 
 
+const productUnlist = async(req,res)=>{
+ try {
+    const id = req.params.id
+    const product = await productModel.findOne({_id:id})
 
-module.exports={login, adminloginpost, adminpanel, userslist, product, categories, newproduct, userupdate, searchView, searchpost, sort, addcategory, addcategorypost, newproductpost}
+    product.status = !product.status
+    await product.save()
+    res.redirect('/admin/product')
+ } catch (error) {
+    console.log("product unlist error", error);
+    res.status(400).send("error loading")
+ }
+}
+
+
+const updatepro = async(req,res)=>{
+    try {
+    const id = req.params.id
+    const product = await productModel.findOne({_id:id})
+    res.render('admin/updateproduct',{product:product})
+    } catch (error) {
+        console.log("error update product", error);
+        res.status(400).send("error updating product")
+    }
+}
+
+
+const editimg = async(req,res)=>{
+    try {
+        const id = req.params.id
+        const product = await productModel.findOne({_id:id})
+
+        res.render("admin/editimg",{product:product})
+    } catch (error) {
+        console.log("error loading editimage page", error);
+        res.status(400).status("error loadig this page")
+    }
+
+}
+
+
+const updatepropost = async(req,res)=>{
+try {
+    const id = req.params.id
+    const {productName,mrp,productprice, stock, description, displayType, strapType, strapMaterial, strapColor, powerSource, dialColor, feature} = req.body 
+    await productModel.updateOne({_id:id},{$set:{name:productName,
+        mrp:mrp,
+        price:productprice,
+        stock:stock,
+        description:description,
+        displaytype:displayType,
+         straptype:strapType,
+          strapmaterial:strapMaterial,
+          strapcolor:strapColor,
+          powersource:powerSource,
+          dialcolor:dialColor,
+          feature:feature}})
+          res.redirect('/admin/product')
+} catch (error) {
+    console.log("error updating product",error);
+    res.status(400).send("error updating product")
+}
+}
+
+
+
+
+module.exports={login, adminloginpost, adminpanel, userslist, product, categories, newproduct, userupdate, searchView, searchpost, sort, addcategory, addcategorypost, newproductpost, unlistcat, editcat, editcatppost, productUnlist ,updatepro, editimg, updatepropost}

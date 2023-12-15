@@ -1,6 +1,6 @@
 const express = require('express')
 const multer =require('multer')
-const upload = multer({dest:'uploads/'})
+const uploads = multer({dest:'uploads'})
 const adminController = require('../controller/adminController')
 
 
@@ -32,7 +32,20 @@ adrouter.get('/addcategories',adminController.addcategory)
 
 adrouter.post('/add-category',adminController.addcategorypost)
 
-adrouter.post('/addproduct',upload.array('images'),adminController.newproductpost)
+adrouter.get('/unlistcat/:id' , adminController.unlistcat)
 
+adrouter.get('/editcat/:id',adminController.editcat)
+
+adrouter.post('/update-category/:id', adminController.editcatppost)
+
+adrouter.post('/addproduct',uploads.array('images'),adminController.newproductpost)
+
+adrouter.get('/unlist/:id', adminController.productUnlist)
+
+adrouter.get('/updatepro/:id', adminController.updatepro)
+
+adrouter.get('/editimg/:id',adminController.editimg)
+
+adrouter.post('/updateproduct/:id', adminController.updatepropost)
 
 module.exports= adrouter
