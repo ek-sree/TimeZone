@@ -64,6 +64,7 @@
                         <th>Image</th>
                         <th>Description</th>
                         <th>Status</th>
+                        <th>Remove</th>
                         
                         
                     </tr>
@@ -95,6 +96,8 @@
                           <a  class="btn btn-secondary btn-sm" onclick="confirmUnlist('<%= data._id %>')"><%= data.status ? 'Unlist' : 'List' %></a>
 
                           <a href="/admin/updatepro/<%= data._id%>" class="btn btn-primary btn-sm">Edit</a>
+                        </td>
+                        <td><a href="/admin/deletepro/<%= data._id%>?filename=<%= data.images %>" class="btn btn-primary btn-sm">Delete</a>
                         </td>
                        
                         

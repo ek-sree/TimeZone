@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const { name } = require('ejs');
 const path = require('path');
 const { constants } = require('buffer');
+const fs =require('fs')
 
 
 const login = (req,res)=>{
@@ -288,18 +289,33 @@ const updatepro = async(req,res)=>{
 }
 
 
-const editimg = async(req,res)=>{
+// const editimg = async(req,res)=>{
+//     try {
+//         const id = req.params.id
+//         const product = await productModel.findOne({_id:id})
+
+//         res.render("admin/editimg",{product:product})
+//     } catch (error) {
+//         console.log("error loading editimage page", error);
+//         res.status(400).send("error loadig this page")
+//     }
+
+// }
+const editimg = async (req, res) => {
     try {
-        const id = req.params.id
-        const product = await productModel.findOne({_id:id})
+        const id = req.params.id;
+        const product = await productModel.findOne({ _id: id });
 
-        res.render("admin/editimg",{product:product})
+        if (!product) {
+            res.status(404).send("Product not found");
+            return;
+        }
+        res.render("admin/editimg", { product: product });
     } catch (error) {
-        console.log("error loading editimage page", error);
-        res.status(400).status("error loadig this page")
+        console.log("Error loading editimage page", error);
+        res.status(400).send("Error loading this page");
     }
-
-}
+};
 
 
 const updatepropost = async(req,res)=>{
@@ -326,6 +342,94 @@ try {
 }
 
 
+const deleteimg = async(req,res)=>{
+    try {
+        const pid = req.query.pid
+        const filename = req.query.filename
+
+        if(fs.existsSync(filename)){
+            try {
+                fs.unlinkSync(filename)
+                res.redirect(`/admin/editimg/${pid}`)
+                console.log("image delete");
+                await productModel.updateOne({ _id:pid},{$pull:{images:filename}})
+                console.log("image deleted from database");
+            } catch (error) {
+                console.log("cant delete image", error);
+            }
+        }else{
+            res.send("image not found")
+            console.log("image not found");
+        }
+        
+    } catch (error) {
+        console.log("Page not found",error);
+        res.status(400).send("page not found error occured")
+    }
+}
 
 
-module.exports={login, adminloginpost, adminpanel, userslist, product, categories, newproduct, userupdate, searchView, searchpost, sort, addcategory, addcategorypost, newproductpost, unlistcat, editcat, editcatppost, productUnlist ,updatepro, editimg, updatepropost}
+const newimg = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const imgPaths = req.files.map(file => file.path);
+
+        const product = await productModel.findOne({ _id: id });
+
+        if (product) {
+            console.log("Product found:", product);
+
+            if (imgPaths.length > 0) {
+                product.images.push(...imgPaths);
+                await product.save();
+                console.log("Images added:", imgPaths);
+                res.redirect(`/admin/updatepro/${id}`);
+            } else {
+                console.log("No images to add");
+                res.status(400).send("No images to add");
+            }
+        } else {
+            console.log("Product not found");
+            res.status(404).send("Product not found");
+        }
+    } catch (error) {
+        console.log("Error adding image", error);
+        res.status(500).send("Error adding new image");
+    }
+}
+
+
+const deletepro = async(req,res)=>{
+  try {
+    const id = req.params.id
+    const filename = req.query.filename
+    console.log(filename);
+    const product = await productModel.findOne({_id:id})
+    if(product){
+        await productModel.deleteOne({_id:id})
+        console.log("Attempting to delete file:", filename);
+        if(fs.existsSync(filename)){
+            fs.unlinkSync(filename)
+            console.log("image deleted from folder");
+        }
+        console.log("product deleted");
+        res.redirect("/admin/product")
+    }else{
+        res.status(400).send("product not found")
+    }
+  } catch (error) {
+    console.log("cant delete error", error);
+    res.status(500).send("internal server error")
+  }
+}
+
+const adlogout = async(req,res)=>{
+    req.session.admin = false
+    req.session.destroy()
+    res.redirect('/admin')
+}
+
+
+
+
+module.exports={login, adminloginpost, adminpanel, userslist, product, categories, newproduct, userupdate, searchView, searchpost, sort, addcategory, addcategorypost, newproductpost, unlistcat, editcat, editcatppost, productUnlist ,updatepro, editimg, updatepropost, deleteimg, newimg, adlogout, deletepro}

@@ -5,8 +5,16 @@ const adrouter = require('./server/routers/adminRoute')
 const flash = require('express-flash');
 const session = require('express-session');
 const multer = require('multer')
+const nocache = require('nocache')
 
 const app = express();
+
+app.use(function(req,res,next){
+    res.header('Cache-Control','private, no-cache, no-store, must-revalidate')
+    res.header('Expires', '-1')
+    res.header('Pragma', 'no-cache')
+    next()
+})
 
 app.use(session({
     secret: 'your-secret-key',
@@ -35,7 +43,7 @@ const storage = multer.diskStorage({
         cb(null,'uploads')
     },
     filename:(req,file,cb)=>{
-        cb(null,file.originalname)
+        cb(null, Date.now() + path.extname(file.originalname))
     }
 })
 

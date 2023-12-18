@@ -1,5 +1,7 @@
 const express = require('express')
 const usercontroller = require('../controller/userController')
+const collectionController = require('../controller/collectionController')
+const productController = require('../controller/productController')
 const bodyParser = require('body-parser')
 const auth = require('../../middleware/isAuth')
 
@@ -38,6 +40,17 @@ usrouter.get('/profile', usercontroller.profile)
 
 usrouter.get('/logout',auth.islogged, usercontroller.logout)
 
-usrouter.get('/shop', usercontroller.shop)
+
+
+
+// ...
+
+usrouter.get('/shop', collectionController.Collection);
+
+
+
+
+// ...
+
 
 module.exports = usrouter

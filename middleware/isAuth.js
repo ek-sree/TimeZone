@@ -34,5 +34,21 @@ const checkSessionVariable = (variableName,redirectPath)=>{
 }
 
 
+const adminlogout = (req,res,next) =>{
+    if(req.session.admin){
+        next()
+    }else{
+        res.redirect('/admin')
+    }
+}
 
-module.exports={iflogged, islogged, checkSessionVariable }
+const logoutAdmin = (req, res, next) => {
+    if(!req.session.admin){
+        next()
+    } else {
+        res.redirect('/admin/adminpanel')
+    }
+}
+
+
+module.exports={iflogged, islogged, checkSessionVariable, adminlogout ,logoutAdmin}
