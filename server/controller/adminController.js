@@ -3,9 +3,6 @@ const userModels = require('../model/userModels')
 const categoryModel = require('../model/categoryModel')
 const productModel = require('../model/productModels')
 const bcrypt = require('bcrypt');
-const { name } = require('ejs');
-const path = require('path');
-const { constants } = require('buffer');
 const fs =require('fs')
 
 
@@ -213,8 +210,9 @@ const editcatppost = async(req,res)=>{
 const product = async(req,res)=>{
     try {
         const product = await productModel.find({}).populate({
-            path:'category',
-            select:'name'
+            path: 'categories',
+            options: { strictPopulate: false },
+            select: 'name',
         })
         console.log("Image Path:", product[0].images[0]);
 

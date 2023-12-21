@@ -47,6 +47,9 @@ usrouter.get('/logout',auth.islogged, usercontroller.logout)
 
 usrouter.get('/shop', collectionController.Collection);
 
+usrouter.get('/shop/:id', productController.products);
+
+usrouter.get('/singleproduct/:id', productController.singleproduct)
 
 
 

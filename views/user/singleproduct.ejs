@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= product.name %> - Product Details</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="/css/tiny-slider.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.3/tiny-slider.css">
+    <link rel="stylesheet" href="/css/magiczoom.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    
+    <script src="/js/magiczoom.js"></script>
+    <!-- ElevateZoom CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-elevatezoom/3.0.8/jquery.elevatezoom.min.css">
+    <!-- <script>
+        function getStars(rating) {
+            const fullStars = Math.floor(rating);
+            const halfStar = rating % 1 !== 0;
+    
+            const stars = '★'.repeat(fullStars) + (halfStar ? '½' : '');
+    
+            return stars;
+        }
+    </script> -->
+    <style>
+.user-ratings-section {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.user-rating {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+}
+
+.user-name {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.rating {
+  color: #ffc107; /* Star color */
+  margin-bottom: 10px;
+}
+
+.review {
+  margin-bottom: 0;
+}
+
+hr {
+  border: 0.5px solid #ddd;
+}
+
+.custom-image {
+    width: 300px; /* Set the desired width */
+    height: 200px; /* Set the desired height */
+  }
+ 
+
+  .product-details-section {
+            width: calc(55% - 25px); /* Adjusted width with right margin */
+            padding: 20px;
+            text-align: left;
+            background-color: #fff; /* Set the background color you want */
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Optional: Add box shadow for a card-like appearance */
+            margin-right: 25px; /* Right margin */
+            z-index: 2; /* Ensure the product details card is above the images */
+        }
+
+        /* Tiny Slider Container */
+        #product-slider {
+            position: relative;
+            overflow: hidden;
+        }
+
+   
+
+
+
+
+
+
+        .product-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin: 20px;
+        }
+
+        .product-images {
+            width: 40%;
+        }
+
+        .product-images img {
+            width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            transition: border 0.3s ease-in-out;
+        }
+
+        .product-images img:hover {
+            border-color: #3498db;
+        }
+
+        .product-details {
+            width: 55%;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .image-gallery {
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #ccc transparent;
+            margin-bottom: 10px;
+        }
+
+        .image-gallery img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            cursor: pointer;
+            margin-right: 5px;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            transition: border 0.3s ease-in-out;
+        }
+
+        .image-gallery img:hover {
+            border-color: #3498db;
+        }
+
+        .product-details {
+            padding: 20px;
+            text-align: left;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .category-options {
+            display: none;
+        }
+
+        .search-bar {
+            background-color: #3b5d50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 35px;
+            margin: 0;
+            border: 2px solid #efeeee;
+            border-radius: 30px;
+            overflow: hidden;
+        }
+
+        .search-input {
+            border: none;
+            padding: 10px;
+            width: 800px;
+            background-color: #3b5d50;
+            color: white;
+        }
+
+        .search-button {
+            background-color: #3d5d50;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-top-right-radius: 20px;
+            border-bottom-right-radius: 20px;
+            cursor: pointer;
+        }
+
+        .price {
+            font-size: 1.5rem;
+            color: #e44d26;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .description {
+            line-height: 1.5;
+        }
+
+        .fa-star {
+            color: #f39c12;
+        }
+
+        nav {
+            background-color: white;
+            padding: 10px;
+            color: white;
+            text-align: center;
+        }
+
+        .det {
+            padding-top: 2cm;
+        }
+
+        footer {
+            padding: 10px;
+            color: white;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .fulldiv {
+            width: 100vw;
+        }
+
+        .product-image {
+            width: 500px;
+        }
+
+        .similar-products-section {
+    padding: 20px;
+}
+
+.product-item {
+    text-decoration: none;
+    color: #333;
+}
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.3s;
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-img-top {
+    border-bottom: 1px solid #ddd;
+}
+
+.card-body {
+    padding: 10px;
+    text-align: center;
+}
+
+.product-title {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+.product-price {
+    font-size: 1rem;
+    color: #e44d26;
+    margin-bottom: 0;
+}
+
+.tns-controls button {
+    background-color: black;
+    color: white; 
+    margin: 8px -85px 27px 162px;
+    padding: 5px 10px;
+    border: none; 
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+
+.tns-controls button:hover {
+    color: black;
+    background-color: white; 
+}
+
+    </style>
+</head>
+
+<body>
+
+    <nav >
+
+        <%- include("./partials/header.ejs") %>
+
+    </nav>
+    <div>
+    <div class="fulldiv my-5 d-flex justify-content-center">
+        <div class="product-container">
+            <div class="product-images">
+                
+                <div id="product-slider" class="tns-slider">
+                    <% product.images.forEach((image, index) => { %>
+                        <a href="/<%= image %>"  class="MagicZoom" id="Mag">
+                        <img src="/<%= image %>" alt="<%= product.name %> Image"  class="img-fluid" style=" height: 600px;" />
+                    <% }); %>
+                </div>
+            </div>
+
+            <!-- Product Details Section -->
+            <div class="product-details-section">
+                <h1><%= product.name %></h1>
+               
+
+                <div class="description">
+                    <p><strong>Description:</strong> <%= product.description %></p>
+                    <p><strong class="text-dark">Display Type:</strong> <span class="text-success"><%= product.displaytype %></span></p>
+                   <p> <strong class="text-dark">Strap Type:</strong> <span class="text-success"><%= product.straptype %></span></p>
+                    <p><strong class="text-dark">Powersource:</strong> <span class="text-success"><%= product.powersource %> </span></p>
+                    <p><strong class="text-dark">Strap material:</strong> <span class="text-success"><%= product.strapmaterial %> </span></p>
+                    <p><strong class="text-dark">Strap Color:</strong><span class="text-success"> <%= product.strapcolor %> </span></p>
+                    <p><strong class="text-dark">Dial color:</strong> <span class="text-success"><%= product.dialcolor %> </span></p>
+                    <p><strong class="text-dark">Features:</strong> <span class="text-success"><%= product.feature %> </span></p>
+                </div>
+                <br>
+
+<!-- Specifications Section -->
+<!-- <div class="specifications">
+    
+    <ul>
+        
+            <li> </li>
+<br>
+            
+            <br>
+
+            <li></li>
+  <br>
+            <li></li>
+            <br>
+            <li></li>
+            <br>
+            <li></li>
+            <br>
+
+            <li></li>
+
+        
+    </ul>
+</div> -->
+
+<div class="price" >
+    <p style="font-size: 30px;">
+        <br>
+        <strong>MRP:</strong>
+        <strike style="color: red;"><%= product.mrp %></strike>
+    </p>
+    <p style="font-size:30px ;"><strong>Price:</strong> <%= product.price %></p>
+</div>
+<br>
+
+                <div class="buttons-row">
+                    <% if (product.stock > 0) { %>
+                        <a href="/addtocart/<%= product._id %>"><button class="btn btn-primary">
+                                <span class="fas fa-shopping-cart"></span> Add to Cart
+                            </button></a>
+                    <% } else { %>
+                        <button class="btn btn-danger" disabled>
+                            Out of Stock
+                        </button>
+                    <% } %>
+                    <a href="/addtofavourites/<%=product._id%>"><button class="btn btn-secondary">
+                            <span class="fas fa-heart"></span> Add to Wishlist
+                        </button></a>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    
+      
+      
+
+    <!-- Similar Products Section -->
+    <% if (locals.similar && locals.similar.length > 0) { %>
+        <div class="similar-products-section ml-3 mt-5">
+            <h1 style="text-align: center; margin-bottom: 30px;">Similar Products</h1>
+            <div class="row similar-products-container">
+                <% locals.similar.forEach(product => { %>
+                    <div class="col-12 col-md-4 col-lg-3 mb-4 product-item">
+                        <a class="product-item" href="/singleproduct/<%= product._id %>" data-types="<%= product.type %>">
+                            <div class="card">
+                                <img src="/<%= product.images[0] %>" class="card-img-top img-fluid product-thumbnail" alt="<%= product.name %>" style="height: 200px; object-fit: cover;">
+                                <div class="card-body">
+                                    <h3 class="card-title product-title"><%= product.name %></h3>
+                                    <p class="card-text product-price">₹<%= product.price.toFixed(2) %></p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+    <% } %>
+    
+    </div>
+    
+
+
+    
+
+    <footer>
+        <!-- Start Footer Section -->
+        <footer class="footer-section">
+            <div class="container relative">
+
+                <!-- <div class="sofa-img">
+                    <img src="/img/gallery/1.png" alt="Image" class="img-fluid">
+                </div> -->
+
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="subscription-form">
+                            <h3 class="d-flex align-items-center"><span class="me-1"><img
+                                        src="/img/gallery/" alt="Image" class="img-fluid"></span><span>Subscribe
+                                    to Newsletter</span></h3>
+
+                            <form action="#" class="row g-3">
+                                <div class="col-auto">
+                                    <input type="text" class="form-control" placeholder="Enter your name">
+                                </div>
+                                <div class="col-auto">
+                                    <input type="email" class="form-control" placeholder="Enter your email">
+                                </div>
+                                <div class="col-auto">
+                                    <button class="btn btn-primary">
+                                        <span class="fa fa-paper-plane"></span>
+                                    </button>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-5 mb-5">
+                    <div class="col-lg-4">
+                        <div class="mb-4 footer-logo-wrap"><a href="#" class="footer-logo">Furnify<span>.</span></a></div>
+                        <p class="mb-4">Donec facilisis quam ut purus rutrum lobortis. Donec vitae odio quis nisl dapibus
+                            malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor
+                            tristique. Pellentesque habitant</p>
+
+                        <ul class="list-unstyled custom-social">
+                            <li><a href="#"><span class="fa fa-brands fa-facebook-f"></span></a></li>
+                            <li><a href="#"><span class="fa fa-brands fa-twitter"></span></a></li>
+                            <li><a href="#"><span class="fa fa-brands fa-instagram"></span></a></li>
+                            <li><a href="#"><span class="fa fa-brands fa-linkedin"></span></a></li>
+                        </ul>
+                    </div>
+
+                    <div class="col-lg-8">
+                        <div class="row links-wrap">
+                            <div class="col-6 col-sm-6 col-md-3">
+                                <ul class="list-unstyled">
+                                    <li><a href="#">About us</a></li>
+                                    <li><a href="#">Services</a></li>
+                                    <li><a href="#">Blog</a></li>
+                                    <li><a href="#">Contact us</a></li>
+                                </ul>
+                            </div>
+
+                            <div class="col-6 col-sm-6 col-md-3">
+                                <ul class="list-unstyled">
+                                    <li><a href="#">Support</a></li>
+                                    <li><a href="#">Knowledge base</a></li>
+                                    <li><a href="#">Live chat</a></li>
+                                </ul>
+                            </div>
+
+                            <div class="col-6 col-sm-6 col-md-3">
+                                <ul class="list-unstyled">
+                                    <li><a href="#">Jobs</a></li>
+                                    <li><a href="#">Our team</a></li>
+                                    <li><a href="#">Leadership</a></li>
+                                    <li><a href="#">Privacy Policy</a></li>
+                                </ul>
+                            </div>
+
+                            <div class="col-6 col-sm-6 col-md-3">
+                                <ul class="list-unstyled">
+                                    <li><a href="#">Nordic Chair</a></li>
+                                    <li><a href="#">Kruzo Aero</a></li>
+                                    <li><a href="#">Ergonomic Chair</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="border-top copyright">
+                    <div class="row pt-4">
+                        <div class="col-lg-6">
+                            <p class="mb-2 text-center text-lg-start">Copyright &copy;<script>document.write(new
+                                    Date().getFullYear());</script>. All Rights Reserved. &mdash; Designed with love by <a
+                                    href="https://untree.co">Untree.co</a> Distributed By <a
+                                    href="https://themewagon.com">ThemeWagon</a> <!-- License information:
+                                    https://untree.co/license/ --> </p>
+                        </div>
+
+                        <div class="col-lg-6 text-center text-lg-end">
+                            <ul class="list-unstyled d-inline-flex ms-auto">
+                                <li class="me-4"><a href="#">Terms &amp; Conditions</a></li>
+                                <li><a href="#">Privacy Policy</a></li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </footer>
+        <!-- End Footer Section -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/tiny-slider.js"></script>
+    <script src="https://cdn.rawgit.com/elevateweb/elevatezoom/master/src/jquery.elevatezoom.js"></script>
+    
+    <script src="/js/custom.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.3/min/tiny-slider.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var slider = tns({
+                container: '#product-slider',
+                items: 1,
+                slideBy: 'page',
+                autoplay: false,
+                controls: true,
+                nav: false,
+             
+            });
+        });
+
+
+       
+    </script>
+    
+
+    
+       
+</body>
+
+</html>

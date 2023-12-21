@@ -11,7 +11,7 @@ adrouter.get('/', adminController.login)
 
 adrouter.post('/adminlogin', adminController.adminloginpost)
 
-adrouter.get('/adminpanel',adminlogout, adminController.adminpanel)
+adrouter.get('/adminpanel', adminController.adminpanel)
 
 adrouter.get('/userslist', adminController.userslist)
 
@@ -55,7 +55,7 @@ adrouter.post('/updateimg/:id', uploads.array('images'),adminController.newimg)
 
 adrouter.get('/deletepro/:id', adminController.deletepro)
 
-adrouter.get('/adminlogout',adminlogout, adminController.adlogout)
+adrouter.get('/adminlogout', adminController.adlogout)
 
 
 module.exports= adrouter
