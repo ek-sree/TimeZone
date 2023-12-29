@@ -38,8 +38,8 @@
          
             <div class="container form-container">
                 <h1 class="mb-4">Update product</h1>
-        
-                <form action="/admin/updateproduct/<%= product._id %>" method="post">
+  
+                  <form action="/admin/updateproduct/<%= product._id %>" method="post">
                     <div class="mb-3">
                         <label for="categoryName" class="form-label">Product Name:</label>
                         <input type="text" class="form-control" id="categoryName" name="productName" value="<%= product.name %>" required>
@@ -48,11 +48,17 @@
                     <div class="mb-3">
                       <label for="categoryName" class="form-label">MRP:</label>
                       <input type="number" class="form-control" id="mrp" name="mrp" value="<%= product.mrp %>" required>
+                      <% if(locals.priceerror){%>
+                        <div class="alter text-danger text-start"><%= priceerror%></div>
+                    <%}%>
                   </div>
 
                     <div class="mb-3">
                         <label for="categoryName" class="form-label">Price:</label>
                         <input type="number" class="form-control" id="categoryName" name="productprice" value="<%= product.price %>" required>
+                        <% if (locals.priceerror) { %>
+                          <p class="error-message"><%= priceerror %></p>
+                        <% } %>
                     </div>
                     <div class="mb-3 d-flex">
                         <label for="categoryName" class="form-label">Product stock:</label>
@@ -102,16 +108,18 @@
           <input type="text" class="form-control" id="categoryName" name="feature" value="<%= product.feature %>" required>
       </div>
 
-                    <div class="mb-3">
-                      <label for="description" class="form-label">Images:</label>
-                     <% product.images.forEach(item=>{ %>
-                        <img style=" width: 100px;height: 100px;"src="/<%= item %>">
-                        
-                        <!-- <a href="/admin/deleteimg?pid=<%= product._id %>&filename=<%= item %>" class="btn btn-danger btn-xs">Delete</a> -->
-                     <% }) %>
-                      
-                    </div>
-                    <a href="/admin/editimg/<%= product._id %>" class="btn btn-danger btn-xs">Edit Images</a>
+      <div class="mb-3">
+        <label for="description" class="form-label">Images:</label>
+        <% if (product.images && product.images.length > 0) { %>
+          <% product.images.forEach(item => { %>
+            <img style="width: 100px; height: 100px;" src="/<%= item %>">
+            <!-- Add any additional logic or buttons related to images here -->
+          <% }) %>
+        <% } else { %>
+          <p>No images available</p>
+        <% } %>
+      </div>
+      <a href="/admin/editimg/<%= product._id %>" class="btn btn-danger btn-xs">Edit Images</a>
                     <button type="submit" class="btn btn-primary">Update</button>
                   </form>
             </div>

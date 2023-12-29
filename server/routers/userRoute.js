@@ -4,6 +4,9 @@ const collectionController = require('../controller/collectionController')
 const productController = require('../controller/productController')
 const bodyParser = require('body-parser')
 const auth = require('../../middleware/isAuth')
+const cartcontroller = require("../controller/cartController")
+const checkoutcontroller = require('../controller/checkoutController')
+const userModels = require('../model/userModels')
 
 
 
@@ -38,6 +41,26 @@ usrouter.post('/newpasswordpost',usercontroller.newpasswordpost)
 
 usrouter.get('/profile', usercontroller.profile)
 
+usrouter.get("/userdetails", usercontroller.userdetails)
+
+usrouter.get("/newAddress", usercontroller.newAddress)
+
+usrouter.post("/addressUpdating", usercontroller.newAddresspost)
+
+usrouter.get("/editprofile", usercontroller.editprofile)
+
+usrouter.post('/updateprofile', usercontroller.editprofilepost)
+
+usrouter.get('/changepass', usercontroller.changepass)
+
+usrouter.post("/changepasspost", usercontroller.changepasspost)
+
+usrouter.get('/editaddress/:addressId', usercontroller.editAddress)
+
+usrouter.post("/updateaddress/:addressId", usercontroller.editAddresspost)
+
+usrouter.get("/deleteaddress/:addressId", usercontroller.deleteAddress)
+
 usrouter.get('/logout',auth.islogged, usercontroller.logout)
 
 
@@ -55,5 +78,13 @@ usrouter.get('/singleproduct/:id', productController.singleproduct)
 
 // ...
 
+
+usrouter.get("/cart",cartcontroller.cartView)
+
+
+usrouter.get("/favourites",cartcontroller.favouritesView)
+
+
+usrouter.get('/checkout', checkoutcontroller.checkOutView)
 
 module.exports = usrouter

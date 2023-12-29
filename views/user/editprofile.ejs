@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="author" content="Untree.co">
+  <link rel="shortcut icon" href="favicon.png">
+  <meta name="description" content="" />
+  <meta name="keywords" content="bootstrap, bootstrap4" />
+
+  <!-- Bootstrap CSS -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="css/tiny-slider.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <title>Edit Profile - TimeZone</title>
+
+  <style>
+    /* Your existing styles */
+
+    /* Additional styles for the edit profile page */
+    .edit-profile-form {
+      max-width: 800px;
+      margin: auto;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      font-weight: bold;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .form-group .btn-primary {
+      background-color: #3b5d50;
+      color: white;
+    }
+
+    .readonly-field {
+      background-color: #f0f0f0; /* Use a dim color for readonly fields */
+      color: #555; /* Adjust text color for better visibility */
+      cursor: not-allowed;
+    }
+
+    .category-options {
+      display: none;
+    }
+    .search-bar {
+      background-color: #3b5d50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 35px;
+      margin: 0;
+      display: flex;
+      border: 2px solid #efeeee;
+      border-radius: 30px;
+      overflow: hidden;
+    }
+
+    .search-input {
+      border: none;
+      padding: 10px;
+      background-color: #3b5d50;
+      color: white;
+    }
+	@media (min-width: 1200px) {
+  /* Set the width to 110vh for devices with a minimum width of 1200px */
+  .search-input {
+    width: 110vh;
+  }
+}
+
+    .search-button {
+      background-color: #3d5d50;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-top-right-radius: 20px;
+      border-bottom-right-radius: 20px;
+      cursor: pointer;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Your existing navigation code -->
+  <%-include('partials/header')%>
+
+  <!-- Edit Profile Form -->
+  <div class="suso container mt-4">
+    <div class="edit-profile-form">
+      <h2>Edit Your Profile</h2>
+
+      <form action="/updateprofile" method="post">
+        <!-- Personal details -->
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" value="<%= userData.email %>"readonly class="readonly-field">
+        </div>
+
+        <div class="form-group">
+          <label for="firstName">Name:</label>
+          <input type="text" id="firstName" name="name" value="<%= userData.name %>">
+        </div>
+
+        <div class="form-group">
+          <label for="mob">Phone Number</label>
+          <input type="text" id="mob" name="phone" value="<%=userData.phonenumber%>">
+        </div>
+
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <%-include('partials/footer')%>
+
+  <!-- Your existing scripts -->
+
+</body>
+
+</html>

@@ -23,6 +23,37 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+    address:{
+        types:[{
+            saveas:{
+                type:String
+            },
+            fullname:{
+                type:String
+            },
+            adname:{
+                type:String
+            },
+            street:{
+                type:String
+            },
+            pincode:{
+                type:Number
+            },
+            city:{
+                type:String
+            },
+            state:{
+                type:String
+            },
+            country:{
+                type:String
+            },
+            mobilenumber:{
+                type:Number
+            }
+        }]
+    },
     status:{
         type:Boolean,
         default:true,
@@ -31,9 +62,12 @@ const userSchema = new mongoose.Schema({
 
     isAdmin:{
         type:Boolean,
-        default:false
-        
-    }
+        default:false   
+    },
+
+    usedCoupons:[{
+        type:String
+    }]
    
 })
 

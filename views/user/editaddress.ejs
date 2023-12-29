@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="author" content="Untree.co">
+  <link rel="shortcut icon" href="favicon.png">
+  <meta name="description" content="" />
+  <meta name="keywords" content="bootstrap, bootstrap4" />
+
+  <!-- Bootstrap CSS -->
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="/css/tiny-slider.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+  
+  <title>Edit Address-Timezone</title>
+
+  <style>
+
+.select-line {
+    background-color: #ff0000;
+}
+
+/* Media query for small screens (e.g., mobile devices) */
+@media (max-width: 767px) {
+    .select-line {
+        height: 8vw; /* Set the height for small screens */
+		align-items: start;
+		margin-top: 0.1px;
+    }
+}
+
+/* Media query for medium screens (e.g., tablets) */
+@media (min-width: 768px) and (max-width: 991px) {
+    .select-line {
+        height: 6vw; /* Set the height for medium screens */
+    }
+}
+
+/* Media query for large screens (e.g., desktops) */
+@media (min-width: 992px) {
+    .select-line {
+        height: 4vw; /* Set the height for large screens */
+    }
+}
+
+
+ 
+    .edit-profile-form {
+      max-width: 800px;
+      margin: auto;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      font-weight: bold;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .form-group .btn-primary {
+      background-color: #ff0000;
+      color: white;
+    }
+
+    .readonly-field {
+      background-color: #f0f0f0; /* Use a dim color for readonly fields */
+      color: #555; /* Adjust text color for better visibility */
+      cursor: not-allowed;
+    }
+
+    .category-options {
+      display: none;
+    }
+    .search-bar {
+      background-color: #dc0000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 35px;
+      margin: 0;
+      display: flex;
+      border: 2px solid #efeeee;
+      border-radius: 30px;
+      overflow: hidden;
+    }
+
+    .search-input {
+      border: none;
+      padding: 10px;
+      background-color: #fb1717;
+      color: white;
+    }
+	@media (min-width: 1200px) {
+  /* Set the width to 110vh for devices with a minimum width of 1200px */
+  .search-input {
+    width: 110vh;
+  }
+}
+
+    .search-button {
+      background-color: #ff0000;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-top-right-radius: 20px;
+      border-bottom-right-radius: 20px;
+      cursor: pointer;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Your existing navigation code -->
+  <%-include('partials/Header')%>
+
+  <!-- Edit Profile Form -->
+<!-- Edit Profile Form -->
+<div class="suso container mt-4">
+    <div class="edit-profile-form">
+      <h2>Edit Your <%= addressToEdit.saveas %> Address</h2>
+  
+      <form action="/updateaddress/<%= addressToEdit._id %>" method="post" class="row">
+        <!-- Personal details -->
+
+        <div class="form-group col-md-6">
+            <label for="saveas">Save as</label>
+            <input type="text" id="saveas" name="saveas" value="<%= addressToEdit.saveas %>" class="form-control">
+            <% if(locals.saveaserror){%>
+              <div class="alter text-danger text-start"><%= saveaserror%></div>
+          <%}%>
+          </div>
+        <div class="form-group col-md-6">
+          <label for="fullname">Full Name</label>
+          <input type="text" id="fullname" name="fullname"value="<%= addressToEdit.fullname %>" class="form-control">
+          <% if(locals.fullnameerror){%>
+            <div class="alter text-danger text-start"><%= fullnameerror%></div>
+        <%}%>
+        </div>
+  
+        <div class="form-group col-md-6">
+          <label for="adname">House Name / Flat No</label>
+          <input type="text" id="adname" name="adname" value="<%= addressToEdit.adname %>" class="form-control">
+          <% if(locals.adnameerror){%>
+            <div class="alter text-danger text-start"><%= adnameerror%></div>
+        <%}%>
+        </div>
+  
+        <div class="form-group col-md-6">
+          <label for="street">Street</label>
+          <input type="text" id="street" name="street"value="<%= addressToEdit.street %>" class="form-control">
+          <% if(locals.streeterror){%>
+            <div class="alter text-danger text-start"><%= streeterror%></div>
+        <%}%>
+        </div>
+  
+        <div class="form-group col-md-6">
+          <label for="pincode">Pincode</label>
+          <input type="number" id="pincode" name="pincode" value="<%= addressToEdit.pincode %>"class="form-control">
+          <% if(locals.pinerror){%>
+            <div class="alter text-danger text-start"><%= pinerror%></div>
+        <%}%>
+        </div>
+  
+        <div class="form-group col-md-6">
+          <label for="city">City</label>
+          <input type="text" id="city" name="city" value="<%= addressToEdit.city %>"class="form-control">
+          <% if(locals.cityerror){%>
+            <div class="alter text-danger text-start"><%= cityerror%></div>
+        <%}%>
+        </div>
+  
+        <div class="form-group col-md-6">
+          <label for="state">State</label>
+          <select id="state" name="state" class="form-control" required>
+            <option value="" disabled selected>Select a state</option>
+            <option value="Kerala">Kerala</option>
+            <option value="Karnataka">Karnataka</option>
+            <option value="TamilNadu">Tamil Nadu</option>
+          </select>
+          <% if(locals.stateerror){%>
+            <div class="alter text-danger text-start"><%= stateerror%></div>
+        <%}%>
+          </div>
+      
+          <div class="form-group col-md-6">
+          <label for="country">Country</label>
+          <select id="country" name="country" class="form-control" required>
+            <option value="India">India</option>
+          </select>
+          <% if(locals.countryerror){%>
+            <div class="alter text-danger text-start"><%= countryerror%></div>
+        <%}%>
+          </div>
+  
+        <div class="form-group col-md-6">
+          <label for="phone">Phone Number</label>
+          <input type="number" id="phone" name="phone" value="<%= addressToEdit.mobilenumber %>" class="form-control">
+          <% if(locals.phoneerror){%>
+            <div class="alter text-danger text-start"><%= phoneerror%></div>
+        <%}%>
+        </div>
+  
+        <div class="form-group col-12">
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+ <%-include('partials/footer')%>
+
+  <!-- Your existing scripts -->
+
+</body>
+
+</html>

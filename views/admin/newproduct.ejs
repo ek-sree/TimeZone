@@ -54,14 +54,14 @@
 
                     <div class="mb-3">
                       <label for="parentCategory" class="form-label">Category:</label>
-                      <select class="form-select" id="Category" name="category"   required>
+                      <select class="form-select" id="Category" name="category" required>
                         <option value="" disabled selected>Select Category</option>
                         <% category.forEach(category => { %>
                           <option value="<%= category._id %>"><%= category.name %></option>
-                      <% }); %>
-                    </select>
+                        <% }); %>
+                      </select>
+                    </div>
                     
-                  </div>
                  
                   <!-- <div class="mb-3">
                       <label for="subCategory" class="form-label">Sub Category:</label>

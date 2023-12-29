@@ -69,7 +69,7 @@
                         <th>E-Mail</th>
                         <th>Phone No</th>
                         <th>Blocked</th>
-                        <th>Password</th>
+                       
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -82,16 +82,13 @@
                         <td><%= data.phonenumber %></td>
                         <td><%= data.status %></td>
                        
-                        <td>********</td>  <!--  password hashed -->
+                        
                         <td>
                           <a href="/admin/update/<%= data.email%>">
                             <button class="btn btn-primary btn-sm" id="blockORunblock">
-                                <%= data.status ? 'Unblock' : 'Block' %>
+                                <%= data.status ? 'Block' : 'Unblocked' %>
                             </button>
                         </a>
-                          <!-- <a href="/admin/update/<%= data.email%>"><button class="btn btn-primary btn-sm" id="blockORunblock">Block</button></a> -->
-                            <!-- <a href="/admin/update/<%= data.email%>" class="btn btn-primary btn-sm">Update</a>
-                            <a href="/admin/delete/<%= data.email%>" class="btn btn-danger btn-sm">Delete</a> -->
                         </td>
                     </tr>
                     <% }); %>

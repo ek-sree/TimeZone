@@ -2,7 +2,7 @@ const express = require('express')
 const multer =require('multer')
 const uploads = multer({dest:'uploads'})
 const adminController = require('../controller/adminController')
-const { adminlogout } = require('../../middleware/isAuth')
+const adauth= require('../../middleware/isAuth')
 
 
 const adrouter = express.Router()
@@ -11,15 +11,15 @@ adrouter.get('/', adminController.login)
 
 adrouter.post('/adminlogin', adminController.adminloginpost)
 
-adrouter.get('/adminpanel', adminController.adminpanel)
+adrouter.get('/adminpanel',adauth.adminlogout, adminController.adminpanel)
 
-adrouter.get('/userslist', adminController.userslist)
+adrouter.get('/userslist',adauth.adminlogout, adminController.userslist)
 
-adrouter.get('/product', adminController.product)
+adrouter.get('/product',adauth.adminlogout, adminController.product)
 
-adrouter.get('/Category', adminController.categories)
+adrouter.get('/Category',adauth.adminlogout, adminController.categories)
 
-adrouter.get('/newproduct', adminController.newproduct)
+adrouter.get('/newproduct',adauth.adminlogout, adminController.newproduct)
 
 adrouter.get('/update/:email',adminController.userupdate)
 
@@ -55,7 +55,11 @@ adrouter.post('/updateimg/:id', uploads.array('images'),adminController.newimg)
 
 adrouter.get('/deletepro/:id', adminController.deletepro)
 
-adrouter.get('/adminlogout', adminController.adlogout)
+adrouter.get('/resizeimg/:id', adminController.resizeimg)
+
+adrouter.get('/orderpage',adminController.orderPage)
+
+adrouter.get('/adminlogout',adauth.adminlogout, adminController.adlogout)
 
 
 module.exports= adrouter

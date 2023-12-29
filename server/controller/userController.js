@@ -5,14 +5,16 @@ const bcrypt = require('bcrypt')
 const {Email,pass} = require('../../.env')
 const nodemailer = require('nodemailer')
 const {nameValid,emailValid,phoneValid,passwordValid,confirmPasswordValid}=require("../../utils/validators/signupValidators")
-
+const {  bnameValid, adphoneValid, pincodeValid}= require("../../utils/validators/addressValidator")
+const productModel = require("../model/productModels")
 
 
 //    <<<<<<<<<---------- RENDERING HOMEPAGE ---------->>>>>>>>>>
 const home=async(req,res)=>{
     try {
         req.session.loginpressed=true
-    res.render('user/index')
+        const products = await productModel.find()
+    res.render('user/index',{products})
     } catch (error) {
       console.log(error);
       res.status(400).send('error page not found')  
@@ -117,15 +119,7 @@ const signuppost = async(req,res)=>{
             req.session.forgot=false
             
             
-           
-
-            // req.session.user={
-            //     username:username,
-            //     email:email,
-            //     phonenumber:phone,
-            //     password:hashedpassword,
-            //     name:username
-            // }
+        
             
 console.log("reached here");
             const otp = generateotp()
@@ -333,7 +327,6 @@ const forgot = (req,res)=>{
     try {
         req.session.otppressed=false
         const password = req.body.password
-        // const conformPass = req.body.conform-password
         const conformPass = req.body['conform-password'];
 
         const ispasswordValid = passwordValid(password)
@@ -365,7 +358,7 @@ const forgot = (req,res)=>{
         const user = await userModels.findOne({_id:userId})
     const name = user.name
     console.log("username:",name);
-    res.render('user/profile',{name})
+    res.render('user/profile',{name, userId })
         }
         else{
             req.session.signuppressed=true
@@ -376,6 +369,322 @@ const forgot = (req,res)=>{
         
     }
  }
+
+
+ const userdetails = async(req,res)=>{
+    try {
+        const userId = req.session.userId
+        console.log("is it comming ",userId);
+        const data = await userModels.findOne({_id:userId})
+        console.log("is it comming data",data);
+        res.render('user/userdetails',{userData:data})
+    } catch (error) {
+        console.log("error showing user details");
+        res.status(400).send("error showing userdetails")
+    }
+ }
+
+
+ const newAddress = async(req,res)=>{
+    res.render("user/newAddress")
+ }
+
+
+const newAddresspost = async(req,res)=>{
+    try {
+
+        console.log("is post address working");
+        const {saveas,fullname,adname,street,pincode,city,state,country,phone} = req.body
+        console.log("gettig in body");
+        const userId = req.session.userId
+        console.log("body id",userId);
+        const userExisted = await userModels.findOne({_id:userId})
+        console.log("bhhhhhhhhhhhhhhhhhhh",userExisted);
+        const fullnamevalid=bnameValid(fullname)
+        const saveasvalid=bnameValid(saveas)
+        const adnameValid=bnameValid(adname)
+        const streetValid=bnameValid(street)
+        const pinvalid=pincodeValid(pincode)
+        const cityValid=bnameValid(city)
+        const stateValid=bnameValid(state)
+        const countryValid=bnameValid(country)
+        const phoneValid=adphoneValid(phone)
+        console.log("assiing validation");
+        if (!saveasvalid) {
+            return res.render("user/newAddress", { saveaserror: "Enter valid address type" });
+        }
+        if (!fullnamevalid) {
+            return res.render("user/newAddress", { fullnameerror: "Enter a valid fullname" });
+        }
+        if (!adnameValid) {
+            return res.render("user/newAddress", { adnameerror: "Enter a valid house or flat name" });
+        }
+        if (!streetValid) {
+            return res.render("user/newAddress", { streeterror: "Enter a valid street name" });
+        }
+        if (!pinvalid) {
+            return res.render("user/newAddress", { pinerror: "Enter a valid pincode" });
+        }
+        if (!cityValid) {
+            return res.render("user/newAddress", { cityerror: "Enter a valid city" });
+        }
+        if (!stateValid) {
+            return res.render("user/newAddress", { stateerror: "Enter a valid state" });
+        }
+        if (!countryValid) {
+            return res.render("user/newAddress", { countryerror: "Enter a valid country" });
+        }
+        if (!phoneValid) {
+            return res.render("user/newAddress", { phoneerror: "Enter a valid Phone number" });
+        }
+        console.log("validation of address completed");
+        if (userExisted) {
+            const addressExist = await userModels.findOne({
+                _id: userId,
+                "address.types": {
+                    $elemMatch: {
+                        saveas:saveas,
+                        fullname: fullname,
+                        adname: adname,
+                        street: street,
+                        pincode: pincode,
+                        city: city,
+                        state: state,
+                        country: country,
+                        mobilenumber: phone
+                    }
+                }
+            });
+            
+            if (addressExist) {
+                console.log("Address already exists");
+                res.redirect("/newAddress");
+            } else {
+                console.log("userexist",userExisted);
+                console.log("addressexist", addressExist);
+                console.log("Before pushing address:", userExisted.address);
+                console.log("Address does not exist, adding new address");
+                userExisted.address.types.push({
+                    saveas,
+                    fullname,
+                    adname,
+                    street,
+                    pincode,
+                    city,
+                    state,
+                    country,
+                    mobilenumber:phone
+                   
+                });
+    
+                const result = await userExisted.save();
+                console.log("Save result:", result);
+
+                console.log("Here is the updated address", userExisted);
+                res.redirect("/userdetails");
+            }
+        }
+    } catch (error) {
+        
+    }
+}
+
+
+const editprofile = async(req,res)=>{
+   try {
+    const userId = req.session.userId
+    const userData = await userModels.findOne({_id:userId})
+    res.render("user/editprofile",{userData})
+   } catch (error) {
+    console.log("error loading edit user details page");
+    res.status(400).send("error loading page")
+   }
+}
+
+const editprofilepost = async(req,res)=>{
+    try {
+        const {name,phone}= req.body
+        console.log("edit post value get",name,phone);
+        const userId = req.session.userId
+        console.log("user id get for edit details",userId);
+        await userModels.updateOne({_id:userId},{$set:{name:name, phonenumber:phone}})
+        res.redirect("/userdetails")
+    } catch (error) {
+        console.log("cant edit user details");
+        res.status(400).send("error editing user details")
+    }
+}
+
+
+const changepass = async(req,res)=>{
+    try {
+        res.render('user/changepass')
+    } catch (error) {
+        console.log("error rendering changepass page");
+        res.status(400).send("error rendering change password page")
+    }
+}
+
+
+const changepasspost = async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const currentpass = req.body.currentpass;
+        const password = req.body.password;
+        const cppassword = req.body.cppassword;
+
+        const userFound = await userModels.findOne({ _id: userId });
+        if (!userFound || !(await bcrypt.compare(currentpass, userFound.password))) {
+            return res.render("user/changepass", { currentpasserror: "Your current password is wrong" });
+        }
+        const ispasswordValid = passwordValid(password);
+        const isConformPassValid = confirmPasswordValid(cppassword, password);
+
+        if (!ispasswordValid) {
+            return res.render("user/changepass", { passworderror: "Password should contain one uppercase, one lowercase, one number, one special character" });
+        } else if (!isConformPassValid) {
+            return res.render("user/changepass", { cpassworderror: "Password and Confirm password should match" });
+        }
+        const hashedpassword = await bcrypt.hash(password, 10);
+        await userModels.updateOne({ _id: userId }, { password: hashedpassword });
+
+        res.redirect("/userdetails");
+    } catch (error) {
+        console.log("Error changing password:", error);
+        res.status(500).send("Internal Server Error");
+    }
+};
+
+const editAddress = async(req,res)=>{
+    try {
+        const userId = req.session.userId
+        console.log("edit address",userId);
+        const addressId = req.params.addressId
+        console.log("edit address id",addressId);
+        const user = await userModels.findOne({_id:userId})
+        console.log('hhhhhhhhhhhhh');
+        const addressToEdit = user.address.types.id(addressId);
+console.log("thiisss",addressToEdit);
+        res.render("user/editaddress.ejs",{addressToEdit:addressToEdit})
+    } catch (error) {
+        
+    }
+}
+
+const editAddresspost = async(req,res)=>{
+    try {
+        console.log("is post address working");
+        const {saveas,fullname,adname,street,pincode,city,state,country,phone} = req.body
+        console.log("gettig in body");
+        const userId = req.session.userId
+        console.log("body id",userId);
+        const addressId = req.params.addressId
+
+        const isAddressExist = await userModels.findOne({'_id':userId,
+    
+        "address.types": {
+            $elemMatch: {
+                "_id":{ $ne: addressId},
+                saveas:saveas,
+                fullname: fullname,
+                adname: adname,
+                street: street,
+                pincode: pincode,
+                city: city,
+                state: state,
+                country: country,
+                mobilenumber: phone
+            }
+        } })
+
+        const userExisted = await userModels.findOne({_id:userId})
+        console.log("bhhhhhhhhhhhhhhhhhhh",userExisted);
+        const fullnamevalid=bnameValid(fullname)
+        const saveasvalid=bnameValid(saveas)
+        const adnameValid=bnameValid(adname)
+        const streetValid=bnameValid(street)
+        const pinvalid=pincodeValid(pincode)
+        const cityValid=bnameValid(city)
+        const stateValid=bnameValid(state)
+        const countryValid=bnameValid(country)
+        const phoneValid=adphoneValid(phone)
+        console.log("assiing validation");
+        if (!saveasvalid) {
+            return res.redirect(`/editaddress/${addressId}`, { saveaserror: "Enter valid address type" });
+        }
+        if (!fullnamevalid) {
+            return res.redirect(`/editaddress/${addressId}`, { fullnameerror: "Enter a valid fullname" });
+        }
+        if (!adnameValid) {
+            return res.redirect(`/editaddress/${addressId}`, { adnameerror: "Enter a valid house or flat name" });
+        }
+        if (!streetValid) {
+            return res.redirect(`/editaddress/${addressId}`, { streeterror: "Enter a valid street name" });
+        }
+        if (!pinvalid) {
+            return res.redirect(`/editaddress/${addressId}`, { pinerror: "Enter a valid pincode" });
+        }
+        if (!cityValid) {
+            return res.redirect(`/editaddress/${addressId}`, { cityerror: "Enter a valid city" });
+        }
+        if (!stateValid) {
+            return res.redirect(`/editaddress/${addressId}`, { stateerror: "Enter a valid state" });
+        }
+        if (!countryValid) {
+            return res.redirect(`/editaddress/${addressId}`, { countryerror: "Enter a valid country" });
+        }
+        if (!phoneValid) {
+            return res.redirect(`/editaddress/${addressId}`, { phoneerror: "Enter a valid Phone number" });
+        }
+        console.log("validation of edit address completed");
+
+        if (isAddressExist) {
+            console.log("not edited");
+            return res.redirect('/userdetails')
+            
+        }
+
+        await userModels.updateOne(
+            { '_id': userId },
+            {
+                $set: {
+                    'address.types.$[elem].saveas': saveas,
+                    'address.types.$[elem].fullname': fullname,
+                    'address.types.$[elem].adname': adname,
+                    'address.types.$[elem].street': street,
+                    'address.types.$[elem].pincode': pincode,
+                    'address.types.$[elem].city': city,
+                    'address.types.$[elem].state': state,
+                    'address.types.$[elem].country': country,
+                    'address.types.$[elem].mobilenumber': phone,
+                }
+            },
+            { arrayFilters: [{ 'elem._id': addressId }] }
+        );
+        
+            res.redirect('/userdetails')
+            console.log("address edited");
+    } catch (error) {
+        console.log("update address error");
+        res.status(400).send("cant edit address error!")
+    }
+}
+
+const deleteAddress = async(req,res)=>{
+    try {
+        const userId = req.session.userId
+        const addressId = req.params.addressId
+        console.log("address id for delete",addressId);
+        await userModels.updateOne(
+            { _id: userId, 'address.types._id': addressId },
+            { $pull: { 'address.types': { _id: addressId } } }
+          );
+        res.redirect("/userdetails")
+    } catch (error) {
+        console.log("delete address is not working");
+        res.status(400).send("delete address is not wooking")
+    }
+}
 
  const logout = async(req,res)=>{
     try {
@@ -390,5 +699,6 @@ const forgot = (req,res)=>{
  }
 
 
-
-module.exports = { home, signup, signuppost, generateotp, otp, verifyotp, resendotp ,login ,loginaction ,forgot ,forgotpasspost ,newpassword ,newpasswordpost ,profile ,logout};
+module.exports = { home, signup, signuppost, generateotp, otp, verifyotp, resendotp ,login ,loginaction ,forgot ,forgotpasspost ,
+    newpassword ,newpasswordpost ,profile, userdetails ,logout, newAddress, newAddresspost, editprofile, editprofilepost, changepass,
+     changepasspost, deleteAddress, editAddress, editAddresspost};

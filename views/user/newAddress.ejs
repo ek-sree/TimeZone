@@ -1,0 +1,215 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="author" content="Untree.co">
+  <link rel="shortcut icon" href="favicon.png">
+  <meta name="description" content="" />
+  <meta name="keywords" content="bootstrap, bootstrap4" />
+
+  <!-- Bootstrap CSS -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="css/tiny-slider.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <title>Edit Profile - TimeZone</title>
+
+  <style>
+    /* Your existing styles */
+
+    /* Additional styles for the edit profile page */
+    .edit-profile-form {
+      max-width: 800px;
+      margin: auto;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      font-weight: bold;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .form-group .btn-primary {
+      background-color: #3b5d50;
+      color: white;
+    }
+
+    .readonly-field {
+      background-color: #f0f0f0; /* Use a dim color for readonly fields */
+      color: #555; /* Adjust text color for better visibility */
+      cursor: not-allowed;
+    }
+
+    .category-options {
+      display: none;
+    }
+    .search-bar {
+      background-color: #3b5d50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 35px;
+      margin: 0;
+      display: flex;
+      border: 2px solid #efeeee;
+      border-radius: 30px;
+      overflow: hidden;
+    }
+
+    .search-input {
+      border: none;
+      padding: 10px;
+      width: 800px;
+      background-color: #3b5d50;
+      color: white;
+    }
+
+    .search-button {
+      background-color: #3d5d50;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-top-right-radius: 20px;
+      border-bottom-right-radius: 20px;
+      cursor: pointer;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Your existing navigation code -->
+  <%-include('partials/header')%>
+
+  <!-- Edit Profile Form -->
+<!-- Edit Profile Form -->
+<div class="suso container mt-4">
+    <div class="edit-profile-form">
+      <h2>Add New Address</h2>
+  
+      <form action='/addressUpdating' method="post" class="row">
+        <!-- Personal details -->
+
+        <div class="form-group col-md-6">
+            <label for="saveas">Save as</label>
+            <input type="text" id="saveas" name="saveas" class="form-control">
+         
+            <% if(locals.saveaserror){%>
+              <div class="alter text-danger text-start"><%= saveaserror%></div>
+          <%}%>
+
+
+          </div>
+        <div class="form-group col-md-6">
+          <label for="fullname">Full Name</label>
+          <input type="text" id="fullname" name="fullname" class="form-control">
+          <% if(locals.fullnameerror){%>
+            <div class="alter text-danger text-start"><%= fullnameerror%></div>
+        <%}%>
+
+
+        </div>
+  
+        <div class="form-group col-md-6">
+          <label for="adname">House Name / Flat No</label>
+          <input type="text" id="adname" name="adname" class="form-control">
+     
+
+          <% if(locals.adnameerror){%>
+            <div class="alter text-danger text-start"><%= adnameerror%></div>
+        <%}%>
+        </div>
+  
+        <div class="form-group col-md-6">
+          <label for="street">Street</label>
+          <input type="text" id="street" name="street" class="form-control">
+   
+
+          <% if(locals.streeterror){%>
+            <div class="alter text-danger text-start"><%= streeterror%></div>
+        <%}%>
+        </div>
+  
+        <div class="form-group col-md-6">
+          <label for="pincode">Pincode</label>
+          <input type="number" id="pincode" name="pincode" class="form-control">
+  
+          <% if(locals.pinerror){%>
+            <div class="alter text-danger text-start"><%= pinerror%></div>
+        <%}%>
+
+        </div>
+  
+        <div class="form-group col-md-6">
+          <label for="city">City</label>
+          <input type="text" id="city" name="city" class="form-control">
+    
+
+          <% if(locals.cityerror){%>
+            <div class="alter text-danger text-start"><%= cityerror%></div>
+        <%}%>
+        </div>
+  
+        <div class="form-group col-md-6">
+          <label for="state">State</label>
+          <input type="text" id="state" name="state" class="form-control">
+      
+          <% if(locals.stateerror){%>
+            <div class="alter text-danger text-start"><%= stateerror%></div>
+        <%}%>
+
+        </div>
+  
+        <div class="form-group col-md-6">
+          <label for="country">Country</label>
+          <input type="text" id="country" name="country" class="form-control">
+     
+          <% if(locals.countryerror){%>
+            <div class="alter text-danger text-start"><%= countryerror%></div>
+        <%}%>
+
+        </div>
+  
+        <div class="form-group col-md-6">
+          <label for="phone">Phone Number</label>
+          <input type="number" id="phone" name="phone" class="form-control">
+
+          <% if(locals.phoneerror){%>
+            <div class="alter text-danger text-start"><%= phoneerror%></div>
+        <%}%>
+
+        </div>
+  
+        <div class="form-group col-12">
+          <button type="submit" class="btn btn-danger">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <%-include('partials/footer')%>
+
+  <!-- Your existing scripts -->
+
+</body>
+
+</html>
