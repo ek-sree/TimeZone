@@ -79,10 +79,13 @@ usrouter.get('/singleproduct/:id', productController.singleproduct)
 // ...
 
 
-usrouter.get("/cart",cartcontroller.cartView)
+usrouter.get("/addtocart/:id",cartcontroller.cartView)
+
 
 
 usrouter.get("/favourites",cartcontroller.favouritesView)
+
+usrouter.get('/addtofavourites/:id', cartcontroller.addToFav)
 
 
 usrouter.get('/checkout', checkoutcontroller.checkOutView)

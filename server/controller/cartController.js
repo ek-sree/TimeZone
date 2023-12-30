@@ -1,6 +1,7 @@
 const categoryModel = require('../model/categoryModel')
 const cartModel = require('../model/cartModel')
 const productModel = require('../model/productModels')
+const favouritesModel = require('../model/favouriteModel')
 
 
 const cartView = async(req,res)=>{
@@ -34,7 +35,7 @@ const addToCart = async(req,res)=>{
   try {
     const pid = req.params.id
     const product = await productModel.findOne({_id:pid})
-    const userId = re.session.userId
+    const userId = req.session.userId
     const price = product.price
     const stock = product.stock
 
@@ -64,7 +65,7 @@ const addToCart = async(req,res)=>{
         quantity:1,
         price:price,
         stock:stock,
-        total:quantity * price
+        total: quantity * price
       }
       cart.item.push(newItems)
     }
@@ -84,12 +85,82 @@ const addToCart = async(req,res)=>{
 }
 /////////////////////////////////////////
 ///////////////////////////////////////////////
-const favouritesView =  async(req,res)=>{
+
+const favouritesView = async(req,res)=>{
   try {
-    res.render('user/favourites')
-  } catch (error) {
+    const userId = req.session.userId
+
+    let favourite
+
+    if (userId) {
+      favourite =  await favouritesModel.findOne({userId:userId}).populate({
+        path:"item.productId",
+        select:"images name price"
+      })
+    }
     
+    if (!favourite || !favourite.item) {
+      favourite = new favouritesModel({
+        item:[],
+        total:0
+      })
+    }
+    res.render("user/favourites",{favourite})
+  } catch (error) {
+    console.log("fav page viewing error");
+    res.status(400).send("error showing favourite page")
   }
 }
 
-module.exports={cartView, favouritesView}
+
+const addToFav = async (req, res) => {
+  try {
+    console.log("session", req.session);
+    const pid = req.params.id;
+    console.log("here is pid fav list",pid);
+    const product = await productModel.findOne({ _id: pid });
+    console.log("product",product);
+    const userId = req.session.userId;
+    console.log(userId);
+    const price = product.price;
+    console.log(price);
+
+    let favourite;
+    if (userId) {
+      favourite = await favouritesModel.findOne({ userId: userId });
+    }
+    if (!favourite) {
+      favourite = new favouritesModel({
+        item: [],
+        total: 0,
+      });
+    }
+
+    const productExist = favourite.item.findIndex(
+      (item) => item.productId == pid
+    );
+
+    if (productExist !== -1) {
+      
+    } else {
+      const newItem = {
+        productId: pid,
+        price: price,
+      };
+      favourite.item.push(newItem);
+    }
+
+    if (userId && !favourite.userId) {
+      favourite.userId = userId;
+    }
+
+    await favourite.save();
+    res.redirect('/favourites');
+  } catch (error) {
+    console.log('error adding favourite');
+    res.status(400).send('error adding favourites page');
+  }
+};
+
+
+module.exports={cartView,addToCart, favouritesView, addToFav}
