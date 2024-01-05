@@ -57,7 +57,9 @@ adrouter.get('/deletepro/:id', adminController.deletepro)
 
 adrouter.get('/resizeimg/:id', adminController.resizeimg)
 
-adrouter.get('/orderpage',adminController.orderPage)
+adrouter.get('/orderPage',adminController.orderPage)
+
+adrouter.post('/updateOrderStatus', adminController.orderStatus)
 
 adrouter.get('/adminlogout',adauth.adminlogout, adminController.adlogout)
 

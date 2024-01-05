@@ -1,89 +1,204 @@
 const categoryModel = require('../model/categoryModel')
-const cartModel = require('../model/cartModel')
+const userModels = require("../model/userModels")
+const cartModel =  require('../model/cartModel')
 const productModel = require('../model/productModels')
 const favouritesModel = require('../model/favouriteModel')
 
 
-const cartView = async(req,res)=>{
-    try {
-      const userId = req.session.userId
-      let cart 
+const cartView = async (req, res) => {
+  try {
+      const userId = req.session.userId;
+      console.log("Cart view userid", userId);
+
+      let cart;
 
       if (userId) {
-        cart = await cartModel.findOne({userId:userId}).populate({
-          Path:'item.productId',
-          select: 'image name price stock'
-        }) 
+          console.log("dddd", userId);
+         
+          cart = await cartModel.findOne({ userId: userId }).populate({
+              path: 'item.productId',
+              select: 'images name price stock',
+          });
+          console.log("inside", cart);
       }
 
-      if (!cart) {
-        cart = new cartModel({
-          item:[],
-          total:0
-        })
-      }
-      console.log(cart);
-        res.render("user/cart",{cart})
-    } catch (error) {
-      console.log("cart page is not viewing"); 
-      res.status(400).send("error loading or showing cart page or list") 
-    }
-}
+      console.log("cart finded", cart);
 
-
-const addToCart = async(req,res)=>{
-  try {
-    const pid = req.params.id
-    const product = await productModel.findOne({_id:pid})
-    const userId = req.session.userId
-    const price = product.price
-    const stock = product.stock
-
-    if (stock == 0) {
-      res.redirect('/cartpage')
-    }else{
-      let cart;
-      if(userId){
-        cart = await cartModel.findOne({userId:userId})
+      if (!cart || !cart.item) {
+          cart = new cartModel({
+              item: [],
+              total: 0,
+          });
       }
 
-      if(!cart){
-        cart = new cartModel({
-          item:[],
-          total:0
-        })
-      }
-      const productExist = cart.item.findIndex((item)=> item.productId == pid)
-     if (productExist !== -1) {
-      cart.item[productExist].quantity += 1;
-      cart.item[productExist].total =
-      cart.item[productExist].quantity * price
-     }
-     else{
-      const newItems = {
-        productId:pid,
-        quantity:1,
-        price:price,
-        stock:stock,
-        total: quantity * price
-      }
-      cart.item.push(newItems)
-    }
-    if (userId && !cart.userId) {
-      cart.userId = userId
-    }
-
-    cart.total = cart.item.reduce((num,item)=>num + item.total,0)
-    await cart.save()
-    res.redirect('/cartpage')
-    }
-    
+      console.log("cart item", cart);
+      res.render("user/cart", { cart });
   } catch (error) {
-    console.log("error adding cart item");
-    res.status(400).send("error rendering this page")
+      console.log("Error while loading or showing cart page or list:", error);
+      res.status(400).send("Error loading or showing cart page or list");
   }
-}
+};
+
+
+
+const addToCart = async (req, res) => {
+  try {
+      const pid = req.params.id;
+      const product = await productModel.findOne({ _id: pid });
+      const userId = req.session.userId;
+      const price = product.price;
+      const stock = product.stock;
+      const quantity = req.body.quantity || 1;
+
+      // Check if the product is in stock
+      if (stock === 0) {
+          return res.redirect('/cart');
+      }
+
+      let cart = await cartModel.findOne({ userId: userId });
+
+      // If the user has an existing cart
+      if (!cart) {
+          cart = new cartModel({
+              item: [],
+              total: 0
+          });
+      }
+
+      // Check if the product is already in the cart
+      const productExist = cart.item.findIndex((item) => item.productId == pid);
+
+      if (productExist !== -1) {
+          cart.item[productExist].quantity += quantity;
+          cart.item[productExist].total = cart.item[productExist].quantity * price;
+      } else {
+          const newItems = {
+              productId: pid,
+              quantity: quantity,
+              price: price,
+              stock: stock,
+              total: quantity * price
+          };
+          cart.item.push(newItems);
+      }
+
+      // Update the cart total
+      cart.total = cart.item.reduce((num, item) => num + item.total, 0);
+
+      await cart.save();
+
+      res.redirect('/cart');
+  } catch (error) {
+      console.error("Error adding cart item:", error);
+      res.status(400).send("Error rendering this page");
+  }
+};
+
+
+
+
+
+
+
+const updateCart = async (req, res) => {
+  try {
+    console.log("update quanty starting");
+      const productId = req.params.id;
+      const { action, cartId } = req.body;
+      console.log("aaaaa",productId);
+      console.log("bbbbb",action,cartId);
+      const cart = await cartModel.findOne({ _id: cartId });
+
+      // Find the item in the cart
+      const itemIndex = cart.item.findIndex((item) => item._id == productId);
+
+      // Check if the product is in the cart
+      if (itemIndex === -1) {
+          return res.status(400).json({ success: false, error: "Product not found in the cart" });
+      }
+
+      // Retrieve product details and stock limit
+      const currentQuantity = cart.item[itemIndex].quantity;
+      const selectedProductId = cart.item[itemIndex].productId;
+      const selectedProduct = await productModel.findOne({ _id: selectedProductId });
+      const stockLimit = selectedProduct.stock;
+      const price = cart.item[itemIndex].price;
+
+      // Update the quantity based on the action
+      let updatedQuantity;
+
+      if (action == '1') {
+          updatedQuantity = currentQuantity + 1;
+      } else if (action == '-1') {
+          updatedQuantity = currentQuantity - 1;
+      } else {
+          return res.status(400).json({ success: false, error: "Invalid action" });
+      }
+
+      // Ensure the updated quantity is within stock limits
+      if (updatedQuantity < 1 || (updatedQuantity > stockLimit && action == '1')) {
+          return res.status(400).json({ success: false, error: "Quantity exceeds stock limits" });
+      }
+
+      // Update the cart item and total
+      cart.item[itemIndex].quantity = updatedQuantity;
+      const newProductTotal = price * updatedQuantity;
+      cart.item[itemIndex].total = newProductTotal;
+      cart.total = cart.item.reduce((total, item) => total + item.total, 0);
+
+      await cart.save();
+      console.log("Updated Cart:", cart);
+      res.json({
+        success: true,
+        newQuantity: updatedQuantity,
+        newProductTotal,
+        total: cart.total
+    });
+  } catch (error) {
+      console.log("Can't update cart ", error);
+      res.status(400).json({ success: false, error: "Error occurred while updating cart", details: error.message });
+  }
+};
+
+
+
+const deleteCart = async (req, res) => {
+  try {
+console.log("jjjjjjjjjjjjjjjj")
+    console.log(req.body,"2",req.params.id)
+      console.log("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
+    const userId = req.session.userId;
+    const productId = req.params.id;
+
+    const updatedCart = await cartModel.findOneAndUpdate(
+      
+      { userId: userId },
+      { $pull: { item: { _id: productId } } },
+      { new: true }
+    );
+
+    if (!updatedCart) {
+      return res.status(400).json({ success: false, error: "Item not found in the cart" });
+    }
+
+    // Recalculate total
+    const total = updatedCart.item.reduce((total, item) => total + item.total, 0);
+    updatedCart.total = total;
+    console.log(total,"ggggg")
+
+    await updatedCart.save();
+    console.log("work1")
+    let response = {success: true, total: total}
+    res.json(response);
+  } catch (error) {
+    console.error("Error deleting item from cart", error);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
+
+
 /////////////////////////////////////////
+// <<<<<<<<<<<<<------------Favourite------------->>>>>>>>>>>>>>>>
 ///////////////////////////////////////////////
 
 const favouritesView = async(req,res)=>{
@@ -163,4 +278,15 @@ const addToFav = async (req, res) => {
 };
 
 
-module.exports={cartView,addToCart, favouritesView, addToFav}
+const deleteFav = async(req,res)=>{
+  const ItemId = req.params.id
+  const userId = req.session.userId
+  console.log("user id",userId);
+  console.log("item id fav",ItemId);
+  const newFav = await favouritesModel.updateOne({userId:userId},{$pull:{item:{_id:ItemId}}})
+  console.log("deleted fav",newFav);
+  res.redirect("/favourites")
+}
+
+
+module.exports={cartView,addToCart,updateCart,deleteCart, favouritesView, addToFav, deleteFav}

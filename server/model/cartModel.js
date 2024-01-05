@@ -1,22 +1,26 @@
-const mongoose = require('mongoose')
-const Schema = mongoose.Schema
+const mangoose =  require('mongoose')
 
-mongoose.connect("mongodb://127.0.0.1:27017/TimeZone")
+
+mangoose.connect("mongodb://127.0.0.1:27017/TimeZone")
     .then(console.log("Cart database connected"))
     .catch(error => console.error("Error connecting cart database", error));
 
-const cartSchema = new mongoose.Schema({
+const cartSchema = new mangoose.Schema({
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mangoose.Schema.Types.ObjectId,
         ref: "userdetails"
     },
     item: [
         {
             productId: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: mangoose.Schema.Types.ObjectId,
                 ref: 'product',
                 required: true
             },
+            quantity: {
+                type: Number,
+                required: true,
+              },
             stock: {
                 type: Number,
                 required: true
@@ -34,6 +38,6 @@ const cartSchema = new mongoose.Schema({
     total: Number
 })
 
-const cartModel = mongoose.model('carts', cartSchema)
+const cartModel = mangoose.model('carts', cartSchema)
 
 module.exports = cartModel

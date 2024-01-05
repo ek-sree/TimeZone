@@ -17,27 +17,88 @@
   <meta name="keywords" content="bootstrap, bootstrap4" />
   <style>
 
-.dropdown {
-      position: relative;
-      display: inline-block;
-      cursor: pointer;
-    }
 
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: black;
-      color: white;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-      z-index: 1;
-	  width: 200px;
-    }
+	/* Default style for select-line */
+	.select-line {
+    background-color: #3b5d50;
+}
 
-    .dropdown:hover .dropdown-content {
-      display: block;
+/* Media query for small screens (e.g., mobile devices) */
+@media (max-width: 767px) {
+    .select-line {
+        height: 8vw; /* Set the height for small screens */
+		align-items: start;
+		margin-top: 0.1px;
     }
+}
 
-    
+/* Media query for medium screens (e.g., tablets) */
+@media (min-width: 768px) and (max-width: 991px) {
+    .select-line {
+        height: 6vw; /* Set the height for medium screens */
+    }
+}
+
+/* Media query for large screens (e.g., desktops) */
+@media (min-width: 992px) {
+    .select-line {
+        height: 4vw; /* Set the height for large screens */
+    }
+}
+
+
+
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+}
+
+/* Modal Content */
+.modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(0, -50%);
+  background-color: #3e6e5c;
+  color: rgb(0, 0, 0);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Close button */
+.close {
+  top: 0;
+  right: 0;
+  padding: 10px;
+  cursor: pointer;
+}
+
+/* Style the button inside the modal */
+.modal-content button {
+  background-color: #000000; /* Green background */
+  color: white; /* White text */
+  padding: 5px;
+  border: none;
+  border-radius: 8px;
+  margin-left: 2px;
+  cursor: pointer;
+
+}
+
+/* Hover effect for the button */
+.modal-content button:hover {
+  background-color: #fbfdfb;
+  color: #000000;
+  border: solid 2px #000000;
+}
+
 	 .address-list {
             display: flex;
             flex-wrap: wrap;
@@ -81,10 +142,15 @@
     .search-input {
       border: none;
       padding: 10px;
-      width: 800px;
       background-color: #3b5d50;
       color: white;
     }
+	@media (min-width: 1200px) {
+  /* Set the width to 110vh for devices with a minimum width of 1200px */
+  .search-input {
+    width: 110vh;
+  }
+}
 
     .search-button {
       background-color: #3d5d50;
@@ -106,13 +172,13 @@
 		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 		<link href="css/tiny-slider.css" rel="stylesheet">
 		<link href="css/style.css" rel="stylesheet">
-		<title>Furni Free Bootstrap 5 Template for Furniture and Interior Design Websites by Untree.co </title>
+		<title>Checkout</title>
 	</head>
 
 	<body>
 
 		<!-- Start Header/Navigation -->
-        <%-include('partials/header)%>
+        <%-include('partials/header')%>
 		<!-- Start Hero Section -->
 			<div class="hero">
 				<div class="container">
@@ -148,8 +214,7 @@
 								<div class="address-item">
 									<label>
 										<!-- Add a data attribute to the radio button to store the address ID -->
-                                    <input type="radio" name="selectedAddress" value="<%= address.id %>" class="address-radio" data-address-id="<%= address.id %>">
-
+										<input type="radio" name="selectedAddress" value="<%= address._id %>" class="address-radio" data-address-id="<%= address._id %>">
 										<span class="larger-text"><%= address.saveas %></span>
 									</label>
 									<div class="address-details larger-text">
@@ -168,72 +233,115 @@
 					<% } else { %>
 						<p>No addresses found.</p>
 					<% } %>
-				
-		        
-
-
-		            
-
-		          
-
-		           
-
-
+					
+					
 
 
 		            <div class="form-group">
-		              <label for="c_ship_different_address" class="text-black" data-bs-toggle="collapse" href="#ship_different_address" role="button" aria-expanded="false" aria-controls="ship_different_address"><input type="checkbox" value="1" id="c_ship_different_address">Add a new Address</label>
+
+						<label for="c_ship_different_address" class="text-black" data-bs-toggle="collapse" href="#ship_different_address" role="button" aria-expanded="false" aria-controls="ship_different_address">
+							<input type="checkbox" value="1" id="c_ship_different_address">Add a new Address
+						</label>
+						
 		              <div class="collapse" id="ship_different_address">
 						<div class="suso container mt-4">
 							<div class="edit-profile-form">
+								
+								
 							  <h2>Add New Address</h2>
+							  
+							  <p style="font-weight: 600; color: red;">!! The Address May not be saved if you enter invalid details </p>
+							
+							
+							
+							
+							
+							
+			
+							  
 						  
 							  <form action="/checkoutreload" id="addressForm" method="post" class="row">
+
 							 
 								<!-- Personal details -->
 						
 								<div class="form-group col-md-6">
 									<label for="saveas">Save as</label>
 									<input type="text" id="saveas" name="saveas" class="form-control">
-								  </div>
+									<% if(locals.saveaserror){%>
+										<div class="alter text-danger text-start"><%= saveaserror%></div>
+									<%}%> 
+								</div>
 								<div class="form-group col-md-6">
 								  <label for="fullname">Full Name</label>
 								  <input type="text" id="fullname" name="fullname" class="form-control">
+								  <% if(locals.fullnameerror){%>
+									<div class="alter text-danger text-start"><%= fullnameerror%></div>
+								<%}%>
 								</div>
 						  
 								<div class="form-group col-md-6">
 								  <label for="adname">House Name / Flat No</label>
 								  <input type="text" id="adname" name="adname" class="form-control">
+								  <% if(locals.adnameerror){%>
+									<div class="alter text-danger text-start"><%= adnameerror%></div>
+								<%}%>
 								</div>
 						  
 								<div class="form-group col-md-6">
 								  <label for="street">Street</label>
 								  <input type="text" id="street" name="street" class="form-control">
+								  <% if(locals.streeterror){%>
+									<div class="alter text-danger text-start"><%= streeterror%></div>
+								<%}%>
 								</div>
 						  
 								<div class="form-group col-md-6">
 								  <label for="pincode">Pincode</label>
 								  <input type="number" id="pincode" name="pincode" class="form-control">
+								  <% if(locals.pinerror){%>
+									<div class="alter text-danger text-start"><%= pinerror%></div>
+								<%}%>
 								</div>
 						  
 								<div class="form-group col-md-6">
 								  <label for="city">City</label>
 								  <input type="text" id="city" name="city" class="form-control">
-								</div>
+								
+								  <% if(locals.cityerror){%>
+									<div class="alter text-danger text-start"><%= cityerror%></div>
+								<%}%></div>
 						  
 								<div class="form-group col-md-6">
-								  <label for="state">State</label>
-								  <input type="text" id="state" name="state" class="form-control">
+									<label for="state">State</label>
+									<select id="state" name="state" class="form-control" required>
+									  <option value="" disabled selected>Select a state</option>
+									  <option value="Kerala">Kerala</option>
+									  <option value="Karnataka">Karnataka</option>
+									  <option value="TamilNadu">Tamil Nadu</option>
+									</select>
+									<% if(locals.stateerror){%>
+										<div class="alter text-danger text-start"><%= stateerror%></div>
+									<%}%>
 								</div>
 						  
-								<div class="form-group col-md-6">
-								  <label for="country">Country</label>
-								  <input type="text" id="country" name="country" class="form-control">
+								  <div class="form-group col-md-6">
+									<label for="country">Country</label>
+									<select id="country" name="country" class="form-control" required>
+									  <option value="India">India</option>
+									</select>
+									<% if(locals.countryerror){%>
+										<div class="alter text-danger text-start"><%= countryerror%></div>
+									<%}%> 
 								</div>
+								  
 						  
 								<div class="form-group col-md-6">
 								  <label for="phone">Phone Number</label>
 								  <input type="number" id="phone" name="phone" class="form-control">
+								  <% if(locals.phoneerror){%>
+									<div class="alter text-danger text-start"><%= phoneerror%></div>
+								<%}%>
 								</div>
 
 								<input type="hidden" name="cartId" value="<%= cart._id %>">
@@ -242,6 +350,8 @@
 								  <button id="saveChangesButton" type="submit" class="btn btn-primary">Save Changes</button>
 								</div>
 							  </form>
+							
+							  
 							</div>
 						  </div>
 
@@ -250,39 +360,7 @@
 
 		          </div>
 		        </div>
-		        <div class="col-md-6">
-
-		          <div class="row mb-5">
-		            <div class="col-md-12">
-		              <h2 class="h3 mb-3 text-black">Coupon Code</h2>
-		              <div class="p-3 p-lg-5 border bg-white">
-						<div class="dropdown" onclick="toggleDropdown()">
-							<h2>Available Coupons:</h2>
-							<div class="dropdown-content">
-							  <ul>
-								<% availableCoupons.forEach(coupon => { %>
-								  <li><%= coupon.couponCode %> &nbsp;&nbsp;Offer: <%= coupon.discount %>%</li>
-								<% }); %>
-							  </ul>
-							</div>
-						  </div>
-						
-                        <form>
-		                <label for="c_code" class="text-black mb-3">Enter your coupon code if you have one</label>
-		                <div class="input-group w-75 couponcode-wrap">
-		                  <input type="text" class="form-control me-2" id="c_code" placeholder="Coupon Code" aria-label="Coupon Code" aria-describedby="button-addon2">
-		                  <div class="input-group-append">
-		                    <button class="btn btn-black btn-sm" type="button" id="button-addon2" onclick="couponApply()">Apply</button>
-		                  </div>
-						  <div >
-		                    <button style="color: black;border: solid black;margin-left: 3px;" class="btn btn-white-outline btn-sm" type="button" id="button-addon3" onclick="couponRevoke()">Clear</button>
-		                  </div>
-		                </div>
-					</form>
-
-		              </div>
-		            </div>
-		          </div>
+		        
 
 		          <div class="row mb-5">
 		            <div class="col-md-12">
@@ -330,7 +408,7 @@
 							 Cash On Delivery
 							</label><br>
 						
-							<label>
+							<!-- <label>
 							  <input type="radio" name="paymentOption" value="Razorpay" id="paymentOption2" onchange="updateHiddenField(this)">
 							  Razorpay
 							</label><br>
@@ -338,7 +416,7 @@
 							<label>
 								<input type="radio" name="paymentOption" value="Wallet" id="paymentOption3" onchange="updateHiddenField(this)">
 							  Wallet
-							  </label><br><br>
+							  </label><br><br> -->
 						
 							
 							
@@ -379,14 +457,53 @@
 		  </div>
 
 		<!-- Start Footer Section -->
-		<%-include('userpartials/footer')%>
+		<%-include('partials/footer')%>
 		
 		<!-- End Footer Section -->	
 		<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 		<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
-
+		<script>
+			function openModal() {
+			  var modal = document.getElementById('couponModal');
+			  modal.style.display = 'block';
+			}
+		  
+			function closeModal() {
+			  var modal = document.getElementById('couponModal');
+			  modal.style.display = 'none';
+			}
+		  
+			function copyToClipboard(couponCode) {
+			  var tempInput = document.createElement('input');
+			  tempInput.value = couponCode;
+			  document.body.appendChild(tempInput);
+		  
+			  tempInput.select();
+			  document.execCommand('copy');
+		  
+			  document.body.removeChild(tempInput);
+		  
+			  Swal.fire({
+                    icon: 'success',
+                    title: 'Copied!',
+                    showConfirmButton: false,
+                    timer: 1000, // 1 second
+                });
+			}
+		  
+			document.addEventListener('DOMContentLoaded', function () {
+			  // Close the modal if the user clicks outside of it
+			  window.addEventListener('click', function (event) {
+				var modal = document.getElementById('couponModal');
+				if (event.target === modal) {
+				  closeModal();
+				}
+			  });
+			});
+		  </script>
+		  
 		<script>
 			function toggleDropdown() {
 			  var dropdownContent = document.querySelector('.dropdown-content');
@@ -454,17 +571,16 @@
 console.log("upi total","ppppppp");
 
 var options = {
-"key": 'rzp_test_tY3tynQ51qUYZR', // Enter the Key ID generated from the Dashboard
-"amount":  amountToPay*100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-"currency": "INR",
+"key": 'rzp_test_tY3tynQ51qUYZR', 
+"amount":  amountToPay*100, 
 "name": "Furnify",
 "description": "Test Transaction",
 "image": "Urban Sole",
-"order_id": orderId, //This is a sample Order ID. Pass the id obtained in the response of Step 1
+"order_id": orderId, 
 "handler": function (response){
 alert(response.razorpay_payment_id);
 document.getElementById('orderForm').action = '/placeOrder';
-document.getElementById('orderForm').method = 'post'; // Replace with your actual URL
+document.getElementById('orderForm').method = 'post'; 
 
 // Submit the form
 document.getElementById('orderForm').submit();
@@ -619,7 +735,46 @@ function couponApply() {
 
     function couponRevoke() {
         
-        location.reload();
+		const couponCode = document.getElementById('c_code').value;
+	const subtotal=document.getElementById('subt').innerText
+
+    fetch('/revokeCoupon', {
+        method: "POST",
+        headers: {
+            'Content-Type': "application/json"
+        },
+		body: JSON.stringify({couponCode,subtotal })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+			document.getElementById('dicprice').innerText=0
+           document.getElementById('cartotal').innerText=data.price
+		   document.getElementById('carttotal').value=data.price
+
+
+       
+        } else {
+			Swal.fire({
+          text: data.message,
+          icon: 'error',
+          confirmButtonText: 'OK',
+          customClass: {
+            title: 'text-danger',
+            popup: 'swal2-popup-custom',
+            confirmButton: 'btn btn-danger'
+          },
+          showCancelButton: false,
+          showCloseButton: true,
+          showLoaderOnConfirm: false,
+          timer: 3000
+        });
+        }
+    })
+    .catch(error => {
+        console.error('Error applying coupon:', error);
+        alert('An error occurred while applying the coupon. Please try again.');
+    });
     }
 
 
@@ -629,6 +784,7 @@ function couponApply() {
 
 
 	
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.2/js/bootstrap.bundle.min.js"></script>
 
 		<script src="js/bootstrap.bundle.min.js"></script>
 		<script src="js/tiny-slider.js"></script>

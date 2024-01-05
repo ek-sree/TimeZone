@@ -5,6 +5,7 @@ const productModel = require("../model/productModels");
 const bcrypt = require("bcrypt");
 const fs = require("fs");
 const sharp = require("sharp");
+const orderModel = require("../model/orderModel");
 
 // <<<<<<<<<<<<<<<<<<-----------------Admin login page rendering------------------->>>>>>>>>>>>>>>>>
 const login = (req, res) => {
@@ -353,7 +354,7 @@ const updatepropost = async (req, res) => {
       feature,
     } = req.body;
     const product = await productModel.findOne({_id:id})
-    if (mrp < 0 || productprice < 0) {
+    if (mrp <= 0 || productprice <= 0) {
       return res.render('admin/updateproduct', { product: product, priceerror: "Price and MRP must be greater than 0" });
     }
     await productModel.updateOne(
@@ -494,9 +495,28 @@ const resizeimg = async (req, res) => {
 
 const orderPage = async(req,res)=>{
   try {
-    res.render("admin/orderpage")
+    const order = await orderModel.find({})
+    console.log("admin order is getting here",order);
+    res.render("admin/orderpage",{order})
   } catch (error) {
     console.log("error loading order page");
+  }
+}
+
+const orderStatus = async(req,res)=>{
+  try {
+    const {status , orderId} = req.body
+    const updateOrder = await orderModel.findOneAndUpdate({_id:orderId},{$set:{status:status,
+      updatedAt:Date.now()}},{new:true})
+
+      if (updateOrder) {
+        res.redirect('admin/orderPage')
+        console.log("update completed");
+      }
+      res.status(400).send("cant change the order status error")
+      console.log("error changing order status");
+  } catch (error) {
+    
   }
 }
 
@@ -534,5 +554,6 @@ module.exports = {
   adlogout,
   deletepro,
   resizeimg,
-  orderPage
+  orderPage,
+  orderStatus
 };

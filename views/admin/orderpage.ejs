@@ -13,6 +13,18 @@
     <link rel="stylesheet" href="/adminassets/css/style.css" />
     <link rel="shortcut icon" href="/adminassets/images/favicon.png" />
   </head>
+  <style>
+    body{
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+            margin-top: 50px; /* Adjust the top margin as needed */
+        }
+    .table {
+            margin: 0 auto; /* Center the table */
+        }
+  </style>
   <body>
     <div class="container-scroller">
       <%- include('partials/sidebar')%>
@@ -57,9 +69,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% if(locals.orderdata) { %>
+                    <% if(locals.order) { %>
                         <% let slno = 1; %>
-                        <% orderdata.forEach(order => { %>
+                        <% order.forEach(order => { %>
                             <tr>
                                 <td><%= order.orderId %></td>
                                 <td><%= order.userName %></td>

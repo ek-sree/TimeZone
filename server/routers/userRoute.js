@@ -79,15 +79,37 @@ usrouter.get('/singleproduct/:id', productController.singleproduct)
 // ...
 
 
-usrouter.get("/addtocart/:id",cartcontroller.cartView)
+usrouter.get("/cart",auth.islogged, cartcontroller.cartView)
 
+usrouter.get('/addtocart/:id', cartcontroller.addToCart)
 
+usrouter.post('/update-cart-quantity/:id', cartcontroller.updateCart);
 
+usrouter.get('/delete-cart/:id', cartcontroller.deleteCart);
+
+usrouter.post('/cart', (req, res) => {
+    console.log(`Received ${req.method} request at ${req.url}`);
+    // Your existing code for handling the route
+ });
+ 
+// <<<<<<<<<--------facourite-------------->>>>>>>>>>>
 usrouter.get("/favourites",cartcontroller.favouritesView)
 
 usrouter.get('/addtofavourites/:id', cartcontroller.addToFav)
 
+usrouter.get('/deletefav/:id',cartcontroller.deleteFav)
+
+
+
+
+
 
 usrouter.get('/checkout', checkoutcontroller.checkOutView)
+
+usrouter.post('/checkoutreload', checkoutcontroller.checkoutreload);
+
+usrouter.post('/placeOrder', checkoutcontroller.orderingView)
+
+usrouter.get('/orderdetails', usercontroller.orderDetailsView)
 
 module.exports = usrouter
