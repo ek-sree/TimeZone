@@ -1,3 +1,4 @@
+const { ObjectId } = require('mongodb')
 const mongoose = require('mongoose')
 
 mongoose.connect("mongodb://127.0.0.1:27017/TimeZone")
@@ -10,7 +11,7 @@ const orderSchema = mongoose.Schema({
         unique:true
     },
     userId:{
-        type:String,
+        type:ObjectId,
         required:true
     },
     userName:{

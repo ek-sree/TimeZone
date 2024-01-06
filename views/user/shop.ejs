@@ -27,6 +27,8 @@
     width: 400px;
     object-fit: cover; /* This ensures the image covers the specified dimensions */
 }
+
+
         </style>
 </head>
 
@@ -91,11 +93,13 @@
                     <div class="select-this">
                         <form action="#">
                             <div class="select-itms">
-                                <select name="select" id="select1">
-                                    <option value="">Price High to Low</option>
-                                    <option value="">Price Low to High</option>
+                                <select name="select" id="select1" onchange="sortProduct()">
+                                    <option value="allProducts" id="allProducts" name="all-product">All Prices Products</option>
+                                    <option value="priceHigh" id="priceHigh" name="priceHigh">Price High to Low</option>
+                                    <option value="priceLow" id="priceLow" name="priceLow">Price Low to High</option>
                                 </select>
                             </div>
+                            
                         </form>
                     </div>
                     <!-- Select items -->
@@ -256,6 +260,102 @@
         </div>
     </div>
     <!-- Search model end -->
+
+<script>
+  const select1 = document.querySelector('#select1');
+const showSortProduct = document.querySelector('#nav-tabContent')
+function sortProduct() {
+    const selectedOption = select1.value;
+
+    switch (selectedOption) {
+        case 'allProducts':
+            fetchProducts('allProduct');
+            break;
+        case 'priceHigh':
+            fetchProducts('highToLow');
+            break;
+        case 'priceLow':
+            fetchProducts('lowToHigh');
+            break;
+        default:
+            break;
+    }
+}
+
+async function fetchProducts(sortOrder) {
+    try {
+        const response = await fetch('/select1', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sortOrder: sortOrder
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Error occurred while fetching products');
+        }
+
+        const data = await response.json();
+
+        if (Array.isArray(data) && data.length > 0) {
+            showSortProduct.innerHTML = ''; // Clear previous content
+
+            // Create a row container
+            let rowContainer = document.createElement('div');
+            rowContainer.className = 'row';
+
+            // Iterate through each product and create corresponding HTML
+            data.forEach((product, index) => {
+                const productContainer = document.createElement('div');
+                productContainer.className = 'col-xl-4 col-lg-4 col-md-6 col-sm-6';
+
+                productContainer.innerHTML = `
+                    <div class="single-popular-items mb-50 text-center">
+                        <div class="popular-img">
+                            ${Array.isArray(product.images) && product.images.length > 0 ?
+                                `<img src="/${product.images[0]}" alt="${product.name}">` :
+                                `<p>No image available</p>`
+                            }
+                            <div class="img-cap">
+                                <span>Add to cart</span>
+                            </div>
+                            <div class="favorit-items">
+                                <span class="flaticon-heart"></span>
+                            </div>
+                        </div>
+                        <div class="popular-caption">
+                            <h3>${product.name}</h3>
+                            <span>$ ${product.price}</span>
+                        </div>
+                    </div>
+                `;
+
+                // Append the product container to the row container
+                rowContainer.appendChild(productContainer);
+
+                // Check if a new row should be started after every third product
+                if ((index + 1) % 3 === 0 || index === data.length - 1) {
+                    showSortProduct.appendChild(rowContainer);
+                    rowContainer = document.createElement('div');
+                    rowContainer.className = 'row';
+                }
+            });
+        } else {
+            // If there are no products, display a message
+            showSortProduct.innerHTML = '<p>No products available for this category.</p>';
+        }
+
+        console.log(data);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+
+   
+</script>
+
 
 <!-- JS here -->
     <!-- All JS Custom Plugins Link Here here -->

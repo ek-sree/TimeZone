@@ -61,6 +61,8 @@ usrouter.post("/updateaddress/:addressId", usercontroller.editAddresspost)
 
 usrouter.get("/deleteaddress/:addressId", usercontroller.deleteAddress)
 
+usrouter.post('/select1', usercontroller.sortPrice);
+
 usrouter.get('/logout',auth.islogged, usercontroller.logout)
 
 
@@ -96,6 +98,8 @@ usrouter.post('/cart', (req, res) => {
 usrouter.get("/favourites",cartcontroller.favouritesView)
 
 usrouter.get('/addtofavourites/:id', cartcontroller.addToFav)
+
+usrouter.get('/addtocartfrmfav/:id', cartcontroller.favToCart)
 
 usrouter.get('/deletefav/:id',cartcontroller.deleteFav)
 

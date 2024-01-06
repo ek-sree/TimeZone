@@ -49,7 +49,7 @@ const addToCart = async (req, res) => {
       const price = product.price;
       const stock = product.stock;
       const quantity = req.body.quantity || 1;
-
+console.log("userIddddddd",userId);
       // Check if the product is in stock
       if (stock === 0) {
           return res.redirect('/cart');
@@ -61,10 +61,11 @@ const addToCart = async (req, res) => {
       if (!cart) {
           cart = new cartModel({
               item: [],
-              total: 0
+              total: 0,
+              userId:userId
           });
       }
-
+console.log("aaaaaaa",cart);
       // Check if the product is already in the cart
       const productExist = cart.item.findIndex((item) => item.productId == pid);
 
@@ -86,7 +87,7 @@ const addToCart = async (req, res) => {
       cart.total = cart.item.reduce((num, item) => num + item.total, 0);
 
       await cart.save();
-
+console.log("ssssssssssssaaa",cart);
       res.redirect('/cart');
   } catch (error) {
       console.error("Error adding cart item:", error);
@@ -271,11 +272,67 @@ const addToFav = async (req, res) => {
 
     await favourite.save();
     res.redirect('/favourites');
+    console.log("add to fav done end here");
   } catch (error) {
     console.log('error adding favourite');
     res.status(400).send('error adding favourites page');
   }
 };
+
+const favToCart = async(req,res)=>{
+  try {
+    console.log("add to cart from fav is started");
+    const pid = req.params.id;
+    const product = await productModel.findOne({ _id: pid });
+    const userId = req.session.userId;
+    const price = product.price;
+    const stock = product.stock;
+    const quantity = req.body.quantity || 1;
+
+    // Check if the product is in stock
+    if (stock === 0) {
+        return res.redirect('/favourites');
+    }
+
+    let cart = await cartModel.findOne({ userId: userId });
+
+    // If the user has an existing cart
+    if (!cart) {
+        cart = new cartModel({
+            item: [],
+            total: 0,
+            userId:userId
+        });
+    }
+
+    // Check if the product is already in the cart
+    const productExist = cart.item.findIndex((item) => item.productId == pid);
+
+    if (productExist !== -1) {
+        cart.item[productExist].quantity += quantity;
+        cart.item[productExist].total = cart.item[productExist].quantity * price;
+    } else {
+        const newItems = {
+            productId: pid,
+            quantity: quantity,
+            price: price,
+            stock: stock,
+            total: quantity * price
+        };
+        cart.item.push(newItems);
+    }
+
+    // Update the cart total
+    cart.total = cart.item.reduce((num, item) => num + item.total, 0);
+
+    await cart.save();
+console.log("done add to fav");
+    res.redirect('/cart');
+  } catch (error) {
+    console.log("not woking add to cart from favourites");
+    res.status(400).send("Error occure adding product from favourites to cart")
+  }
+}
 
 
 const deleteFav = async(req,res)=>{
@@ -289,4 +346,4 @@ const deleteFav = async(req,res)=>{
 }
 
 
-module.exports={cartView,addToCart,updateCart,deleteCart, favouritesView, addToFav, deleteFav}
+module.exports={cartView,addToCart,updateCart,deleteCart, favouritesView, addToFav,favToCart, deleteFav}

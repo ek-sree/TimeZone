@@ -241,7 +241,7 @@ const orderingView = async (req, res) => {
         // Create and save order
         const order = new orderModel({
             orderId: uuidv4(),
-            userId,
+            userId:userId,
             userName: selectedAddress.fullname,
             items,
             totalPrice,
@@ -251,14 +251,14 @@ const orderingView = async (req, res) => {
             status: "pending",
             updatedAt: new Date(),
         });
-
+console.log("ssssss",order);
         console.log("Order saving process");
         await order.save();
         console.log("Order saved successfully");
 
         // Update user's cart and product stocks
         for (const item of items) {
-            const updatedQuantity = -item.quantity; // Make sure the quantity is negative for decrementing
+            const updatedQuantity = -item.quantity; 
             await cartModel.updateOne({ userId }, { $pull: { item: { productId: item.productId } } });
             await cartModel.updateOne({ userId }, { $set: { total: 0 } });
             await productModel.updateOne({ _id: item.productId }, { $inc: { stock: updatedQuantity } });

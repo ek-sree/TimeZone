@@ -756,30 +756,27 @@ const orderDetailsView = async(req,res)=>{
     try {
         const userId = req.session.userId
         const order = await orderModel.find({userId:userId})
+        
         const allOrderItems=[]
          order.forEach((order)=>{
             allOrderItems.push(...order.items)
         })
+        console.log("alllllllll",allOrderItems);
         const orders = await orderModel.aggregate([
-            { $match: { userId: userId } },
-            { $sort: { createdAt: -1 } },
-            {
-                $lookup: {
-                    from: 'products',
-                    let: { productIds: '$items.productId' },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: { $in: ['$_id', { $map: { input: '$$productIds', as: 'id', in: { $toObjectId: '$$id' } } }] }
-                            }
-                        },
-                        { $project: { name: 1, images: 1 } }
-                    ],
-                    as: 'productDetails'
-                }
-            }
-        ]);
-console.log("hh",orders);
+          { $match: { userId: userId, 'items.productId': { $ne: '' } } }, // Exclude documents with empty product IDs
+          { $sort: { createdAt: -1 } },
+          {
+              $lookup: {
+                  from: 'products',
+                  let: { productIds: '$items.productId' },
+                  pipeline: [
+                      // ...
+                  ],
+                  as: 'productDetails'
+              }
+          }
+      ]);
+console.log("hhhhhhaaaa",orders);
 const updatedOrders = orders.map(order => ({
     ...order,
     items: order.items.map(item => ({
@@ -798,6 +795,30 @@ const updatedOrders = orders.map(order => ({
     }
 }
 
+
+const sortPrice = async (req, res) => {
+  try {
+      let data;
+      const sortedProduct = req.body.sortOrder;
+
+      if (sortedProduct === 'allProduct') {
+        data = await productModel.find({})
+      }
+      else if (sortedProduct === 'highToLow') {
+          data = await productModel.find({}).sort({ price: -1 });
+      } else if (sortedProduct === 'lowToHigh') {
+          data = await productModel.find({}).sort({ price: 1 });
+      } else {
+          
+      }
+
+      res.json(data);
+  } catch (error) {
+      console.error('Error sorting products:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 const logout = async (req, res) => {
   try {
     req.session.userId = null;
@@ -809,6 +830,8 @@ const logout = async (req, res) => {
     res.status(400).send("error occured");
   }
 };
+
+
 
 
 module.exports = {
@@ -837,5 +860,6 @@ module.exports = {
   deleteAddress,
   editAddress,
   editAddresspost,
-  orderDetailsView
+  orderDetailsView,
+  sortPrice
 };

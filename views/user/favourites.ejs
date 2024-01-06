@@ -169,7 +169,8 @@
                       <td class="product-name" style="font-size: 1.5vw;" class="h1 text-black"><%= item.productId.name %>
                       </td>
                       <td style="font-size: 1.5vw;" class="text-black"><%= item.productId.price %></td>
-                      <td><a href="/addtocartfrmfav/<%= item.productId._id%>" class="add-to-cart-button"><span style="font-size: 1vw;">Add to Cart</span></a></td>
+                      <td><a href="/addtocartfrmfav/<%= item.productId._id%>" class="add-to-cart-button"><span style="font-size: 1vw;">Add to Cart</span>
+                      </td>
                       <td><a onclick="confirmUnlist('<%= item._id %>')" class="remove-from-cart-button"><span style="font-size: 1vw;">Remove</span></a></td>
                     </tr>
                     <% }); %>
@@ -185,9 +186,6 @@
       </div>
     </div>
   </div>
-  
-
-
 </div>
 </div>
 </div>
