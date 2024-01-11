@@ -18,6 +18,8 @@ const {
 } = require("../../utils/validators/addressValidator");
 const productModel = require("../model/productModels");
 const orderModel = require("../model/orderModel");
+const walletModel = require("../model/walletModel");
+const Razorpay = require('razorpay')
 
 //    <<<<<<<<<---------- RENDERING HOMEPAGE ---------->>>>>>>>>>
 const home = async (req, res) => {
@@ -761,7 +763,6 @@ const orderDetailsView = async(req,res)=>{
          order.forEach((order)=>{
             allOrderItems.push(...order.items)
         })
-        console.log("alllllllll",allOrderItems);
         const orders = await orderModel.aggregate([
           { $match: { userId: userId, 'items.productId': { $ne: '' } } }, // Exclude documents with empty product IDs
           { $sort: { createdAt: -1 } },
@@ -776,7 +777,6 @@ const orderDetailsView = async(req,res)=>{
               }
           }
       ]);
-console.log("hhhhhhaaaa",orders);
 const updatedOrders = orders.map(order => ({
     ...order,
     items: order.items.map(item => ({
@@ -818,6 +818,210 @@ const sortPrice = async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+
+const orderTracking = async (req,res)=>{
+  try {
+    const oid = req.params.id
+
+    const  order = await orderModel.findOne({_id:oid})
+
+    res.render('user/orderTrack',{order})
+  } catch (error) {
+    
+  }
+}
+
+
+const orderHistoryShown = async(req,res)=>{
+  try {
+    const pid = req.params.id
+    const order = await orderModel.findOne({_id:pid})
+    res.render('user/orderTrack',{order:order})
+  } catch (error) {
+    
+  }
+}
+
+const wallet = async(req,res)=>{
+  try {
+    const userId = req.session.userId
+    const user = await walletModel.findOne({userId:userId}).sort({'walletTransactions':-1})
+
+    if (!user) {
+      user = await walletModel.create({userId:userId})
+    }
+    const userWallet = user.wallet
+    const usertransactions = user.walletTransactions.reverse()
+
+    res.render('user/wallet',{userWallet,usertransactions})
+  } catch (error) {
+    
+  }
+}
+
+
+const walletTopup = async (req,res)=>{
+  try {
+    const userId = req.session.userId
+    const Amount = parseFloat(req.body.Amount)
+    const wallet = await walletModel.findOne({userId:userId})
+
+    wallet.wallet = wallet.wallet + Amount
+    wallet.walletTransactions.push({type:'Credited', amount:Amount, date: new Date()})
+    await wallet.save()
+    res.redirect('/wallet')
+  } catch (error) {
+    res.status(404).send("cant add amount to wallet",error)
+    console.log("cant add amount to wallet",error);
+  }
+}
+
+
+const ordercancelling = async (req,res)=>{
+  try {
+    const userId = req.session.userId
+    const oid = req.params.id
+    await orderModel.updateOne({_id:oid},{status:"Cancelled"})
+    const result = await orderModel.findOne({_id:oid})
+    
+    if (result.paymentMethod == 'Razorpay' || result.paymentMethod == "Wallet") {
+      const user = await walletModel.findOne({userId:userId})
+
+      const refund = result.totalPrice
+      const currentWallet = user.wallet
+
+      const newWallet = currentWallet + refund
+      await walletModel.updateOne({userId:userId},{$set:{wallet:newWallet},$push:{walletTransactions:{date: new Date(),type:"Credited",amount:refund }}})
+    }
+
+    const items = result.items.map(item=>({
+      productId:item.productId,
+      quantity:item.quantity
+    }))
+
+    for(const item of items){
+      const product = await productModel.findOne({_id:item.productId})
+
+      product.stock += item.quantity
+      await product.save()
+    }
+    res.redirect('/orderdetails')
+    console.log("order cancelled");
+  } catch (error) {
+    console.log("error cancelling product",error);
+    res.status(404).send('error cancelling product')
+  }
+}
+
+const orderReturning = async (req,res)=>{
+  try {
+    const userId = req.session.userId
+    const id = req.params.id
+    console.log("aaa",id,"user",userId);
+
+    const user = await walletModel.findOne({userId:userId})
+    await orderModel.updateOne({_id:id},{status:"Returned"})
+    const result = await orderModel.findOne({_id:id})
+    const refund = result.totalPrice
+
+    const currentWallet = user.wallet
+    const newWallet = currentWallet + refund
+
+    await walletModel.updateOne({userId:userId},{$set:{wallet:newWallet},$push:{walletTransactions:{date:new Date(),type:"Credited",amount:refund}}})
+
+    const items = result.items.map(item=>({
+      productId:item.productId,
+      quantity:item.quantity
+    }))
+
+    for(const item of items){
+      const product = await productModel.findOne({_id:item.productId})
+      product.stock+= item.quantity
+      await product.save()
+      console.log("order returned success");
+    }
+    res.redirect('/orderdetails')
+  } catch (error) {
+    res.status(404).send("cant return order error",error)
+    console.log("Cant return order error happened",error);
+  }
+}
+
+const itemCancel = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const productId = req.params.productId;
+    const orderId = req.params.orderId;
+
+    const order = await orderModel.findOne({ _id: orderId });
+    const singleItem = order.items.find((item) => item.productId == productId);
+
+    if (!singleItem) {
+      return res.status(404).send("Item is not found!!");
+    }
+
+    if (order.paymentMethod == "Razorpay" || order.paymentMethod == "Wallet") {
+      const user = await walletModel.findOne({ userId: userId });
+      const refund = singleItem.price;
+
+      const currentWallet = user.wallet;
+      const newWallet = currentWallet + refund;
+
+      await walletModel.updateOne(
+        { userId: userId },
+        {
+          $set: { wallet: newWallet },
+          $push: {
+            walletTransactions: {
+              date: new Date(),
+              type: "Credited",
+              amount: refund,
+            },
+          },
+        }
+      );
+    }
+
+    await orderModel.updateOne(
+      {
+        _id: orderId,
+        "items.productId": singleItem.productId,
+      },
+      {
+        $set: {
+          "items.$.status": "cancelled",
+          totalPrice: order.totalPrice - singleItem.price,
+          updatedAt: new Date(),
+        },
+      }
+    );
+
+    const product = await productModel.findOne({
+      _id: singleItem.productId,
+    });
+
+    product.stock += singleItem.quantity;
+    await product.save();
+
+    const remainingNotCancelled = order.items.some(
+      (item) => item.status !== "cancelled"
+    );
+
+    if (!remainingNotCancelled) {
+      order.status = "Cancelled";
+      await order.save();
+      console.log("its working: all items cancelled, main status updated");
+    }
+
+    res.redirect(`/singleorder/${orderId}`);
+  } catch (error) {
+    console.log("error cancelling single product", error);
+    res.status(404).send("error cancelling single product");
+  }
+};
+
+
 
 const logout = async (req, res) => {
   try {
@@ -861,5 +1065,12 @@ module.exports = {
   editAddress,
   editAddresspost,
   orderDetailsView,
-  sortPrice
+  sortPrice,
+  orderTracking,
+  orderHistoryShown,
+  wallet,
+  walletTopup,
+  ordercancelling,
+  orderReturning,
+  itemCancel
 };

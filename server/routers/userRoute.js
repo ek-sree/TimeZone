@@ -63,6 +63,14 @@ usrouter.get("/deleteaddress/:addressId", usercontroller.deleteAddress)
 
 usrouter.post('/select1', usercontroller.sortPrice);
 
+usrouter.get('/orderTracking', usercontroller.orderTracking)
+
+usrouter.get('/singleorder/:id', usercontroller.orderHistoryShown)
+
+usrouter.get('/wallet', usercontroller.wallet)
+
+usrouter.post('/walletTopup', usercontroller.walletTopup)
+
 usrouter.get('/logout',auth.islogged, usercontroller.logout)
 
 
@@ -115,5 +123,11 @@ usrouter.post('/checkoutreload', checkoutcontroller.checkoutreload);
 usrouter.post('/placeOrder', checkoutcontroller.orderingView)
 
 usrouter.get('/orderdetails', usercontroller.orderDetailsView)
+
+usrouter.get('/cancelorder/:id', usercontroller.ordercancelling)
+
+usrouter.get('/returnorder/:id', usercontroller.orderReturning)
+
+usrouter.get('/cancelitem/:productId/:orderId', usercontroller.itemCancel)
 
 module.exports = usrouter

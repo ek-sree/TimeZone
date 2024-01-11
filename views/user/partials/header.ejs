@@ -1,3 +1,42 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+    .nav-search{
+        width: 100%;
+        margin-right: 5px;
+    }
+
+    .nav-search > input{
+        padding: 3px 20px;
+        border: 2px solid orange;
+       
+        
+    }
+
+    .nav-search > input:focus {
+        outline: none;
+        border: none;
+    }
+    
+    .nav-search > button{
+        background: tomato;
+        padding: 5px 10px;
+        border: none;
+        outline: none;
+        color: #fff;
+        letter-spacing: 1px;
+    }
+
+    .nav-search > button:hover{
+        background-color: black;
+    }
+
+    .nav-search ,fa-magnifying-glass{
+        color: blue;
+        padding-left: 100px !important;
+    }
+  
+</style>
+
 <div class="header-area">
     <div class="main-header header-sticky">
         <div class="container-fluid">
@@ -34,8 +73,10 @@
                 <div class="header-right">
                     <ul>
                         <li>
-                            <div class="nav-search search-switch">
-                                <span class="flaticon-search"></span>
+                            <div class="nav-search">
+                                
+                                <input type="text" placeholder="Search product here..">
+                                <button type="submit">Search</button>
                             </div>
                         </li>
                         <li> <a href="/profile"><span class="flaticon-user"></span></a></li>
