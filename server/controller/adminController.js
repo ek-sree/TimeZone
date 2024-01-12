@@ -520,6 +520,22 @@ const orderStatus = async(req,res)=>{
   }
 }
 
+const couponView = async(req,res)=>{
+  try {
+    res.render('admin/coupon')
+  } catch (error) {
+    
+  }
+}
+
+
+const addCouponView = async(req,res)=>{
+  try {
+    res.render('admin/addcoupon')
+  } catch (error) {
+    
+  }
+}
 
 const adlogout = async (req, res) => {
   req.session.admin = false;
@@ -555,5 +571,7 @@ module.exports = {
   deletepro,
   resizeimg,
   orderPage,
-  orderStatus
+  orderStatus,
+  couponView,
+  addCouponView
 };

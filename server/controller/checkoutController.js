@@ -13,9 +13,7 @@ const { v4: uuidv4 } = require('uuid');
 const checkOutView = async(req,res)=>{
     try {
         const userId = req.session.userId
-        console.log("userid checkout....",userId);
         const cartId = req.query.cartId
-        console.log("cart id .....",cartId);
         const categories = await categoryModel.find()
         const user = await userModels.findById(userId)
 
@@ -29,7 +27,6 @@ const checkOutView = async(req,res)=>{
         const addresses = addresslist.address.types
 
         const cart = await cartModel.findById(cartId).populate('item.productId')
-        console.log("cart item for product name",cart);
 
         for(const cartItem of cart.item || []){
             const product = await productModel.findById(cartItem.productId)
@@ -49,10 +46,6 @@ const checkOutView = async(req,res)=>{
             quantity: cartItem.quantity,
             itemTotal: cartItem.total,
         }));
-        
-        console.log("product id", cartItems[0].productId);
-        console.log("product name iss", cartItems[0].productName);
-        
 
         res.render('user/checkout',{addresses, cartItems, categories, cart, cartId})
        

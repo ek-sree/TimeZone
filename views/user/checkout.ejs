@@ -408,7 +408,7 @@
 							 Cash On Delivery
 							</label><br>
 						
-							<!-- <label>
+							<label>
 							  <input type="radio" name="paymentOption" value="Razorpay" id="paymentOption2" onchange="updateHiddenField(this)">
 							  Razorpay
 							</label><br>
@@ -416,7 +416,7 @@
 							<label>
 								<input type="radio" name="paymentOption" value="Wallet" id="paymentOption3" onchange="updateHiddenField(this)">
 							  Wallet
-							  </label><br><br> -->
+							  </label><br><br>
 						
 							
 							
@@ -519,6 +519,7 @@
 					$(this).closest('.address-item').find('.address-details').slideDown();
 				});
 			});
+
 			function updateHiddenField(selectedRadio) {
             document.getElementById('selectedPaymentOption').value = selectedRadio.value;
 			}
@@ -529,6 +530,7 @@
 		let amountToPay=document.getElementById('cartotal').innerText
 		var pay=document.querySelector('input[name="paymentOption"]:checked');
 		var addressTo=document.querySelector('input[name="selectedAddress"]:checked');
+		console.log(pay.value);
 
 
 		if(!pay){
@@ -571,7 +573,7 @@
 console.log("upi total","ppppppp");
 
 var options = {
-"key": 'rzp_test_tY3tynQ51qUYZR', 
+"key": 'rzp_test_EFsglchKeOoTGc', 
 "amount":  amountToPay*100, 
 "name": "TimeZone",
 "description": "Test Transaction",
@@ -669,6 +671,7 @@ $.ajax(settings).done(function (response) {
           showLoaderOnConfirm: false,
           timer: 3000
         });
+		
         console.log("came else but....");
       }
     } catch (error) {

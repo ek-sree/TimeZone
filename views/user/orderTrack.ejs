@@ -325,10 +325,7 @@
             <div style="color:#3b5d50;" class="col-md-6">
                 <div class="order-address">
                     <h3>Order Address</h3>
-                    <p style="font-size: 20px;"><%=order.shippingAddress ? order.shippingAddress.fullname : 'N/A'%><br><%=order.shippingAddress ? order.shippingAddress.adname : 'N/A'%>&nbsp;,&nbsp;<%=order.shippingAddress ? order.shippingAddress.street : 'N/A'%><br><%=order.shippingAddress ? order.shippingAddress.city : 'N/A'%>&nbsp;,&nbsp;<%=order.shippingAddress ? order.shippingAddress.pincode : 'N/A'%><br><%=order.shippingAddress ? order.shippingAddress.phonenumber : 'N/A'%></p>
-
-
-                    <a href="#" class="btn btn-link">Edit Address</a>
+                    <p style="font-size: 20px;"><%=order.shippingAddress ? order.shippingAddress.fullname : 'N/A'%><br><%=order.shippingAddress ? order.shippingAddress.adname : 'N/A'%>&nbsp;,&nbsp;<%=order.shippingAddress ? order.shippingAddress.street : 'N/A'%><br><%=order.shippingAddress ? order.shippingAddress.city : 'N/A'%>&nbsp;,&nbsp;<%=order.shippingAddress ? order.shippingAddress.pincode : 'N/A'%><br><%=order.shippingAddress ? order.shippingAddress.mobilenumber : 'N/A'%><br><%=order.shippingAddress ? order.shippingAddress.state : 'N/A'%>,&nbsp;&nbsp;<%=order.shippingAddress ? order.shippingAddress.country : 'N/A'%></p>
                 </div>
             </div>
 
@@ -449,139 +446,140 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-  // Simulating order with status changes
-  const order = {
-      status: '<%= order.status %>', // Set the initial order status
-      updatedAt: '<%= order.updatedAt %>'
-  };
-
-  // Function to update order status and move dots
-  function updateOrderStatus() {
-      // Reset animation for all dots
-      resetDotsAnimation();
-
-      // Move the corresponding dot based on the order status
-      switch (order.status.toLowerCase()) {
-          case 'pending':
-              moveDot('pendingDot');
-              break;
-          case 'processing':
-              moveDot('pendingDot');
-              moveDot('processingDot');
-              break;
-          case 'shipped':
-              moveDot('pendingDot');
-              moveDot('processingDot');
-              moveDot('shippedDot');
-              break;
-          case 'delivered':
-              moveDot('pendingDot');
-              moveDot('processingDot');
-              moveDot('shippedDot');
-              moveDot('deliveredDot');
-              break;
+    // Simulating order with status changes
+    const order = {
+        status: '<%= order.status %>', // Set the initial order status
+        updatedAt: '<%= order.updatedAt %>'
+    };
+  
+    // Function to update order status and move dots
+    function updateOrderStatus() {
+        // Reset animation for all dots
+        resetDotsAnimation();
+  
+        // Move the corresponding dot based on the order status
+        switch (order.status.toLowerCase()) {
+            case 'pending':
+                moveDot('pendingDot');
+                break;
+            case 'processing':
+                moveDot('pendingDot');
+                moveDot('processingDot');
+                break;
+            case 'shipped':
+                moveDot('pendingDot');
+                moveDot('processingDot');
+                moveDot('shippedDot');
+                break;
+            case 'delivered':
+                moveDot('pendingDot');
+                moveDot('processingDot');
+                moveDot('shippedDot');
+                moveDot('deliveredDot');
+                break;
+                
+  
+            // Add more cases for other order statuses
+        }
+  
+        // Display order status and updatedAt dynamically
+        document.getElementById('orderStatus').innerText = order.status;
+        document.getElementById('updatedAt').innerText = order.updatedAt;
+    }
+  
+    // Function to move a specific dot
+    function moveDot(dotId) {
+        const dot = document.getElementById(dotId);
+        dot.style.backgroundColor = '#008000'; // Set green color
+        
+  
+    }
+  
+    // Function to reset animation for all dots
+    function resetDotsAnimation() {
+        const dots = document.getElementsByClassName('dot');
+        for (const dot of dots) {
+            dot.style.backgroundColor = '	#F4B400'; 
+            dot.style.border='solid 1px black'// Reset to default color
+        }
+    }
+  
+    // Initial call to update the order status
+    updateOrderStatus();
+  
+    function confirmDialogue(route) {
+      Swal.fire({
+          title: "Are you sure?",
+          text: "Are you sure you want to proceed?",
+          icon: "warning",
+          showCancelButton: true,  
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Confirm",
+          cancelButtonText: "Cancel",  
+          dangerMode: true,
+      })
+      .then((result) => {
+          if (result.isConfirmed) {
+              window.location.href = route;
+          } else {
+              console.log("Banner deleted");
+          }
+      });
+  }
+  
+  
+          function handleRating(rating) {
               
-
-          // Add more cases for other order statuses
-      }
-
-      // Display order status and updatedAt dynamically
-      document.getElementById('orderStatus').innerText = order.status;
-      document.getElementById('updatedAt').innerText = order.updatedAt;
+              console.log('Selected rating:', rating);
+  
+             
+          }
+     
+  
+  
+  
+  
+  function openModal(productId) {
+      console.log(productId);
+      document.getElementById('productIdInput').value = productId;
+  
+    document.getElementById('rateAndReviewModal').style.display = 'block';
   }
-
-  // Function to move a specific dot
-  function moveDot(dotId) {
-      const dot = document.getElementById(dotId);
-      dot.style.backgroundColor = '#008000'; // Set green color
-      
-
+  
+  function closeModal() {
+    document.getElementById('rateAndReviewModal').style.display = 'none';
   }
-
-  // Function to reset animation for all dots
-  function resetDotsAnimation() {
-      const dots = document.getElementsByClassName('dot');
-      for (const dot of dots) {
-          dot.style.backgroundColor = '	#F4B400'; 
-          dot.style.border='solid 1px black'// Reset to default color
-      }
-  }
-
-  // Initial call to update the order status
-  updateOrderStatus();
-
-  function confirmDialogue(route) {
-    Swal.fire({
-        title: "Are you sure?",
-        text: "Are you sure you want to proceed?",
-        icon: "warning",
-        showCancelButton: true,  
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Confirm",
-        cancelButtonText: "Cancel",  
-        dangerMode: true,
-    })
-    .then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = route;
-        } else {
-            console.log("Banner deleted");
-        }
-    });
-}
-
-
-        function handleRating(rating) {
-            
-            console.log('Selected rating:', rating);
-
-           
-        }
-   
-
-
-
-
-function openModal(productId) {
-    console.log(productId);
-    document.getElementById('productIdInput').value = productId;
-
-  document.getElementById('rateAndReviewModal').style.display = 'block';
-}
-
-function closeModal() {
-  document.getElementById('rateAndReviewModal').style.display = 'none';
-}
-
-
-
-</script>
-
-<script>
-    // Get all star rating inputs
-    const starInputs = document.querySelectorAll('.star-rating input');
-
-    // Add event listener to each input
-    starInputs.forEach(function (input) {
-        input.addEventListener('click', function () {
-            const clickedValue = parseInt(this.value);
-
-            // Loop through all inputs and apply gold color to stars with values less than or equal to the clicked value
-            starInputs.forEach(function (input) {
-                const starValue = parseInt(input.value);
-                const label = input.nextElementSibling; // Get the corresponding label
-
-                if (starValue <= clickedValue) {
-                    label.style.color = 'gold';
-                } else {
-                    label.style.color = '#ddd'; // Reset other stars to default color
-                }
-            });
-        });
-    });
-</script>
-
+  
+  
+  
+  </script>
+  
+  <script>
+      // Get all star rating inputs
+      const starInputs = document.querySelectorAll('.star-rating input');
+  
+      // Add event listener to each input
+      starInputs.forEach(function (input) {
+          input.addEventListener('click', function () {
+              const clickedValue = parseInt(this.value);
+  
+              // Loop through all inputs and apply gold color to stars with values less than or equal to the clicked value
+              starInputs.forEach(function (input) {
+                  const starValue = parseInt(input.value);
+                  const label = input.nextElementSibling; // Get the corresponding label
+  
+                  if (starValue <= clickedValue) {
+                      label.style.color = 'gold';
+                  } else {
+                      label.style.color = '#ddd'; // Reset other stars to default color
+                  }
+              });
+          });
+      });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/easyinvoice/dist/easyinvoice.min.js"></script>
+  <script src="https://unpkg.com/easyinvoice/dist/easyinvoice.min.js"></script>
     <script src="/js/bootstrap.bundle.min.js"></script>
     <script src="/js/tiny-slider.js"></script>
     <script src="/js/custom.js"></script>

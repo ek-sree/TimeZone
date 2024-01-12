@@ -130,4 +130,13 @@ usrouter.get('/returnorder/:id', usercontroller.orderReturning)
 
 usrouter.get('/cancelitem/:productId/:orderId', usercontroller.itemCancel)
 
+usrouter.get('/returnitem/:productId/:orderId', usercontroller.itemReturn)
+
+usrouter.get('/download-invoice/:orderId',usercontroller.downloadInvoice)
+
+
+usrouter.post('/wallettransaction',usercontroller.walletTransaction)
+
+usrouter.post('/create/orderId', usercontroller.upi)
+
 module.exports = usrouter

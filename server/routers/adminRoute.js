@@ -61,6 +61,10 @@ adrouter.get('/orderPage',adminController.orderPage)
 
 adrouter.post('/updateOrderStatus', adminController.orderStatus)
 
+adrouter.get('/couponList', adminController.couponView)
+
+adrouter.get('/newcoupon', adminController.addCouponView)
+
 adrouter.get('/adminlogout',adauth.adminlogout, adminController.adlogout)
 
 

@@ -2,7 +2,7 @@ const userModels = require("../model/userModels");
 const otpModel = require("../model/userOtpModels");
 const otpgenerator = require("otp-generator");
 const bcrypt = require("bcrypt");
-const { Email, pass } = require("../../.env");
+const { Email, pass,key_id, key_secret } = require("../../.env");
 const nodemailer = require("nodemailer");
 const {
   nameValid,
@@ -20,6 +20,8 @@ const productModel = require("../model/productModels");
 const orderModel = require("../model/orderModel");
 const walletModel = require("../model/walletModel");
 const Razorpay = require('razorpay')
+var easyinvoice = require('easyinvoice');
+
 
 //    <<<<<<<<<---------- RENDERING HOMEPAGE ---------->>>>>>>>>>
 const home = async (req, res) => {
@@ -788,7 +790,6 @@ const updatedOrders = orders.map(order => ({
         
 
         res.render('user/orderdetails',{orders:updatedOrders})
-        console.log("order details shown to user");
     } catch (error) {
         console.log("cant show order details of users");
         res.status(400).send("cant show user order details error happened",error)
@@ -1003,12 +1004,12 @@ const itemCancel = async (req, res) => {
 
     product.stock += singleItem.quantity;
     await product.save();
-
-    const remainingNotCancelled = order.items.some(
+console.log("reaminging canccel working??");
+    const remainingNotCancelled =  order.items.filter(
       (item) => item.status !== "cancelled"
     );
-
-    if (!remainingNotCancelled) {
+console.log("items remainging cancel",remainingNotCancelled)
+    if (remainingNotCancelled.length <2) {
       order.status = "Cancelled";
       await order.save();
       console.log("its working: all items cancelled, main status updated");
@@ -1021,7 +1022,165 @@ const itemCancel = async (req, res) => {
   }
 };
 
+const itemReturn = async(req,res)=>{
+  try {
+    const userId = req.session.userId
+    const orderId = req.params.orderId
+    const productId = req.params.productId
 
+    const order = await orderModel.findOne({_id:orderId})
+    const singleItem = order.items.find((item)=>item.productId == productId)
+
+    if (!singleItem) {
+      return res.status(404).send('product not found')
+    }
+
+    if (order.paymentMethod == 'Razorpay' || order.paymentMethod == 'Wallet') {
+      const user = await walletModel.findOne({userId:userId})
+
+      const refund = singleItem.price
+      const currentWallet = user.wallet
+      const newWallet = currentWallet + refund
+      
+      await walletModel.updateOne({userId:userId},{$set:{wallet:newWallet},$push:{walletTransactions:{date:new Date(),type:"Credited",amount:refund}}})
+    }
+
+   await orderModel.updateOne({_id:orderId,'items.productId':singleItem.productId},
+   {$set:{"items.$.status":'returned',
+    totalPrice:order.totalPrice - singleItem.price,
+    updatedAt:new Date()}})
+
+    const product = await productModel.findOne({_id:singleItem.productId})
+
+    product.stock += singleItem.quantity
+    await product.save()
+
+    const remainingNotReturned = order.items.filter((item)=>item.status!=='returned')
+    if (remainingNotReturned.length <2) {
+      order.status = "Returned"
+      await order.save()
+    }
+    res.redirect(`/singleorder/${orderId}`)
+  } catch (error) {
+    console.log("error on returning single order ",error);
+    res.status(404).send("error returning this product",error)
+  }
+}
+
+const downloadInvoice = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    console.log(orderId);
+    const order = await orderModel.findOne({ orderId: orderId });
+    console.log("innn", order);
+
+    const pdfBuffer = await generateInvoice(order);
+
+    if (pdfBuffer) {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename=invoice-${order.orderId}.pdf`);
+      res.send(pdfBuffer);
+    } else {
+      console.log("Error generating PDF");
+      res.status(500).send('Error generating invoice PDF');
+    }
+  } catch (error) {
+    console.log("cant send pdf invoice", error);
+    res.status(500).send('Error generating invoice PDF');
+  }
+};
+
+
+const generateInvoice = async (order) => {
+  try {
+    let totalAmount = order.totalPrice;
+    console.log("from invoice", totalAmount);
+    const data = {
+      documentTitle: 'Invoice',
+      currency: 'INR',
+      marginTop: 25,
+      marginRight: 25,
+      marginLeft: 25,
+      marginBottom: 25,
+      sender: {
+        company: 'TimeZone',
+        address: '123 Main Street, Bangalore, India',
+        zip: '651323',
+        city: 'Bangalore',
+        country: 'INDIA',
+        phone: '9562605265',
+        email: 'timezoneofficial09@gmail.com',
+        website: 'www.timezone.shop',
+      },
+      invoiceNumber: `INV-${order.orderId}`,
+      invoiceDate: new Date().toJSON(),
+      products: order.items.map((item) => ({
+        quantity: item.quantity,
+        description: item.productName,
+        price: item.price,
+      })),
+      total: `₹${totalAmount.toFixed(2)}`,
+      tax: 0,
+      bottomNotice: 'Thank you for shopping at UrbanSole!',
+    };
+
+    const output = await easyinvoice.createInvoice(data);
+    console.log("output here",output);
+    if (output && output.pdf) {
+      const bufferedPdf = Buffer.from(output.pdf, 'base64');
+      return bufferedPdf;
+    } else {
+      console.log("Error generating PDF. Response:", output);
+      return null;
+    }
+    
+  } catch (error) {
+    console.log("Error happened, can't download invoice", error);
+    return null;
+  }
+};
+
+
+const walletTransaction = async(req,res)=>{
+  console.log("wallet trasaction is woroking??");
+  try {
+    const userId = req.session.userId
+    const amount = req.body.amount
+    const user = await walletModel.findOne({userId:userId})
+    const wallet = user.wallet
+
+    if (wallet >= amount) {
+      user.wallet -= amount
+      await user.save()
+
+     const wallet = await walletModel.findOne({userId:userId})
+
+     wallet.walletTransactions.push({type:"Debited",amount:amount,date:new Date()})
+     await wallet.save()  
+      res.json({success:true})
+    }
+    else{
+      res.json({success:false,message:"Don't have enough money in your wallet!"})
+    }
+  } catch (error) {
+    console.log("error in wallet transaction");
+    res.status(404).send("error occured during wallet transaction!!")
+  }
+} 
+
+
+const instance = new Razorpay({key_id: key_id,key_secret:key_secret})
+
+const upi = async(req,res)=>{
+  var option  = {
+    amount :500,
+    currency:"INR",
+    receipt:'order_rcpt'
+  }
+  instance.orders.create(option,function(err,order){
+    res.send({order:order.id})
+  })
+}
 
 const logout = async (req, res) => {
   try {
@@ -1031,7 +1190,7 @@ const logout = async (req, res) => {
     res.redirect("/");
   } catch (error) {
     console.log(error);
-    res.status(400).send("error occured");
+    res.status(404).send("error occured",error);
   }
 };
 
@@ -1072,5 +1231,9 @@ module.exports = {
   walletTopup,
   ordercancelling,
   orderReturning,
-  itemCancel
+  itemCancel,
+  itemReturn,
+  downloadInvoice,
+  walletTransaction,
+  upi
 };
