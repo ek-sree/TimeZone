@@ -7,16 +7,21 @@ const {  bnameValid, adphoneValid, pincodeValid}= require("../../utils/validator
 const orderModel = require("../model/orderModel")
 const mongoose = require('mongoose')
 const { v4: uuidv4 } = require('uuid');
-
+const couponModel = require("../model/couponModel")
 
 
 const checkOutView = async(req,res)=>{
     try {
+        console.log("reached checkoutpage router");
         const userId = req.session.userId
         const cartId = req.query.cartId
         const categories = await categoryModel.find()
         const user = await userModels.findById(userId)
-
+        const availableCoupons = await couponModel.find({
+            couponCode: { $nin: user.usedCoupons },
+            status:true
+          });
+console.log("issssssssssssssssssssssssssssssssssssss");
         const addresslist = await userModels.findOne({_id:userId})
 
         if (!addresslist) {
@@ -46,8 +51,8 @@ const checkOutView = async(req,res)=>{
             quantity: cartItem.quantity,
             itemTotal: cartItem.total,
         }));
-
-        res.render('user/checkout',{addresses, cartItems, categories, cart, cartId})
+console.log("yyyyyyyyyyyyyyyyyyyy");
+        res.render('user/checkout',{availableCoupons,addresses, cartItems, categories, cart, cartId, cartId: cartId,})
        
     } catch (error) {
         console.log("cant show checkout page");
@@ -56,137 +61,119 @@ const checkOutView = async(req,res)=>{
 }
 
 
-const checkoutreload = async(req,res)=>{
+const checkoutreload = async (req, res) => {
     try {
-        const cartId = req.body.cartId
-        console.log("is post address working");
-        const {saveas,fullname,adname,street,pincode,city,state,country,phone} = req.body
-        console.log("gettig in body",req.body);
-        const userId = req.session.userId
-        console.log("body id",userId);
-        const userExisted = await userModels.findOne({_id:userId})
-        console.log("bhhhhhhhhhhhhhhhhhhh",userExisted);
-        const fullnamevalid=bnameValid(fullname)
-        const saveasvalid=bnameValid(saveas)
-        const adnameValid=bnameValid(adname)
-        const streetValid=bnameValid(street)
-        const pinvalid=pincodeValid(pincode)
-        const cityValid=bnameValid(city)
-        const stateValid=bnameValid(state)
-        const countryValid=bnameValid(country)
-        const phoneValid=adphoneValid(phone)
-        console.log("assiing validation");
-            if (!saveasvalid) {
-                return res.redirect(`/checkoutpage?cartId=${cartId}`, { saveaserror: "Enter valid address type" });
+        const cartId = req.body.cartId;
+        const {
+            saveas,
+            fullname,
+            adname,
+            street,
+            pincode,
+            city,
+            state,
+            country,
+            phone
+        } = req.body;
+        const userId = req.session.userId;
+        const userExisted = await userModels.findOne({
+            _id: userId
+        });
+
+        const fullnamevalid = bnameValid(fullname);
+        const saveasvalid = bnameValid(saveas);
+        const adnameValid = bnameValid(adname);
+        const streetValid = bnameValid(street);
+        const pinvalid = pincodeValid(pincode);
+        const cityValid = bnameValid(city);
+        const stateValid = bnameValid(state);
+        const countryValid = bnameValid(country);
+        const phoneValid = adphoneValid(phone);
+
+        if (!saveasvalid || !fullnamevalid || !adnameValid || !streetValid || !pinvalid || !cityValid || !stateValid || !countryValid || !phoneValid) {
+            req.flash('saveaserror', "Enter valid address type");
+            req.flash('fullnameerror', "Enter valid Name");
+            req.flash('adnameerror', "Enter valid house or flat name");
+            req.flash('streeterror', "Enter valid street name");
+            req.flash('pinerror', "Enter valid pincode");
+            req.flash('cityerror', "Enter valid city");
+            req.flash('stateerro', "Enter valid state");
+            req.flash('countryerror', "Enter valid country");
+            req.flash('phoneerror', "Enter valid Phone number");
+            return res.redirect(`/checkoutpage?cartId=${cartId}`);
+        }
+
+        // Ensure that the cartId is provided
+        if (!cartId) {
+            console.log('Cart ID not provided');
+            return res.status(400).send('Cart ID not provided');
+        }
+
+        // Find the cart by ID
+        const cart = await cartModel.findById(cartId).populate('item.productId');
+
+        // Check if cart exists
+        if (!cart) {
+            console.log('Cart not found');
+            return res.status(404).send('Cart not found');
+        }
+
+        // Update user's cart and add a new address
+        if (userExisted) {
+            const existingAddress = userExisted.address.types.find(addr => addr.saveas === saveas && addr.fullname === fullname && addr.adname === adname && addr.street === street && addr.pincode === pincode && addr.city === city && addr.state === state && addr.country === country && addr.mobilenumber === phone);
+
+            if (existingAddress) {
+                return res.redirect(`/checkoutpage?cartId=${cartId}`);
             }
-            if (!fullnamevalid) {
-                return res.redirect(`/checkoutpage?cartId=${cartId}`, { fullnameerror: "Enter a valid fullname" });
-            }
-            if (!adnameValid) {
-                return res.redirect(`/checkoutpage?cartId=${cartId}`, { adnameerror: "Enter a valid house or flat name" });
-            }
-            if (!streetValid) {
-                return res.redirect(`/checkoutpage?cartId=${cartId}`, { streeterror: "Enter a valid street name" });
-            }
-            if (!pinvalid) {
-                return res.redirect(`/checkoutpage?cartId=${cartId}`, { pinerror: "Enter a valid pincode" });
-            }
-            if (!cityValid) {
-                return res.redirect(`/checkoutpage?cartId=${cartId}`, { cityerror: "Enter a valid city" });
-            }
-            if (!stateValid) {
-                return res.redirect(`/checkoutpage?cartId=${cartId}`, { stateerror: "Enter a valid state" });
-            }
-            if (!countryValid) {
-                return res.redirect(`/checkoutpage?cartId=${cartId}`, { countryerror: "Enter a valid country" });
-            }
-            console.log("eeeeeeeeeeeeee");
-            // if (!phoneValid) {
-            //     return res.redirect(`/checkoutpage?cartId=${cartId}`, { phoneerror: "Enter a valid Phone number" });
-            // }
-            console.log("validation of address completed");
-            if (userExisted) {
-                // Corrected query to find existing address for the user
-                const existingAddress = await userModels.findOne({
-                    '_id': userId,
-                    "address.types": {
-                        $elemMatch: {
-                            saveas:saveas,
-                            fullname: fullname,
-                            adname: adname,
-                            street: street,
-                            pincode: pincode,
-                            city: city,
-                            state: state,
-                            country: country,
-                            mobilenumber: phone
-                        }
-                    }
-                });
-    
-                if (existingAddress) {
-                    
-                    return res.redirect('/addAddress');
-                }
-    
-                userExisted.address.types.push({
-                    saveas,
-                    fullname,
-                    adname,
-                    street,
-                    pincode,
-                    city,
-                    state,
-                    country,
-                    mobilenumber:phone
-                   
-                });
-                await userExisted.save();
-            }
-    
-            const categories = await categoryModel.find();
-            const addresslist = await userModels.findOne({ _id: userId });
-    
-            if (!addresslist) {
-                console.log('User not found');
-                // Handle the case where the user with the given userId is not found
-                return res.status(404).send('User not found');
-            }
-    
-            const addresses = addresslist.address.types;
-    
-            // Check if cartId is provided and is valid
-            if (!cartId) {
-                console.log('Cart ID not provided');
-                return res.status(400).send('Cart ID not provided');
-            }
-    
-            // Find the cart by ID
-            const cart = await cartModel.findById(cartId).populate('item.productId');
-    
-            // Check if cart exists
-            if (!cart) {
-                console.log('Cart not found');
-                return res.status(404).send('Cart not found');
-            }
-    
-            const cartItems = cart.item.map((cartItem) => ({
-                productName: cartItem.productId.name,
-                quantity: cartItem.quantity,
-                itemTotal: cartItem.total,
-            }));
-    console.log("jsbdhakljsholasjf",cartItems);
-            console.log('Cart Total:', cart.total);
+
+            userExisted.address.types.push({
+                saveas,
+                fullname,
+                adname,
+                street,
+                pincode,
+                city,
+                state,
+                country,
+                mobilenumber: phone
+            });
+
+            await userExisted.save();
+        }
+
+        const categories = await categoryModel.find();
+        const addresslist = await userModels.findOne({
+            _id: userId
+        });
+
+        if (!addresslist) {
+            console.log('User not found');
+            return res.status(404).send('User not found');
+        }
+
+        const addresses = addresslist.address.types;
+
+        const cartItems = cart.item.map((cartItem) => ({
+            productId: cartItem.productId._id,  
+            productName: cartItem.productId.name,
+            quantity: cartItem.quantity,
+            itemTotal: cartItem.total,
+        }));
+        
+        res.render("user/checkout", {
+            addresses,
+            cartItems,
+            categories,
+            cart
+        });
         
 
-             
-                    res.render("user/checkout",{addresses,cartItems,categories,cart}); 
-        }
-     catch (error) {
-        console.log("cant add checkout addr");
-        res.status(400).send("checkout addres not workoing")
+    } catch (error) {
+        console.log("Error in checkout reload:", error);
+        res.status(400).send("Error in checkout reload");
     }
 }
+
 
 
 // <<<<<<<<<<<<<<<<<<--------------------Order details------------------->>>>>>>>>>>>>>>>>>>>>>>
@@ -214,13 +201,19 @@ const orderingView = async (req, res) => {
         }
 
         // Create items array
-        const items = selectedProductNames.map((productName, index) => ({
-            productId: selectedProductIds[index],
+        // Create items array
+        const items = req.body.selectedProductNames.map((productName, index) => ({
             productName: req.body.selectedProductNames[index],
-            singleprice: parseInt(selectedProductPrices[index]),
-            quantity: parseInt(selectedQuantities[index]), 
-            price: parseInt(selectedCartTotals[index]),
+            productId: req.body.selectedProductIds[index],
+            singleprice: parseInt(req.body.selectedProductPrices[index]),
+            quantity: parseInt(req.body.selectedQuantities[index]),
+            price: parseInt(req.body.selectedCartTotals[index]),
         }));
+console.log("aaaaaaaaaaaahhhhhhh",items.productId);
+console.log("totalll pricee", items.price);
+
+        
+        
         if (items.some(item => isNaN(item.quantity))) {
             const invalidItem = items.find(item => isNaN(item.quantity));
             console.log("Invalid quantity value found for item:", invalidItem);
@@ -237,7 +230,8 @@ const orderingView = async (req, res) => {
             userId:userId,
             userName: selectedAddress.fullname,
             items,
-            totalPrice,
+            price:totalPrice,
+            totalPrice:parseInt(req.body.carttotal),
             shippingAddress: selectedAddress,
             paymentMethod: selectedPaymentOption,
             createdAt: new Date(),
@@ -248,7 +242,7 @@ console.log("ssssss",order);
         console.log("Order saving process");
         await order.save();
         console.log("Order saved successfully");
-
+        console.log("selectedProductIds:", req.body.selectedProductIds);
         // Update user's cart and product stocks
         for (const item of items) {
             const updatedQuantity = -item.quantity; 
@@ -256,6 +250,7 @@ console.log("ssssss",order);
             await cartModel.updateOne({ userId }, { $set: { total: 0 } });
             await productModel.updateOne({ _id: item.productId }, { $inc: { stock: updatedQuantity } });
         }
+        
 
         console.log("Order processing completed");
 

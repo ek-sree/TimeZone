@@ -145,47 +145,47 @@
         <div class="form-group col-md-6">
             <label for="saveas">Save as</label>
             <input type="text" id="saveas" name="saveas" value="<%= addressToEdit.saveas %>" class="form-control">
-            <% if(locals.saveaserror){%>
-              <div class="alter text-danger text-start"><%= saveaserror%></div>
+            <% if(expressFlash.saveaserror){%>
+              <div class="alter text-danger text-start"><%= expressFlash.saveaserror %></div>
           <%}%>
           </div>
         <div class="form-group col-md-6">
           <label for="fullname">Full Name</label>
           <input type="text" id="fullname" name="fullname"value="<%= addressToEdit.fullname %>" class="form-control">
-          <% if(locals.fullnameerror){%>
-            <div class="alter text-danger text-start"><%= fullnameerror%></div>
+          <% if(expressFlash.fullnameerror){%>
+            <div class="alter text-danger text-start"><%= expressFlash.fullnameerror%></div>
         <%}%>
         </div>
   
         <div class="form-group col-md-6">
           <label for="adname">House Name / Flat No</label>
           <input type="text" id="adname" name="adname" value="<%= addressToEdit.adname %>" class="form-control">
-          <% if(locals.adnameerror){%>
-            <div class="alter text-danger text-start"><%= adnameerror%></div>
+          <% if(expressFlash.adnameerror){%>
+            <div class="alter text-danger text-start"><%= expressFlash.adnameerrorr%></div>
         <%}%>
         </div>
   
         <div class="form-group col-md-6">
           <label for="street">Street</label>
           <input type="text" id="street" name="street"value="<%= addressToEdit.street %>" class="form-control">
-          <% if(locals.streeterror){%>
-            <div class="alter text-danger text-start"><%= streeterror%></div>
+          <% if(expressFlash.streeterror){%>
+            <div class="alter text-danger text-start"><%= expressFlash.streeterror%></div>
         <%}%>
         </div>
   
         <div class="form-group col-md-6">
           <label for="pincode">Pincode</label>
           <input type="number" id="pincode" name="pincode" value="<%= addressToEdit.pincode %>"class="form-control">
-          <% if(locals.pinerror){%>
-            <div class="alter text-danger text-start"><%= pinerror%></div>
+          <% if(expressFlash.pinerror){%>
+            <div class="alter text-danger text-start"><%= expressFlash.pinerror%></div>
         <%}%>
         </div>
   
         <div class="form-group col-md-6">
           <label for="city">City</label>
           <input type="text" id="city" name="city" value="<%= addressToEdit.city %>"class="form-control">
-          <% if(locals.cityerror){%>
-            <div class="alter text-danger text-start"><%= cityerror%></div>
+          <% if(expressFlash.cityerror){%>
+            <div class="alter text-danger text-start"><%= expressFlash.cityerror%></div>
         <%}%>
         </div>
   
@@ -197,8 +197,8 @@
             <option value="Karnataka">Karnataka</option>
             <option value="TamilNadu">Tamil Nadu</option>
           </select>
-          <% if(locals.stateerror){%>
-            <div class="alter text-danger text-start"><%= stateerror%></div>
+          <% if(expressFlash.stateerror){%>
+            <div class="alter text-danger text-start"><%= expressFlash.stateerrorr%></div>
         <%}%>
           </div>
       
@@ -207,16 +207,16 @@
           <select id="country" name="country" class="form-control" required>
             <option value="India">India</option>
           </select>
-          <% if(locals.countryerror){%>
-            <div class="alter text-danger text-start"><%= countryerror%></div>
+          <% if(expressFlash.countryerror){%>
+            <div class="alter text-danger text-start"><%= expressFlash.countryerror%></div>
         <%}%>
           </div>
   
         <div class="form-group col-md-6">
           <label for="phone">Phone Number</label>
           <input type="number" id="phone" name="phone" value="<%= addressToEdit.mobilenumber %>" class="form-control">
-          <% if(locals.phoneerror){%>
-            <div class="alter text-danger text-start"><%= phoneerror%></div>
+          <% if(expressFlash.phoneerror){%>
+            <div class="alter text-danger text-start"><%= expressFlash.phoneerror%></div>
         <%}%>
         </div>
   

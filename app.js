@@ -22,6 +22,10 @@ app.use(session({
     saveUninitialized: true
 }));
 
+app.use(flash({
+    sessionKeyName:'flashMessage',
+    useViewEngine:true
+}))
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

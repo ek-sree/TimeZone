@@ -1,0 +1,207 @@
+<!-- UserProfile Page -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="author" content="Untree.co">
+  <link rel="shortcut icon" href="images/MYLOGO.png">
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="bootstrap, bootstrap4" />
+
+  <!-- Bootstrap CSS -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="css/tiny-slider.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <title>Rewards-Coupons</title>
+
+  <style>
+
+
+	/* Default style for select-line */
+  .select-line {
+    background-color: #3b5d50;
+}
+
+/* Media query for small screens (e.g., mobile devices) */
+@media (max-width: 767px) {
+    .select-line {
+        height: 8vw; /* Set the height for small screens */
+		align-items: start;
+		margin-top: 0.1px;
+    }
+}
+
+/* Media query for medium screens (e.g., tablets) */
+@media (min-width: 768px) and (max-width: 991px) {
+    .select-line {
+        height: 6vw; /* Set the height for medium screens */
+    }
+}
+
+/* Media query for large screens (e.g., desktops) */
+@media (min-width: 992px) {
+    .select-line {
+        height: 4vw; /* Set the height for large screens */
+    }
+}
+  
+
+  
+   
+    .search-bar {
+      background-color: #3b5d50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 35px;
+      margin: 0;
+      display: flex;
+      border: 2px solid #efeeee;
+      border-radius: 30px;
+      overflow: hidden;
+    }
+
+    .search-input {
+      border: none;
+      padding: 10px;
+      background-color: #3b5d50;
+      color: white;
+    }
+	@media (min-width: 1200px) {
+  /* Set the width to 110vh for devices with a minimum width of 1200px */
+  .search-input {
+    width: 110vh;
+  }
+}
+
+    .search-button {
+      background-color: #3d5d50;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-top-right-radius: 20px;
+      border-bottom-right-radius: 20px;
+      cursor: pointer;
+    }
+    .custom-rounded {
+    border-radius:8px; /* Adjust the value as needed */
+}
+  </style>
+</head>
+
+<body>
+
+  <%-include('partials/header')%>
+
+  <!-- End Header/Navigation -->
+
+  <!-- Start Hero Section -->
+  <div class="hero mb-5" style="height:40vh" >
+    <div class="container ">
+        <div class="row justify-content-between">
+            <div class="col-lg-12">
+              <div class="d-flex align-items-center">
+                <div  class="intro-excerpt">
+
+                    <h1>Coupons And Rewards</h1>
+                  
+                </div>
+               <!-- here referal code need -->
+                
+                
+            </div>
+            
+           </div>
+           
+        </div>
+        
+    </div>
+    
+</div>
+<!-- End Hero Section -->
+<div class="mb-5">
+  <!-- User Profile Page Content -->
+  <div class="container mt-5 mb-5">
+    <div class="row mb-5">
+        <% coupons.forEach(coupon => { %>
+            <div class="col-lg-4 col-md-6 mb-5">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Coupon Code: <span style="font-weight: 700;"><%= coupon.couponCode %></span></h5>
+                        <% if (coupon.type === "percentageDiscount") { %>
+                            <p style="font-size: 20px;"><%= coupon.discount %>% off on Rs.<%= coupon.minimumPrice %> purchase (Maximum Redeemable: <%= coupon.maxRedeem %>)</p><br>
+                          <% } else { %>
+                            <p style="font-size: 20px;"> Flat Rs. <%= coupon.discount %>% off on <%= coupon.minimumPrice %> purchase</p><br>
+                          <% } %>
+                        
+                        <button class="btn btn-primary copy-btn position-absolute top-0 end-0 m-2 p-1 custom-rounded"
+                                data-coupon-code="<%= coupon.couponCode %>">
+                                <i class="fas fa-copy"></i>&nbsp;Copy
+                            </button>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+</div>
+</div>
+  <!-- End User Profile Page Content -->
+
+ 		<!-- Start Footer Section -->
+         <%-include('partials/footer')%>
+
+        
+		<!-- End Footer Section -->	
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/tiny-slider.js"></script>
+  <script src="js/custom.js"></script>
+  <script>
+    function copyReferralCode() {
+        const referralCodeInput = document.getElementById('referralCodeInput');
+        referralCodeInput.select();
+        document.execCommand('copy');
+
+        // Display a brief "Copied!" message using SweetAlert2
+        Swal.fire({
+            icon: 'success',
+            title: 'Copied!',
+            showConfirmButton: false,
+            timer: 1000, // 1 second
+        });
+    }
+</script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const copyButtons = document.querySelectorAll('.copy-btn');
+
+        copyButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const couponCode = this.getAttribute('data-coupon-code');
+                
+                const tempInput = document.createElement('input');
+                tempInput.setAttribute('value', couponCode);
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Copied!',
+                    showConfirmButton: false,
+                    timer: 1000, // 1 second
+                });
+            });
+        });
+    });
+</script>
+</body>
+
+</html>

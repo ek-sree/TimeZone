@@ -1,17 +1,10 @@
-<!-- /*
-* Bootstrap 5
-* Template Name: Furni
-* Template Author: Untree.co
-* Template URI: https://untree.co/
-* License: https://creativecommons.org/licenses/by/3.0/
-*/ -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="author" content="Untree.co">
-  <link rel="shortcut icon" href="favicon.png">
+  <link rel="shortcut icon" href="images/MYLOGO.png">
 
   <meta name="description" content="" />
   <meta name="keywords" content="bootstrap, bootstrap4" />
@@ -214,7 +207,8 @@
 								<div class="address-item">
 									<label>
 										<!-- Add a data attribute to the radio button to store the address ID -->
-										<input type="radio" name="selectedAddress" value="<%= address._id %>" class="address-radio" data-address-id="<%= address._id %>">
+                                    <input type="radio" name="selectedAddress" value="<%= address.id %>" class="address-radio" data-address-id="<%= address.id %>">
+
 										<span class="larger-text"><%= address.saveas %></span>
 									</label>
 									<div class="address-details larger-text">
@@ -234,7 +228,17 @@
 						<p>No addresses found.</p>
 					<% } %>
 					
-					
+				
+		        
+
+
+		            
+
+		          
+
+		           
+
+
 
 
 		            <div class="form-group">
@@ -360,7 +364,34 @@
 
 		          </div>
 		        </div>
-		        
+		        <div class="col-md-6">
+
+		          <div class="row mb-5">
+		            <div class="col-md-12">
+		              <h2 class="h3 mb-3 text-black">Coupon Code</h2>
+		              <div class="p-3 p-lg-5 border bg-white">
+						<!-- Add a button to open the modal -->
+<button onclick="openModal()"><h2>Available Coupons</h2></button>
+
+<!-- The Modal -->
+
+						
+                        <form>
+		                <label for="c_code" class="text-black mb-3">Enter your coupon code if you have one</label>
+		                <div class="input-group w-75 couponcode-wrap">
+		                  <input type="text" class="form-control me-2" id="c_code" placeholder="Coupon Code" aria-label="Coupon Code" aria-describedby="button-addon2">
+		                  <div class="input-group-append">
+		                    <button class="btn btn-black btn-sm" type="button" id="button-addon2" onclick="couponApply()">Apply</button>
+		                  </div>
+						  <div >
+		                    <button style="color: black;border: solid black;margin-left: 3px;" class="btn btn-white-outline btn-sm" type="button" id="button-addon3" onclick="couponRevoke()">Clear</button>
+		                  </div>
+		                </div>
+					</form>
+
+		              </div>
+		            </div>
+		          </div>
 
 		          <div class="row mb-5">
 		            <div class="col-md-12">
@@ -426,7 +457,7 @@
 							<!-- Add other hidden fields for additional address properties as needed -->
 							<% cartItems.forEach(cartItem => { %>
 							<!-- Hidden input fields for cart item details -->
-							<input type="hidden" name="selectedProductIds[]" class="selectedProductIds[]" value="<%= cartItem.productId ? cartItem.productId.toString() : '' %>">
+							<input type="hidden" name="selectedProductIds[]" class="selectedProductIds[]" value="<%= cartItem.productId %>">
 
 							<input type="hidden" name="selectedProductNames[]" class="selectedProductNames[]" value="<%= cartItem.productName %>">
 							<input type="hidden" name="selectedProductPrices[]" class="selectedProductPrices[]" value="<%= cartItem.price %>">

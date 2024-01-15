@@ -65,6 +65,14 @@ adrouter.get('/couponList', adminController.couponView)
 
 adrouter.get('/newcoupon', adminController.addCouponView)
 
+adrouter.post('/add_coupon',adminController.createCoupon)
+
+adrouter.get('/unlistCoupon/:id', adminController.couponUnist)
+
+adrouter.get('/editCouponGet/:id', adminController.editCoupon)
+
+adrouter.post('/updateCoupon/:id',adminController.editCouponPost)
+
 adrouter.get('/adminlogout',adauth.adminlogout, adminController.adlogout)
 
 

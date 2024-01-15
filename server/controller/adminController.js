@@ -6,6 +6,8 @@ const bcrypt = require("bcrypt");
 const fs = require("fs");
 const sharp = require("sharp");
 const orderModel = require("../model/orderModel");
+const couponModel = require("../model/couponModel");
+const { findOne } = require("../model/walletModel");
 
 // <<<<<<<<<<<<<<<<<<-----------------Admin login page rendering------------------->>>>>>>>>>>>>>>>>
 const login = (req, res) => {
@@ -152,7 +154,9 @@ const addcategorypost = async (req, res) => {
     const description = req.body.description;
 
     if (!categoryName.trim() || !description.trim()) {
-      return res.render('admin/addcategories',{catexist:"category name and description must be required"})
+      return res.render("admin/addcategories", {
+        catexist: "category name and description must be required",
+      });
     }
     const categoryExist = await categoryModel.findOne({ name: categoryName });
     if (categoryExist) {
@@ -353,9 +357,12 @@ const updatepropost = async (req, res) => {
       dialColor,
       feature,
     } = req.body;
-    const product = await productModel.findOne({_id:id})
+    const product = await productModel.findOne({ _id: id });
     if (mrp <= 0 || productprice <= 0) {
-      return res.render('admin/updateproduct', { product: product, priceerror: "Price and MRP must be greater than 0" });
+      return res.render("admin/updateproduct", {
+        product: product,
+        priceerror: "Price and MRP must be greater than 0",
+      });
     }
     await productModel.updateOne(
       { _id: id },
@@ -464,7 +471,6 @@ const deletepro = async (req, res) => {
   }
 };
 
-
 // <<<<<<<<<<<<<<<<<<----------------Not yet done -------------------->>>>>>>>>>>>>>>>>>>>>
 
 const resizeimg = async (req, res) => {
@@ -492,50 +498,147 @@ const resizeimg = async (req, res) => {
   }
 };
 
-
-const orderPage = async(req,res)=>{
+const orderPage = async (req, res) => {
   try {
-    const order = await orderModel.find({})
-    console.log("admin order is getting here",order);
-    res.render("admin/orderpage",{order})
+    const order = await orderModel.find({});
+    console.log("admin order is getting here", order);
+    res.render("admin/orderpage", { order });
   } catch (error) {
     console.log("error loading order page");
   }
-}
+};
 
-const orderStatus = async(req,res)=>{
+const orderStatus = async (req, res) => {
   try {
-    const {status , orderId} = req.body
-    const updateOrder = await orderModel.findOneAndUpdate({_id:orderId},{$set:{status:status,
-      updatedAt:Date.now()}},{new:true})
+    const { status, orderId } = req.body;
+    const updateOrder = await orderModel.findOneAndUpdate(
+      { _id: orderId },
+      { $set: { status: status, updatedAt: Date.now() } },
+      { new: true }
+    );
 
-      if (updateOrder) {
-        res.redirect('admin/orderPage')
-        console.log("update completed");
-      }
-      res.status(400).send("cant change the order status error")
-      console.log("error changing order status");
-  } catch (error) {
-    
-  }
-}
+    if (updateOrder) {
+      res.redirect("admin/orderPage");
+      console.log("update completed");
+    }
+    res.status(400).send("cant change the order status error");
+    console.log("error changing order status");
+  } catch (error) {}
+};
 
-const couponView = async(req,res)=>{
+const couponView = async (req, res) => {
   try {
-    res.render('admin/coupon')
-  } catch (error) {
-    
-  }
-}
+    const coupons = await couponModel.find({});
 
+    res.render("admin/coupon", { coupons });
+  } catch (error) {}
+};
 
-const addCouponView = async(req,res)=>{
+const addCouponView = async (req, res) => {
   try {
-    res.render('admin/addcoupon')
+    res.render("admin/addcoupon");
+  } catch (error) {}
+};
+
+const createCoupon = async (req, res) => {
+  try {
+    const {
+      couponCode,
+      couponType,
+      minimumPrice,
+      discount,
+      maxRedeem,
+      expiry,
+    } = req.body;
+    const couponExist = await couponModel.findOne({ couponCode: couponCode });
+
+    if (couponExist) {
+      res.render("admin/addcoupon", {
+        couponExisterror: "coupon code already exist",
+      });
+    } else {
+      await couponModel.create({
+        couponCode: couponCode,
+        type: couponType,
+        minimumPrice: minimumPrice,
+        discount: discount,
+        maxRedeem: maxRedeem,
+        expiry: expiry,
+      });
+      res.redirect("/admin/couponList");
+    }
   } catch (error) {
-    
+    console.log("coupon adding is not working");
+    res.status(404).send("adding new coupon error", error);
   }
-}
+};
+
+const couponUnist = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const coupons = await couponModel.findOne({ _id: id });
+    coupons.status = !coupons.status;
+    await coupons.save();
+    res.redirect("/admin/couponList");
+  } catch (error) {
+    console.log("coupon unist error");
+    res.status(404).send("error while unlisting coupon");
+  }
+};
+
+const editCoupon = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const coupon = await couponModel.findOne({ _id: id });
+    res.render("admin/editcoupon", { coupon, expressFlash: { existingCouponError: req.flash('existingCouponError') } });
+  } catch (error) {
+    console.log("error rendering coupon page");
+    res.status(404).send("error rendering edit coupon page");
+  }
+};
+
+const editCouponPost = async (req, res) => {
+  try {
+    const {
+      couponCode,
+      couponType,
+      minimumPrice,
+      discount,
+      maxRedeem,
+      expiry,
+    } = req.body;
+    const id = req.params.id;
+    console.log("coupon", id);
+
+    const existingCoupon = await couponModel.findOne({ couponCode, _id: { $ne: id } });
+
+    if (existingCoupon) {
+      console.log("Coupon with the same code already exists");
+      req.flash('existingCouponError','coupon code is already exist')
+      return res.redirect(`/admin/editCouponGet/${id}`);
+    } else {
+      const result = await couponModel.updateOne(
+        { _id: id },
+        {
+          $set: {
+            couponCode: couponCode,
+            type: couponType,
+            minimumPrice: minimumPrice,
+            discount: discount,
+            maxRedeem: maxRedeem,
+            expiry: expiry,
+          },
+        }
+      );
+      console.log("final", result);
+      res.redirect('/admin/couponList');
+    }
+  } catch (error) {
+    console.log("Error during coupon edit:", error);
+    res.status(404).send("Error happened during editing coupon");
+  }
+};
+
 
 const adlogout = async (req, res) => {
   req.session.admin = false;
@@ -573,5 +676,9 @@ module.exports = {
   orderPage,
   orderStatus,
   couponView,
-  addCouponView
+  addCouponView,
+  createCoupon,
+  couponUnist,
+  editCoupon,
+  editCouponPost
 };

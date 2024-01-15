@@ -120,6 +120,8 @@ usrouter.get('/checkout', checkoutcontroller.checkOutView)
 
 usrouter.post('/checkoutreload', checkoutcontroller.checkoutreload);
 
+
+
 usrouter.post('/placeOrder', checkoutcontroller.orderingView)
 
 usrouter.get('/orderdetails', usercontroller.orderDetailsView)
@@ -138,5 +140,15 @@ usrouter.get('/download-invoice/:orderId',usercontroller.downloadInvoice)
 usrouter.post('/wallettransaction',usercontroller.walletTransaction)
 
 usrouter.post('/create/orderId', usercontroller.upi)
+
+
+usrouter.get('/Rewards',usercontroller.coupons)
+
+usrouter.post('/applyCoupon', usercontroller.couponApply)
+
+usrouter.post('/revokeCoupon',usercontroller.revokedCoupon)
+
+
+usrouter.get('/search',usercontroller.searchFunc)
 
 module.exports = usrouter

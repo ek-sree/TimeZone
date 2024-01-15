@@ -175,7 +175,7 @@
                             <div class="single-footer-caption mb-30">
                                 <!-- logo -->
                                 <div class="footer-logo">
-                                    <a href="index.html"><img src="img/logo/logo2_footer.png" alt=""></a>
+                                    <a href="/index"><img src="img/logo/logo2_footer.png" alt=""></a>
                                 </div>
                                 <div class="footer-tittle">
                                     <div class="footer-pera">
@@ -307,40 +307,42 @@ async function fetchProducts(sortOrder) {
 
             // Iterate through each product and create corresponding HTML
             data.forEach((product, index) => {
-                const productContainer = document.createElement('div');
-                productContainer.className = 'col-xl-4 col-lg-4 col-md-6 col-sm-6';
+    const productContainer = document.createElement('div');
+    productContainer.className = 'col-xl-4 col-lg-4 col-md-6 col-sm-6';
 
-                productContainer.innerHTML = `
-                    <div class="single-popular-items mb-50 text-center">
-                        <div class="popular-img">
-                            ${Array.isArray(product.images) && product.images.length > 0 ?
-                                `<img src="/${product.images[0]}" alt="${product.name}">` :
-                                `<p>No image available</p>`
-                            }
-                            <div class="img-cap">
-                                <span>Add to cart</span>
-                            </div>
-                            <div class="favorit-items">
-                                <span class="flaticon-heart"></span>
-                            </div>
-                        </div>
-                        <div class="popular-caption">
-                            <h3>${product.name}</h3>
-                            <span>$ ${product.price}</span>
-                        </div>
+    productContainer.innerHTML = `
+        <a href="/singleproduct/${product._id}"> 
+            <div class="single-popular-items mb-50 text-center">
+                <div class="popular-img">
+                    ${Array.isArray(product.images) && product.images.length > 0 ?
+                        `<img src="/${product.images[0]}" alt="${product.name}">` :
+                        `<p>No image available</p>`
+                    }
+                    <div class="img-cap">
+                        <span>Add to cart</span>
                     </div>
-                `;
+                    <div class="favorit-items">
+                        <span class="flaticon-heart"></span>
+                    </div>
+                </div>
+                <div class="popular-caption">
+                    <h3>${product.name}</h3>
+                    <span>$ ${product.price}</span>
+                </div>
+            </div>
+        </a>
+    `;
 
-                // Append the product container to the row container
-                rowContainer.appendChild(productContainer);
+    // Append the product container to the row container
+    rowContainer.appendChild(productContainer);
 
-                // Check if a new row should be started after every third product
-                if ((index + 1) % 3 === 0 || index === data.length - 1) {
-                    showSortProduct.appendChild(rowContainer);
-                    rowContainer = document.createElement('div');
-                    rowContainer.className = 'row';
-                }
-            });
+    // Check if a new row should be started after every third product
+    if ((index + 1) % 3 === 0 || index === data.length - 1) {
+        showSortProduct.appendChild(rowContainer);
+        rowContainer = document.createElement('div');
+        rowContainer.className = 'row';
+    }
+});
         } else {
             // If there are no products, display a message
             showSortProduct.innerHTML = '<p>No products available for this category.</p>';

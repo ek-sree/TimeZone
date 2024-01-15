@@ -21,6 +21,8 @@ const orderModel = require("../model/orderModel");
 const walletModel = require("../model/walletModel");
 const Razorpay = require('razorpay')
 var easyinvoice = require('easyinvoice');
+const couponModel = require("../model/couponModel");
+const categoryModel = require("../model/categoryModel");
 
 
 //    <<<<<<<<<---------- RENDERING HOMEPAGE ---------->>>>>>>>>>
@@ -608,8 +610,20 @@ const editAddress = async (req, res) => {
     console.log("hhhhhhhhhhhhh");
     const addressToEdit = user.address.types.id(addressId);
     console.log("thiisss", addressToEdit);
-    res.render("user/editaddress.ejs", { addressToEdit: addressToEdit });
-  } catch (error) {}
+    res.render("user/editaddress", { addressToEdit: addressToEdit ,expressFlash:{
+      saveaserror:req.flash('saveaserror'),
+      fullnameerror:req.flash('fullnameerror'),
+      adnameerror:req.flash('adnameerror'),
+      streeterror:req.flash('streeterror'),
+      pinerror:req.flash('pinerror'),
+      cityerror:req.flash('cityerror'),
+       stateerror:req.flash(' stateerror'),
+      countryerror:req.flash('countryerror'),
+      phoneerror:req.flash('phoneerror'),
+    } });
+  } catch (error) {
+    console.log("error editing address");
+  }
 };
 
 const editAddresspost = async (req, res) => {
@@ -663,49 +677,40 @@ const editAddresspost = async (req, res) => {
     const phoneValid = adphoneValid(phone);
     console.log("assiing validation");
     if (!saveasvalid) {
-      return res.redirect(`/editaddress/${addressId}`, {
-        saveaserror: "Enter valid address type",
-      });
+      req.flash('saveaserror',"Enter valid address type")
+      return res.redirect(`/editaddress/${addressId}`);
     }
     if (!fullnamevalid) {
-      return res.redirect(`/editaddress/${addressId}`, {
-        fullnameerror: "Enter a valid fullname",
-      });
+      req.flash('fullnameerror',"Enter valid Name")
+      return res.redirect(`/editaddress/${addressId}`);
     }
     if (!adnameValid) {
-      return res.redirect(`/editaddress/${addressId}`, {
-        adnameerror: "Enter a valid house or flat name",
-      });
+      req.flash('adnameerror',"Enter valid house or flat name")
+      return res.redirect(`/editaddress/${addressId}`);
     }
     if (!streetValid) {
-      return res.redirect(`/editaddress/${addressId}`, {
-        streeterror: "Enter a valid street name",
-      });
+      req.flash('streeterror',"Enter valid street name")
+      return res.redirect(`/editaddress/${addressId}`);
     }
     if (!pinvalid) {
-      return res.redirect(`/editaddress/${addressId}`, {
-        pinerror: "Enter a valid pincode",
-      });
+      req.flash('pinerror',"Enter valid pincode")
+      return res.redirect(`/editaddress/${addressId}`);
     }
     if (!cityValid) {
-      return res.redirect(`/editaddress/${addressId}`, {
-        cityerror: "Enter a valid city",
-      });
+      req.flash('cityerror',"Enter valid city")
+      return res.redirect(`/editaddress/${addressId}`);
     }
     if (!stateValid) {
-      return res.redirect(`/editaddress/${addressId}`, {
-        stateerror: "Enter a valid state",
-      });
+      req.flash('stateerro',"Enter valid state")
+      return res.redirect(`/editaddress/${addressId}`);
     }
     if (!countryValid) {
-      return res.redirect(`/editaddress/${addressId}`, {
-        countryerror: "Enter a valid country",
-      });
+      req.flash('countryerror',"Enter valid country")
+      return res.redirect(`/editaddress/${addressId}`);
     }
     if (!phoneValid) {
-      return res.redirect(`/editaddress/${addressId}`, {
-        phoneerror: "Enter a valid Phone number",
-      });
+      req.flash('phoneerror',"Enter valid Phone number")
+      return res.redirect(`/editaddress/${addressId}`);
     }
     console.log("validation of edit address completed");
 
@@ -1125,7 +1130,6 @@ const generateInvoice = async (order) => {
     };
 
     const output = await easyinvoice.createInvoice(data);
-    console.log("output here",output);
     if (output && output.pdf) {
       const bufferedPdf = Buffer.from(output.pdf, 'base64');
       return bufferedPdf;
@@ -1182,6 +1186,115 @@ const upi = async(req,res)=>{
   })
 }
 
+
+const coupons = async(req,res)=>{
+  try {
+    const userId = req.session.userId
+    const coupons = await couponModel.find({couponCode:{$nin:userId.usedCoupons},status:true})
+    res.render('user/rewards',{coupons})
+  } catch (error) {
+    
+  }
+}
+
+const couponApply = async(req,res)=>{
+  try {
+    const userId = req.session.userId
+    const {couponCode,subtotal}= req.body
+    const user = await userModels.findOne({_id:userId})
+    const coupon = await couponModel.findOne({couponCode:couponCode.trim()})
+console.log("here all",couponCode,"subtot",subtotal,"coupon",coupon,"user",user);
+    if (coupon && coupon.status == true) {
+      console.log("entered checking stage frst");
+      if (user && user.usedCoupons.includes(couponCode)) {
+        console.log("enterd inclludedddddd");
+        res.json({success:false, message:"Already Redeemed this Coupon!"})
+      }
+      else if (coupon.expiry > new Date() && coupon.minimumPrice <= subtotal) {
+        console.log("elseif getteddddd");
+        let dicprice
+        let price
+        if (coupon.type === 'flatDiscount') {
+          console.log("typesssssss");
+          dicprice= coupon.discount
+          price = subtotal-dicprice
+        }
+        else if (coupon.type === 'percentageDiscount') {
+          dicprice = (subtotal * coupon.discount)/100
+          if (dicprice>= coupon.maxRedeem) {
+            dicprice=coupon.maxRedeem
+          }
+          console.log("hmmmmm",dicprice);
+          price=subtotal-dicprice
+        }
+        console.log("finallll",price);
+        await userModels.findByIdAndUpdate(userId,{
+          $addToSet:{usedCoupons:couponCode}
+        },{new:true})
+        console.log("priceeee",dicprice,price);
+        res.json({success:true, dicprice,price})
+      }else{
+        res.json({success:false,message:"Invaild coupon"})
+      }
+    }else{
+      res.json({success:false, message:"Coupon not found"})
+    }
+  } catch (error) {
+    console.log("error adding couppon on checkout");
+    res.status(404).send("error happed adding coupon")
+  }
+}
+
+const revokedCoupon = async(req,res)=>{
+  try {
+    const userId = req.session.userId
+    const {couponCode,subtotal}= req.body
+    const coupon = await couponModel.findOne({couponCode:couponCode})
+    if (coupon) {
+      if (coupon.expiry > new Date() && coupon.minimumPrice <= subtotal) {
+        const dicprice = 0
+        const price = subtotal
+
+        await userModels.findByIdAndUpdate(userId,{$pull:{usedCoupons:couponCode}},{new:true})
+        res.json({success:true, dicprice,price})
+      }else{
+        res.json({success:false,message:"Invaild coupon"})
+      }
+    }else{
+      res.json({success:false, message:"Coupon not found"})
+    }
+  } catch (error) {
+    console.log("revoked coupon not working");
+    res.status(404).send("Revoked coupon error!")
+  }
+}
+
+
+const searchFunc = async (req, res) => {
+  try {
+    console.log("search??");
+      const searchTerm = req.query.q;
+
+      const categorys = await categoryModel.find({
+          name: {
+              $regex: new RegExp(searchTerm, 'i') 
+          },
+          status:true
+      });
+      const products = await productModel.find({
+          $or: [
+              { name: { $regex: new RegExp(searchTerm, 'i') } },
+              { description: { $regex: new RegExp(searchTerm, 'i') } }
+          ]
+      });
+
+      res.render('user/shop', { categorys, products });
+  } catch (error) {
+      console.error('Error during search:', error);
+      res.status(500).send('Internal Server Error');
+  }
+};
+
 const logout = async (req, res) => {
   try {
     req.session.userId = null;
@@ -1235,5 +1348,9 @@ module.exports = {
   itemReturn,
   downloadInvoice,
   walletTransaction,
-  upi
+  upi,
+  coupons,
+  couponApply,
+  revokedCoupon,
+  searchFunc
 };
