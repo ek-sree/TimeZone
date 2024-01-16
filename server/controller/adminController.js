@@ -8,6 +8,9 @@ const sharp = require("sharp");
 const orderModel = require("../model/orderModel");
 const couponModel = require("../model/couponModel");
 const { findOne } = require("../model/walletModel");
+const { default: puppeteer } = require("puppeteer");
+const os = require('os')
+const path = require('path')
 
 // <<<<<<<<<<<<<<<<<<-----------------Admin login page rendering------------------->>>>>>>>>>>>>>>>>
 const login = (req, res) => {
@@ -501,7 +504,6 @@ const resizeimg = async (req, res) => {
 const orderPage = async (req, res) => {
   try {
     const order = await orderModel.find({});
-    console.log("admin order is getting here", order);
     res.render("admin/orderpage", { order });
   } catch (error) {
     console.log("error loading order page");
@@ -590,7 +592,10 @@ const editCoupon = async (req, res) => {
   try {
     const id = req.params.id;
     const coupon = await couponModel.findOne({ _id: id });
-    res.render("admin/editcoupon", { coupon, expressFlash: { existingCouponError: req.flash('existingCouponError') } });
+    res.render("admin/editcoupon", {
+      coupon,
+      expressFlash: { existingCouponError: req.flash("existingCouponError") },
+    });
   } catch (error) {
     console.log("error rendering coupon page");
     res.status(404).send("error rendering edit coupon page");
@@ -610,11 +615,14 @@ const editCouponPost = async (req, res) => {
     const id = req.params.id;
     console.log("coupon", id);
 
-    const existingCoupon = await couponModel.findOne({ couponCode, _id: { $ne: id } });
+    const existingCoupon = await couponModel.findOne({
+      couponCode,
+      _id: { $ne: id },
+    });
 
     if (existingCoupon) {
       console.log("Coupon with the same code already exists");
-      req.flash('existingCouponError','coupon code is already exist')
+      req.flash("existingCouponError", "coupon code is already exist");
       return res.redirect(`/admin/editCouponGet/${id}`);
     } else {
       const result = await couponModel.updateOne(
@@ -631,7 +639,7 @@ const editCouponPost = async (req, res) => {
         }
       );
       console.log("final", result);
-      res.redirect('/admin/couponList');
+      res.redirect("/admin/couponList");
     }
   } catch (error) {
     console.log("Error during coupon edit:", error);
@@ -639,6 +647,208 @@ const editCouponPost = async (req, res) => {
   }
 };
 
+const chartDetails = async (req, res) => {
+  try {
+    const selected = req.body.selected;
+    if (selected == "month") {
+      const orderByMonth = await orderModel.aggregate([
+        {
+          $group: {
+            _id: {
+              month: { $month: "$createdAt" },
+            },
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+      const salesByMonth = await orderModel.aggregate([{
+        $group:{
+          _id:{
+            month:{$month:'$createdAt'}
+          },
+          totalAmount:{$sum:"$totalPrice"}
+        }
+      }])
+      const responseData = {
+        order:orderByMonth,
+        sales:salesByMonth
+      }
+      res.status(200).json(responseData)
+    }
+    else if (selected=="year") {
+      const orderByYear = await orderModel.aggregate([{
+        $group:{
+          _id:{
+            year:{$year:'$createdAt'},
+          },
+          count:{$sum:1}
+        }
+      }])
+      const salesByYear = await orderModel.aggregate([{
+        $group:{
+          _id:{
+            year:{$year:'$createdAt'},
+          },
+         totalAmount:{$sum:'$totalPrice'}
+        }
+      }])
+      const responseData ={
+        order:orderByYear,
+        sales:salesByYear
+      }
+      res.status(200).json(responseData)
+    }
+  } catch (error) {
+    console.log("error occured admin chart");
+    res.status(404).send("error occured ",error)
+  }
+};
+
+
+const downloadSalesReport = async(req,res)=>{
+  try {
+    const {startDate,endDate} = req.body
+    console.log('sssssss',startDate,endDate);
+    const salesData = await orderModel.aggregate([{
+      $match:{
+        createdAt:{
+          $gte: new Date(startDate),
+          $lte: new Date(endDate)
+        }
+      }
+    },
+  {
+    $group:{
+      _id:"",
+      totalOrders:{$sum:1},
+      totalAmount:{$sum:'$totalPrice'}
+    }
+  }])
+
+  const products = await orderModel.aggregate([{
+    $match:{
+      createdAt:{
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      }
+    }
+  },
+{
+  $unwind:"$items"
+},
+{
+  $group:{
+    _id:"$items.productId",
+    totalSold:{$sum:"$items.quantity"}
+  }
+},
+{
+  $lookup:{
+    from:"product",
+    localField:"_id",
+    foreignField:"_id",
+    as:"productDetails"
+  }
+},
+{
+  $unwind:"$productDetails"
+},
+{
+  $project:{
+    _id:1,
+    totalSold:1,
+    productName:"$productDetails.name"
+  }
+},
+{
+  $sort:{totalSold:-1}
+}])
+console.log("sawas",salesData);
+const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Report</title>
+    <style>
+        body {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2 align="center"> Sales Report</h2>
+    Start Date:${startDate}<br>
+    End Date:${endDate}<br> 
+    <center>
+        <table style="border-collapse: collapse;">
+        <thead>
+        <tr>
+            <th style="border: 1px solid #000; padding: 8px;">Sl N0</th>
+            <th style="border: 1px solid #000; padding: 8px;">Product Name</th>
+            <th style="border: 1px solid #000; padding: 8px;">Quantity Sold</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Product Details -->
+        ${products
+          .map(
+            (item, index) => `
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px;">${index + 1}</td>
+                <td style="border: 1px solid #000; padding: 8px;">${
+                  item.productName || "N/A"
+                }</td>
+                <td style="border: 1px solid #000; padding: 8px;">${
+                  item.totalSold || 0
+                }</td>
+            </tr>`
+          )
+          .join("")}
+    
+        <!-- Total Orders and Revenue -->
+        <tr>
+            <td style="border: 1px solid #000; padding: 8px;"></td>
+            <td style="border: 1px solid #000; padding: 8px;">Total No of Orders</td>
+            <td style="border: 1px solid #000; padding: 8px;">${
+              salesData[0].totalOrders || 0
+            }</td>
+        </tr>
+        <tr>
+            <td style="border: 1px solid #000; padding: 8px;"></td>
+            <td style="border: 1px solid #000; padding: 8px;">Total Revenue</td>
+            <td style="border: 1px solid #000; padding: 8px;">${
+              salesData[0].totalAmount || 0
+            }</td>
+        </tr>
+    </tbody>
+        </table>
+    </center>
+</body>
+</html>
+`;
+
+const browser = await puppeteer.launch({ headless: "new" });
+const page = await browser.newPage();
+await page.setContent(htmlContent);
+const pdfBuffer = await page.pdf();
+await browser.close();
+
+const downloadPath = path.join(os.homedir(), "Downloads");
+const pdfFilePath = path.join(downloadPath, "sales.pdf");
+
+fs.writeFileSync(pdfFilePath, pdfBuffer);
+
+res.setHeader("Content-Length", pdfBuffer.length);
+res.setHeader("Content-Type", "application/pdf");
+res.setHeader("Content-Disposition", "attachment; filename=sales.pdf");
+res.status(200).end(pdfBuffer);
+  } catch (error) {
+    console.log("error cant download the sales Report",error);
+    res.status(404).send("Error downloading the sales report",error)
+  }
+}
 
 const adlogout = async (req, res) => {
   req.session.admin = false;
@@ -680,5 +890,7 @@ module.exports = {
   createCoupon,
   couponUnist,
   editCoupon,
-  editCouponPost
+  editCouponPost,
+  chartDetails,
+  downloadSalesReport
 };

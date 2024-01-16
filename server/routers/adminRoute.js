@@ -3,6 +3,7 @@ const multer =require('multer')
 const uploads = multer({dest:'uploads'})
 const adminController = require('../controller/adminController')
 const adauth= require('../../middleware/isAuth')
+const bannerController = require('../controller/bannerController')
 
 
 const adrouter = express.Router()
@@ -72,6 +73,19 @@ adrouter.get('/unlistCoupon/:id', adminController.couponUnist)
 adrouter.get('/editCouponGet/:id', adminController.editCoupon)
 
 adrouter.post('/updateCoupon/:id',adminController.editCouponPost)
+
+adrouter.post('/chartData',adminController.chartDetails)
+
+adrouter.post('/downloadsales',adminController.downloadSalesReport)
+
+
+adrouter.get('/bannerList',bannerController.bannerView)
+
+adrouter.get('/newbanner',bannerController.addBanner)
+
+adrouter.post('/addBanner',uploads.single('image'),bannerController.addBannerPost)
+
+adrouter.get('/unlistBanner/:id',bannerController.unlistBanner)
 
 adrouter.get('/adminlogout',adauth.adminlogout, adminController.adlogout)
 
