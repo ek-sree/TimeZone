@@ -21,6 +21,12 @@
     <link rel="stylesheet" href="css/slick.css">
     <link rel="stylesheet" href="css/nice-select.css">
     <link rel="stylesheet" href="css/style.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.3/tiny-slider.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.3/min/tiny-slider.js"></script>
+    
+
+
     <style>
         .single-popular-items .popular-img img {
 height: 400px;
@@ -50,6 +56,8 @@ object-fit: cover;
        <%- include('./partials/header.ejs') %>
         <!-- Header End -->
     </header>
+
+    
     <main>
         <!--? slider Area Start -->
         <div class="slider-area ">
@@ -76,8 +84,10 @@ object-fit: cover;
                         </div>
                     </div>
                 </div>
+               
                 <!-- Single Slider -->
                 <div class="single-slider slider-height d-flex align-items-center slide-bg">
+                    
                     <div class="container">
                         <div class="row justify-content-between align-items-center">
                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8">
@@ -100,6 +110,7 @@ object-fit: cover;
                 </div>
             </div>
         </div>
+        <%- include('./partials/slider.ejs') %>
         <!-- slider Area End-->
         <!-- ? New Product Start -->
         <section class="new-product-area section-padding30">
@@ -351,6 +362,27 @@ object-fit: cover;
     <!-- Jquery Plugins, main Jquery -->	
     <script src="/js/plugins.js"></script>
     <script src="/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var slider = tns({
+                container: '.category-slider',
+                items: 1,
+                axis: 'horizontal',
+                slideBy: 'page',
+                autoplay: true,
+                nav: false,
+                controls: false,
+                autoplayButtonOutput: false
+            });
+        });
+    </script>
     
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            setInterval(function() {
+                document.querySelector('.carousel-control-next').click();
+            }, 10000);
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,38 @@
+<style>
+    .single-popular-items .popular-img img {
+        height: 400px;
+        width: 400px;
+        object-fit: cover; 
+    }
+</style>
+
+<div id="carouselExampleIndicators" class="carousel slide " data-bs-ride="carousel">
+   
+    <div class="carousel-inner category-slider">
+        <% banners.forEach(function(banner, index) { %>
+            <% if (banner.active) { %>
+                
+                <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
+                    <a href="/bannerURL?id=<%= banner.bannerlink %>">
+                        <img src="<%= banner.image.url %>" class="d-block w-100 sliderimg" alt="<%= banner.title %>">
+                        <div class="carousel-caption d-none d-md-block btitle" style="color: <%= (banner.color !== undefined && banner.color !== null) ? banner.color : '#fff' %>;">
+                            <h1 style="font-size: 10vw;"><%= banner.title %></h1>
+                            <h3><%= banner.subtitle %></h3>
+                        </div>
+                    </a>
+                    
+                </div>
+               
+            <% } %>
+        <% }); %>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+  </div>
+  

@@ -11,6 +11,10 @@ const { findOne } = require("../model/walletModel");
 const { default: puppeteer } = require("puppeteer");
 const os = require('os')
 const path = require('path')
+const { alphanumValid,
+  onlyNumbers,
+  zerotonine}=require('../../utils/validators/adminValidators');
+const flash = require("express-flash");
 
 // <<<<<<<<<<<<<<<<<<-----------------Admin login page rendering------------------->>>>>>>>>>>>>>>>>
 const login = (req, res) => {
@@ -248,9 +252,26 @@ const product = async (req, res) => {
 
 const newproduct = async (req, res) => {
   try {
-    const category = await categoryModel.find();
+    req.session.productInfo=req.body
+    const category = await categoryModel.find({status:true});
     console.log("category", category);
-    res.render("admin/newproduct", { category: category });
+    res.render("admin/newproduct", { category: category , productInfo:req.session.productInfo,
+    expressFlash:{
+      productNameError:req.flash("productNameError"),
+      categoryError:req.flash("categoryError"),
+      stockError:req.flash("stockError"),
+      mrpError:req.flash("mrpError"),
+      priceError:req.flash("priceError"),
+      descriptionError:req.flash("descriptionError"),
+      displayError:req.flash("displayError"),
+      strapTypeError:req.flash("strapError"),
+      strapmaterialError:req.flash("starpmaterialError"),
+      strapColorError:req.flash("strapColorError"),
+      powerSourceError:req.flash("powerSourceError"),
+      dialColorError:req.flash("dialColorError"),
+      featureError:req.flash("featureError")
+    }});
+    req.session.productInfo=null
   } catch (error) {
     console.log("error occured loading page", error);
   }
@@ -274,6 +295,7 @@ const newproductpost = async (req, res) => {
       dialColor,
       feature,
     } = req.body;
+    req.session.productInfo=req.body
     const newproduct = await productModel.create({
       name: productName,
       category: category,
@@ -290,6 +312,7 @@ const newproductpost = async (req, res) => {
       feature: feature,
       images: req.files.map((file) => file.path),
     });
+    req.session.productInfo=null
     await newproduct.save();
     res.redirect("/admin/newproduct");
   } catch (error) {

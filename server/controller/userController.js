@@ -23,14 +23,18 @@ const Razorpay = require('razorpay')
 var easyinvoice = require('easyinvoice');
 const couponModel = require("../model/couponModel");
 const categoryModel = require("../model/categoryModel");
+const bannerModel = require("../model/bannerModel");
 
 
 //    <<<<<<<<<---------- RENDERING HOMEPAGE ---------->>>>>>>>>>
 const home = async (req, res) => {
   try {
     req.session.loginpressed = true;
-    const products = await productModel.find();
-    res.render("user/index", { products });
+    const products = await productModel.find().limit(6);
+    const banners = await bannerModel.find()
+    console.log("sssss", banners[0].bannerlink);
+    res.render("user/index", { products , banners});
+    // console.log(banners);
   } catch (error) {
     console.log(error);
     res.status(400).send("error page not found");
@@ -1295,6 +1299,52 @@ const searchFunc = async (req, res) => {
   }
 };
 
+const ratingUser = async (req, res) => {
+  try {
+    const { id, rating, review } = req.body;
+    const userId = req.session.userId;
+    const productId = id;
+    console.log('ll',req.body);
+    console.log("Product ID:", productId);
+    console.log("User ID:", userId);
+
+    // Find the product by ID
+    const product = await productModel.findById(productId);
+
+    if (!product) {
+      return res.status(404).send("Product not found");
+    }
+
+    // Ensure that userRatings is initialized as an array
+    if (!product.userRatings) {
+      product.userRatings = [];
+    }
+
+    // Find the user's existing rating
+    const existingUserRating = product.userRatings.find(
+      (userRating) => userRating.userId.toString() === userId
+    );
+
+    console.log("User Ratings:", product.userRatings);
+
+    if (existingUserRating) {
+      existingUserRating.rating = rating;
+      existingUserRating.review = review;
+    } else {
+      // If no existing rating, add a new one
+      product.userRatings.push({ userId, review, rating });
+    }
+
+    await product.save();
+
+    res.redirect('/orderdetails');
+  } catch (error) {
+    console.log("Can't rate product", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+
 const logout = async (req, res) => {
   try {
     req.session.userId = null;
@@ -1352,5 +1402,6 @@ module.exports = {
   coupons,
   couponApply,
   revokedCoupon,
-  searchFunc
+  searchFunc,
+  ratingUser
 };

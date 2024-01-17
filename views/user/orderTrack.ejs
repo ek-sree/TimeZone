@@ -388,7 +388,7 @@
                                     <div class="modal-content" style="width: 30%;">
                                         <span class="close" onclick="closeModal()">&times;</span>
                                         <h2 style="text-align: center;">Rate and Review</h2>
-                                        <form method="get" action="/rateAndReview" id="rateAndReviewForm">
+                                        <form method="post" action="/rateAndReview" id="rateAndReviewForm">
                                             <!-- Add this block for each star rating -->
                                             <div class="star-rating">
                                                 <input type="radio" id="star1" name="rating" value="1">
@@ -404,7 +404,7 @@
                                             </div>
                                             <label for="review">Review:</label>
                                             <textarea id="review" name="review" rows="4" required></textarea>
-                                            <input type="hidden" name="id" id="productIdInput" value="">
+                                            <input type="hidden" name="id" id="productIdInput" value="null" >
                                             <button type="submit" style="width: 100%; color:gold;">Submit</button>
                                         </form>
                                     </div>
@@ -541,7 +541,7 @@
   
   
   function openModal(productId) {
-      console.log(productId);
+      console.log('gg',productId);
       document.getElementById('productIdInput').value = productId;
   
     document.getElementById('rateAndReviewModal').style.display = 'block';

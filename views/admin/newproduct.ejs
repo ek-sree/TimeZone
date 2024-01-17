@@ -84,13 +84,27 @@
 
               <div class="mb-3">
                 <label for="mrp" class="form-label">MRP:</label>
-                <input type="text" class="form-control" id="mrp" name="mrp" required>
+                <input type="number" class="form-control" id="mrp" name="mrp" min="1"   oninput="calculatePrice()" value="<%= productInfo && productInfo.mrp ?productInfo.mrp : '' %>" required>
+                <% if(expressFlash.mrpError){%>
+                  <div class="alter text-danger text-start"><%= expressFlash.mrpError%></div>
+                <%}%>
+            </div>
+
+            <div class="mb-3">
+              <label for="discount" class="form-label">Discount</label>
+              <input type="number" class="form-control" id="discount" name="discount"  min="0" max="99"  oninput="calculatePrice()" value="<%= productInfo && productInfo.discount ?productInfo.discount : '' %>" required>
+              <% if(expressFlash.discountError){%>
+                <div class="alter text-danger text-start"><%= expressFlash.discountError%></div>
+              <%}%>
             </div>
           
 
                     <div class="mb-3">
                       <label for="price" class="form-label">Price:</label>
-                      <input type="text" class="form-control" id="price" name="price" required>
+                      <input type="number" class="form-control" id="price" name="price" readonly value="<%= productInfo && productInfo.price ?productInfo.price : '' %>"  required>
+                      <% if(expressFlash.priceError){%>
+                        <div class="alter text-danger text-start"><%= expressFlash.priceError%></div>
+                      <%}%>
                   </div>
         
                     <div class="mb-3">
@@ -195,6 +209,28 @@
         });
     }</script>
   
+
+
+  <script>
+    function calculatePrice() {
+      const mrpInput = document.getElementById('mrp');
+      const discountInput = document.getElementById('discount');
+      const priceInput = document.getElementById('price');
+  
+      let mrp = parseFloat(mrpInput.value); 
+      let discount = parseFloat(discountInput.value) || 0;
+  
+      mrp = isNaN(mrp) ? 0 : Math.max(mrp, 1);
+      mrpInput.value = mrp;
+  
+      discount = Math.min(Math.max(discount, 0), 99);
+      discountInput.value = discount;
+  
+      const calculatedPrice = discount >= 0 && discount <= 99 ? mrp - (mrp * discount / 100) : '';
+  
+      priceInput.value = isNaN(calculatedPrice) ? '' : calculatedPrice.toFixed(2);
+    }
+  </script>
     
     <script src="/adminassets/vendors/js/vendor.bundle.base.js"></script>
     <!-- endinject -->

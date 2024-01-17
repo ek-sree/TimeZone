@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Furnify Admin</title>
+    <link rel="stylesheet" href="/adminassets/vendors/mdi/css/materialdesignicons.min.css" />
+    <link rel="stylesheet" href="/adminassets/vendors/flag-icon-css/css/flag-icon.min.css" />
+    <link rel="stylesheet" href="/adminassets/vendors/css/vendor.bundle.base.css" />
+    <link rel="stylesheet" href="/adminassets/vendors/font-awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="/adminassets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css" />
+    <link rel="stylesheet" href="/adminassets/css/style.css" />
+    <link rel="shortcut icon" href="/adminassets/images/favicon.png" />
+    
+  </head>
+  <body>
+    <div class="container-scroller">
+      <%- include('partials/sidebar')%>
+      <div class="container-fluid page-body-wrapper">
+        <div id="theme-settings" class="settings-panel">
+          <i class="settings-close mdi mdi-close"></i>
+          <p class="settings-heading">SIDEBAR SKINS</p>
+          <div class="sidebar-bg-options selected" id="sidebar-default-theme">
+            <div class="img-ss rounded-circle bg-light border mr-3"></div> Default
+          </div>
+          <div class="sidebar-bg-options" id="sidebar-dark-theme">
+            <div class="img-ss rounded-circle bg-dark border mr-3"></div> Dark
+          </div>
+          <p class="settings-heading mt-2">HEADER SKINS</p>
+          <div class="color-tiles mx-0 px-4">
+            <div class="tiles light"></div>
+            <div class="tiles dark"></div>
+          </div>
+        </div>
+        <%- include('partials/nav')%>
+        <div class="main-panel">
+         
+            <div class="container form-container">
+                <h1 class="mb-4">Update Banner</h1>
+        
+                <form action="/admin/updateBannerPost/<%= banner._id %>" method="post" enctype="multipart/form-data">
+                  <div class="mb-3">
+                    <label for="bannerLabel" class="form-label">Label:</label>
+                    <select class="form-select" id="bannerLabel" name="bannerLabel" required>
+                        <option value="<%=banner.label%>" selected><%=banner.label%></option>
+                        <option value="category">Category</option>
+                        <option value="product">Products</option>
+                        <option value="coupon">Coupons</option>
+                        <option value="general">General</option>
+                    </select>
+                </div>
+
+                <div class="mb-3" id="categorySelection" style="display: none;">
+                  <label for="category" class="form-label">Select Category:</label>
+                  <select class="form-select" id="category" name="category" required>
+                      <% categories.forEach(category => { %>
+                          <option value="<%= category._id %>"><%= category.name %></option>
+                      <% }) %>
+                  </select>
+              </div>
+
+              <div class="mb-3" id="productSelection" style="display: none;">
+                <label for="product" class="form-label">Select Product:</label>
+                <select class="form-select" id="product" name="product" required>
+                    <% products.forEach(product => { %>
+                        <option value="<%= product._id %>"><%= product.name %></option>
+                    <% }) %>
+                </select>
+            </div>
+
+            <div class="mb-3" id="couponSelection" style="display: none;">
+              <label for="coupon" class="form-label">Select Coupon:</label>
+              <select class="form-select" id="coupon" name="coupon" required>
+                  <% coupons.forEach(coupon => { %>
+                      <option value="<%= coupon._id %>"><%= coupon.couponCode %></option>
+                  <% }) %>
+              </select>
+          </div>
+                
+
+
+
+                    <div class="mb-3">
+                        <label for="bannerTitle" class="form-label">Banner Title</label>
+                        <input type="text" class="form-control" id="bannerTitle" name="bannerTitle" value="<%=banner.title %>" required>
+                        <% if(expressFlash.titleError){%>
+                          <div class="alter text-danger text-start"><%= expressFlash.titleError%></div>
+                      <%}%>
+                    </div>
+                    
+        
+                    <div class="mb-3">
+                      <label for="bannerSubtitle" class="form-label">Banner Subtitle:</label>
+                      <textarea class="form-control" id="bannerSubtitle" name="bannerSubtitle" rows="4" required><%= banner.subtitle%></textarea>
+                      <% if(expressFlash.subtitleError){%>
+                        <div class="alter text-danger text-start"><%= expressFlash.subtitleError%></div>
+                    <%}%>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Image:</label>
+                        <img id="bannerImage" style="width: 100px; height: 100px;" src="<%= banner.image.url %>">
+                        <a href="#" class="btn btn-danger btn-xs" onclick="replaceImage('<%= banner._id %>')">Replace Images</a>
+                        <input name="image" type="file" id="newImage" style="display: none;" accept="image/*" onchange="updateImagePreview()">
+
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="bannerColor" class="form-label">Select Text Color:</label>
+                      <input type="color" class="form-control" id="bannerColor" name="bannerColor" value="#ff0000" required>
+                      <div id="colorPreview" style="width: 30px; height: 30px; border: 1px solid #ccc; margin-top: 5px;"></div>
+                  </div>
+                    <button type="submit" class="btn btn-primary">Update</button>
+
+                  </form>
+            </div>
+          
+
+
+         
+        </div>
+        <!-- main-panel ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+    <!-- container-scroller -->
+    <!-- plugins:js -->
+    
+    <script src="/adminassets/vendors/js/vendor.bundle.base.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <script src="/adminassets/vendors/chart.js/Chart.min.js"></script>
+    <script src="/adminassets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+    <script src="/adminassets/vendors/flot/jquery.flot.js"></script>
+    <script src="/adminassets/vendors/flot/jquery.flot.resize.js"></script>
+    <script src="/adminassets/vendors/flot/jquery.flot.categories.js"></script>
+    <script src="/adminassets/vendors/flot/jquery.flot.fillbetween.js"></script>
+    <script src="assets/vendors/flot/jquery.flot.stack.js"></script>
+    <script src="/adminassets/vendors/flot/jquery.flot.pie.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="/adminassets/js/off-canvas.js"></script>
+    <script src="/adminassets/js/hoverable-collapse.js"></script>
+    <script src="/adminassets/js/misc.js"></script>
+    <!-- endinject -->
+    <!-- Custom js for this page -->
+    <script src="/adminassets/js/dashboard.js"></script>
+    <!-- End custom js for this page -->
+    <script>
+    function replaceImage(bannerId) {
+        
+        document.getElementById('newImage').style.display = 'block';
+    }
+
+    function updateImagePreview() {
+        
+        const selectedFile = document.getElementById('newImage').files[0];
+
+        if (selectedFile) {
+           
+            const reader = new FileReader();
+            reader.onload = function (e) {
+             
+                document.getElementById('bannerImage').src = e.target.result;
+            };
+            reader.readAsDataURL(selectedFile);
+        }
+    }
+</script>
+<script>
+  // JavaScript to handle the onchange event of the bannerLabel dropdown
+  const bannerLabelSelect = document.getElementById('bannerLabel');
+  const categorySelectionDiv = document.getElementById('categorySelection');
+  const productSelectionDiv = document.getElementById('productSelection');
+  const couponSelectionDiv = document.getElementById('couponSelection');
+
+
+
+  bannerLabelSelect.addEventListener('change', function () {
+      if (bannerLabelSelect.value === 'category') {
+          categorySelectionDiv.style.display = 'block';
+          productSelectionDiv.style.display = 'none';
+          couponSelectionDiv.style.display = 'none';
+      }
+      else if (bannerLabelSelect.value === 'product') {
+          productSelectionDiv.style.display = 'block';
+          categorySelectionDiv.style.display = 'none';
+          couponSelectionDiv.style.display = 'none';
+
+
+      } 
+      else if (bannerLabelSelect.value === 'coupon') {
+         couponSelectionDiv.style.display = 'block';
+         categorySelectionDiv.style.display = 'none';
+          productSelectionDiv.style.display = 'none';
+      }  else {
+          categorySelectionDiv.style.display = 'none';
+          productSelectionDiv.style.display = 'none';
+          couponSelectionDiv.style.display = 'none';
+      }
+  });
+</script>
+
+<script>
+const bannerColorInput = document.getElementById('bannerColor');
+const colorPreview = document.getElementById('colorPreview');
+
+bannerColorInput.addEventListener('input', function () {
+  colorPreview.style.backgroundColor = bannerColorInput.value;
+});
+</script>
+
+  </body>
+</html>

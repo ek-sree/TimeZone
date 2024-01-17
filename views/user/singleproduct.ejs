@@ -300,8 +300,11 @@ hr {
         <%- include("./partials/header.ejs") %>
 
     </nav>
+    
     <div>
+        
     <div class="fulldiv my-5 d-flex justify-content-center">
+        
         <div class="product-container">
             <div class="product-images">
                 
@@ -313,6 +316,19 @@ hr {
                 </div>
             </div>
 
+  
+            <div class="row">
+                <p class="col-12 d-flex justify-content-end">
+                   <% if (product.userRatings && product.userRatings.length > 0) { %>
+        <span id="ratingContainer" class="rating-container">
+            ★&nbsp;<span id="avgrating"><%= averageRating %> </span>&nbsp;<span>(<%= totalRatings %>)</span>
+        </span>
+    <% } else { %>
+        <p>No ratings yet</p>
+    <% } %>
+                </p>
+            </div>
+  
             <!-- Product Details Section -->
             <div class="product-details-section">
                 <h1><%= product.name %></h1>
@@ -357,12 +373,14 @@ hr {
 
 <div class="price" >
     <p style="font-size: 30px;">
-        <br>
-        <strong>MRP:</strong>
-        <strike style="color: red;"><%= product.mrp %></strike>
-        &nbsp;&nbsp;&nbsp;<strong>Price:</strong> <%= product.price %>
+        
+        <!-- <strong>MRP:</strong>
+        <strike style="color: red;"><%= product.mrp %></strike> -->
+        &nbsp;&nbsp;&nbsp; <p class="price"><span style="text-decoration: line-through;color: #857b79;">Rs.<%= product.mrp.toFixed(2) %></span>&nbsp;&nbsp;&nbsp;Rs.<%= product.price.toFixed(2) %></p>
     
 </div>
+
+
 
 
                 <div class="buttons-row">
@@ -384,7 +402,34 @@ hr {
         
     </div>
 
+    <div class="container mt-3">
+        <button style="margin-left: 30vw; margin-bottom: 1.5vw;" id="toggleRatingsBtn" class=" ml-5 btn btn-primary"> User Ratings and Reviews</button>
+
     
+        <div class="user-ratings-section" id="ratingsSection" style="display: none;">
+
+            <div class="row">
+                <% if (locals.product.userRatings && product.userRatings.length > 0) { %>
+                <% product.userRatings.forEach(userRating => { %>
+                    <div class=" col-md-4 col-lg-6 " >
+                        <div class="user-rating">
+                            <p class="user-name"><strong>User:</strong> <%= userRating.userId.firstname %></p>
+                            <div class="rating">
+                                <p><strong>Rating:</strong> <%= userRating.rating %> <%= '★'.repeat(Math.floor(userRating.rating)) + (userRating.rating % 1 !== 0 ? '½' : '') %></p>
+                            </div>
+                            <p class="review"><strong>Review:</strong> <%= userRating.review %></p>
+                            <hr>
+                        </div>
+                    </div>
+                <% }); %>
+                <% } else { %>
+                    <p>No ratings yet</p>
+
+                <% } %>
+
+            </div>
+        </div>
+    </div>
       
       
 
@@ -554,7 +599,40 @@ hr {
        
     </script>
     
+    <script>
+        var ratingsSection = document.getElementById('ratingsSection');
+        var toggleRatingsBtn = document.getElementById('toggleRatingsBtn');
+    
+        toggleRatingsBtn.addEventListener('click', function () {
+            if (ratingsSection.style.display === 'none') {
+                ratingsSection.style.display = 'block';
+            } else {
+                ratingsSection.style.display = 'none';
+            }
+        });
+    </script>
+    
+    <script>
+        const aveRating = parseFloat(document.getElementById('avgrating').innerText);
 
+        console.log(aveRating);
+      
+        const ratingContainer = document.getElementById('ratingContainer');
+      
+        if (aveRating >= 4) {
+          ratingContainer.style.backgroundColor = 'green';
+          ratingContainer.style.color = 'white';
+
+        } else if (aveRating >= 3 && aveRating <= 3.9) {
+          ratingContainer.style.backgroundColor = "yellow";
+        } else if (aveRating >= 2 && aveRating <= 2.9) {
+          ratingContainer.style.backgroundColor = 'orange';
+        } else if (aveRating >= 0 && aveRating <= 1.9) {
+          ratingContainer.style.backgroundColor = 'red';
+          ratingContainer.style.color = 'white';
+
+        }
+      </script>
     
        
 </body>

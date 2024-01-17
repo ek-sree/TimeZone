@@ -51,7 +51,7 @@ const storage = multer.diskStorage({
     }
 })
 
-const uploads = ({storage:storage})
+const uploads = multer({storage:storage})
 
 
 app.use("/", usrouter)

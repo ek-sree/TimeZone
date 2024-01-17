@@ -7,6 +7,7 @@ const auth = require('../../middleware/isAuth')
 const cartcontroller = require("../controller/cartController")
 const checkoutcontroller = require('../controller/checkoutController')
 const userModels = require('../model/userModels')
+const bannerController = require('../controller/bannerController')
 
 
 
@@ -150,5 +151,11 @@ usrouter.post('/revokeCoupon',usercontroller.revokedCoupon)
 
 
 usrouter.get('/search',usercontroller.searchFunc)
+
+
+usrouter.get('/bannerUrl', bannerController.bannerUrl)
+
+
+usrouter.post('/rateAndReview',usercontroller.ratingUser)
 
 module.exports = usrouter

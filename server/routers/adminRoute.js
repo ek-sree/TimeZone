@@ -87,6 +87,13 @@ adrouter.post('/addBanner',uploads.single('image'),bannerController.addBannerPos
 
 adrouter.get('/unlistBanner/:id',bannerController.unlistBanner)
 
+adrouter.get('/updateBanner/:id', bannerController.editBanner)
+
+adrouter.post('/updateBannerPost/:id', uploads.single('image'), bannerController.editBannerPost)
+
+adrouter.get('/deleteBanner/:id',bannerController.deleteBanner)
+
+
 adrouter.get('/adminlogout',adauth.adminlogout, adminController.adlogout)
 
 
