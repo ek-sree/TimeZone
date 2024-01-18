@@ -43,70 +43,110 @@
                     <div class="mb-3">
                         <label for="categoryName" class="form-label">Product Name:</label>
                         <input type="text" class="form-control" id="categoryName" name="productName" value="<%= product.name %>" required>
-                    </div>
+                        <% if(expressFlash.productNameError){%>
+                          <div class="alter text-danger text-start"><%= expressFlash.productNameError%></div>
+                        <%}%>
+                      </div>
 
                     <div class="mb-3">
                       <label for="categoryName" class="form-label">MRP:</label>
                       <input type="number" class="form-control" id="mrp" name="mrp" value="<%= product.mrp %>" required>
-                      <% if(locals.priceerror){%>
-                        <div class="alter text-danger text-start"><%= priceerror%></div>
-                    <%}%>
+                      <% if(expressFlash.mrpError){%>
+                        <div class="alter text-danger text-start"><%= expressFlash.mrpError%></div>
+                      <%}%>
                   </div>
+
+
+                  <div class="mb-3">
+                    <label for="categoryName" class="form-label">Discount:</label>
+                    <input type="number" class="form-control" id="discount" name="discount" min="0" max="99" oninput="calculatePrice()" value="<%= product.discount %>" required>
+                    <% if(expressFlash.discountError){%>
+                      <div class="alter text-danger text-start"><%= expressFlash.discountError%></div>
+                    <%}%>
+                </div>
+
 
                     <div class="mb-3">
                         <label for="categoryName" class="form-label">Price:</label>
                         <input type="number" class="form-control" id="categoryName" name="productprice" value="<%= product.price %>" required>
-                        <% if (locals.priceerror) { %>
-                          <p class="error-message"><%= priceerror %></p>
-                        <% } %>
+                        <% if(expressFlash.priceError){%>
+                          <div class="alter text-danger text-start"><%= expressFlash.priceError%></div>
+                        <%}%>
                     </div>
                     <div class="mb-3 d-flex">
                         <label for="categoryName" class="form-label">Product stock:</label>
                         <input type="number" class="form-control ml-2" id="categoryName" name="stock" value="<%= product.stock %>" style="height:30px; width: 200px;" required>
-                    </div>
+                        <% if(expressFlash.stockError){%>
+                          <div class="alter text-danger text-start"><%= expressFlash.stockError%></div>
+                        <%}%>
+                      </div>
                     
         
                     <div class="mb-3">
                       <label for="description" class="form-label">Description:</label>
                       <textarea class="form-control" id="description" name="description" rows="4" required><%= product.description%></textarea>
+                      <% if(expressFlash.descriptionError){%>
+                        <div class="alter text-danger text-start"><%= expressFlash.descriptionError%></div>
+                      <%}%>
                     </div>
 
                     <div class="mb-3">
                       <label for="categoryName" class="form-label">Display type:</label>
                       <input type="text" class="form-control" id="categoryName" name="displayType" value="<%= product.displaytype %>" required>
-                  </div>
+                      <% if(expressFlash.displayError){%>
+                        <div class="alter text-danger text-start"><%= expressFlash.displayError%></div>
+                      <%}%>
+                    </div>
 
                   <div class="mb-3">
                     <label for="categoryName" class="form-label">Strap type:</label>
                     <input type="text" class="form-control" id="categoryName" name="strapType" value="<%= product.straptype %>" required>
-                </div>
+                    <% if(expressFlash.strapTypeError){%>
+                      <div class="alter text-danger text-start"><%= expressFlash.strapTypeError%></div>
+                    <%}%>
+                  </div>
                 
                 <div class="mb-3">
                   <label for="categoryName" class="form-label">Strap material:</</label>
                   <input type="text" class="form-control" id="categoryName" name="strapMaterial" value="<%= product.strapmaterial %>" required>
-              </div>
+                  <% if(expressFlash.strapmaterialError){%>
+                    <div class="alter text-danger text-start"><%= expressFlash.strapmaterialError%></div>
+                  <%}%>
+                </div>
 
               <div class="mb-3">
                 <label for="categoryName" class="form-label">Strap color:</label>
                 <input type="text" class="form-control" id="categoryName" name="strapColor" value="<%= product.strapcolor %>" required>
-            </div>
+                <% if(expressFlash.strapColorErrorr){%>
+                  <div class="alter text-danger text-start"><%= expressFlash.strapColorError%></div>
+                <%}%>
+              </div>
 
             
             <div class="mb-3">
               <label for="categoryName" class="form-label">Power source:</label>
               <input type="text" class="form-control" id="categoryName" name="powerSource" value="<%= product.powersource %>" required>
-          </div>
+              <% if(expressFlash.powerSourceError){%>
+                <div class="alter text-danger text-start"><%= expressFlash.powerSourceError%></div>
+              <%}%>
+            </div>
 
            
           <div class="mb-3">
             <label for="categoryName" class="form-label">Dial color:</label>
             <input type="text" class="form-control" id="categoryName" name="dialColor" value="<%= product.dialcolor %>" required>
-        </div>
+            <% if(expressFlash.dialColorError){%>
+              <div class="alter text-danger text-start"><%= expressFlash.dialColorError%></div>
+            <%}%>
+          </div>
 
         <div class="mb-3">
           <label for="categoryName" class="form-label">Novelty feature:</label>
           <input type="text" class="form-control" id="categoryName" name="feature" value="<%= product.feature %>" required>
-      </div>
+          <% if(expressFlash.featureError){%>
+            <div class="alter text-danger text-start"><%= expressFlash.featureError%></div>
+          <%}%>
+        </div>
 
       <div class="mb-3">
         <label for="description" class="form-label">Images:</label>
@@ -134,6 +174,27 @@
     </div>
     <!-- container-scroller -->
     <!-- plugins:js -->
+
+    <script>
+      function calculatePrice() {
+        const mrpInput = document.getElementById('mrp');
+        const discountInput = document.getElementById('discount');
+        const priceInput = document.getElementById('price');
+    
+        let mrp = parseFloat(mrpInput.value); 
+        let discount = parseFloat(discountInput.value) || 0;
+    
+        mrp = isNaN(mrp) ? 0 : Math.max(mrp, 1);
+        mrpInput.value = mrp;
+    
+        discount = Math.min(Math.max(discount, 0), 99);
+        discountInput.value = discount;
+    
+        const calculatedPrice = discount >= 0 && discount <= 99 ? mrp - (mrp * discount / 100) : '';
+    
+        priceInput.value = isNaN(calculatedPrice) ? '' : calculatedPrice.toFixed(2);
+      }
+    </script>
     
     <script src="/adminassets/vendors/js/vendor.bundle.base.js"></script>
     <!-- endinject -->

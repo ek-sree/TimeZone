@@ -9,11 +9,13 @@ const orderModel = require("../model/orderModel");
 const couponModel = require("../model/couponModel");
 const { findOne } = require("../model/walletModel");
 const { default: puppeteer } = require("puppeteer");
-const os = require('os')
-const path = require('path')
-const { alphanumValid,
+const os = require("os");
+const path = require("path");
+const {
+  alphanumValid,
   onlyNumbers,
-  zerotonine}=require('../../utils/validators/adminValidators');
+  zerotonine,
+} = require("../../utils/validators/adminValidators");
 const flash = require("express-flash");
 
 // <<<<<<<<<<<<<<<<<<-----------------Admin login page rendering------------------->>>>>>>>>>>>>>>>>
@@ -188,11 +190,14 @@ const unlistcat = async (req, res) => {
   try {
     const id = req.params.id;
     const category = await categoryModel.findOne({ _id: id });
-
     category.status = !category.status;
     await category.save();
+    const products = await productModel.find({ category: id });
+    await productModel.updateMany(
+      { category: id },
+      { $set: { status: category.status } }
+    );
     res.redirect("/admin/Category");
-    console.log("unlist done");
   } catch (error) {
     console.log("error cant load this", error);
   }
@@ -205,7 +210,11 @@ const editcat = async (req, res) => {
     const id = req.params.id;
     const category = await categoryModel.findOne({ _id: id });
     console.log("edit cat page");
-    res.render("admin/editcat", { itemcat: category });
+    res.render("admin/editcat", { itemcat: category, categoryInfo:req.session.categoryInfo ,expressFlash:{
+      categoryError:req.flash("categoryError"),
+      descriptionError:req.flash("descriptionError"),
+      categoryExistError:req.flash("categoryExistError")
+    }});
   } catch (error) {
     console.log("error editing", error);
     res.status(400).send("cant load this page");
@@ -218,13 +227,28 @@ const editcatppost = async (req, res) => {
     console.log(id);
     const catName = req.body.categoryName;
     const catDes = req.body.description;
+const categoryExist = await categoryModel.findOne({name:catName, _id: { $ne: id } })
 
+    const catNameValid = alphanumValid(catName)
+    const catDesValid = alphanumValid(catDes)
+req.session.categoryInfo=req.body
+    if (!catNameValid || !catDesValid) {
+      req.flash('categoryError',"Enter a valid category name")
+      req.flash("descriptionError","Enter a valid category name")
+     return res.redirect(`/admin/editcat/${id}`)
+    } if (categoryExist) {
+      req.flash("categoryExistError","Category you entered is already exist!")
+       return res.redirect(`/admin/editcat/${id}`)
+    }
+else{
+  req.session.categoryInfo=null
     await categoryModel.updateOne(
       { _id: id },
       { $set: { name: catName, description: catDes } }
     );
     console.log("working post cat");
     res.redirect("/admin/Category");
+}
   } catch (error) {
     console.log("error editing category", error);
     res.status(400).send("error loading this page", error);
@@ -240,8 +264,7 @@ const product = async (req, res) => {
       options: { strictPopulate: false },
       select: "name",
     });
-    console.log("Image Path:", product[0].images[0]);
-
+    console.log("ssseeeeeaaa", product);
     res.render("admin/product", { product: product });
   } catch (error) {
     console.log("error occured cant load the page", error);
@@ -252,26 +275,30 @@ const product = async (req, res) => {
 
 const newproduct = async (req, res) => {
   try {
-    req.session.productInfo=req.body
-    const category = await categoryModel.find({status:true});
+    req.session.productInfo = req.body;
+    const category = await categoryModel.find({ status: true });
     console.log("category", category);
-    res.render("admin/newproduct", { category: category , productInfo:req.session.productInfo,
-    expressFlash:{
-      productNameError:req.flash("productNameError"),
-      categoryError:req.flash("categoryError"),
-      stockError:req.flash("stockError"),
-      mrpError:req.flash("mrpError"),
-      priceError:req.flash("priceError"),
-      descriptionError:req.flash("descriptionError"),
-      displayError:req.flash("displayError"),
-      strapTypeError:req.flash("strapError"),
-      strapmaterialError:req.flash("starpmaterialError"),
-      strapColorError:req.flash("strapColorError"),
-      powerSourceError:req.flash("powerSourceError"),
-      dialColorError:req.flash("dialColorError"),
-      featureError:req.flash("featureError")
-    }});
-    req.session.productInfo=null
+    res.render("admin/newproduct", {
+      category: category,
+      productInfo: req.session.productInfo,
+      expressFlash: {
+        productNameError: req.flash("productNameError"),
+        categoryError: req.flash("categoryError"),
+        stockError: req.flash("stockError"),
+        mrpError: req.flash("mrpError"),
+        priceError: req.flash("priceError"),
+        discountError: req.flash("discountError"),
+        descriptionError: req.flash("descriptionError"),
+        displayError: req.flash("displayError"),
+        strapTypeError: req.flash("strapError"),
+        strapmaterialError: req.flash("starpmaterialError"),
+        strapColorError: req.flash("strapColorError"),
+        powerSourceError: req.flash("powerSourceError"),
+        dialColorError: req.flash("dialColorError"),
+        featureError: req.flash("featureError"),
+      },
+    });
+    req.session.productInfo = null;
   } catch (error) {
     console.log("error occured loading page", error);
   }
@@ -286,6 +313,7 @@ const newproductpost = async (req, res) => {
       stock,
       mrp,
       price,
+      discount,
       description,
       displayType,
       strapType,
@@ -295,12 +323,62 @@ const newproductpost = async (req, res) => {
       dialColor,
       feature,
     } = req.body;
-    req.session.productInfo=req.body
+    const productNameValid = alphanumValid(productName);
+    const categoryValid = alphanumValid(category);
+    const stockValid = onlyNumbers(stock);
+    const mrpValid = onlyNumbers(mrp);
+    const discountValid = zerotonine(discount);
+    const descriptionValid = alphanumValid(description);
+    const displayTypeValid = alphanumValid(displayType);
+    const strapTypeValid = alphanumValid(strapType);
+    const strapMaterialValid = alphanumValid(strapMaterial);
+    const strapColorValid = alphanumValid(strapColor);
+    const powerSourceValid = alphanumValid(powerSource);
+    const dialColorValid = alphanumValid(dialColor);
+    const featureValid = alphanumValid(feature);
+
+    if (
+      !productNameValid ||
+      !categoryValid ||
+      !stockValid ||
+      !mrpValid ||
+      !discountValid ||
+      !descriptionValid ||
+      !displayTypeValid ||
+      !strapTypeValid ||
+      !strapMaterialValid ||
+      !strapColorValid ||
+      !powerSourceValid ||
+      !dialColorValid ||
+      !featureValid
+    ) {
+      console.log("heyyyyyyssss");
+      req.flash("productNameError", "Enter a valid product name");
+      req.flash("categoryError", "Enter a valid product name");
+      req.flash("stockError", "Enter a valid product name");
+      req.flash("mrpError", "Enter a valid product name");
+      req.flash("priceError", "Enter a valid product name");
+      req.flash("discountError", "Enter a valid product name");
+      req.flash("descriptionError", "Enter a valid product name");
+      req.flash("displayError", "Enter a valid product name");
+      req.flash("strapTypeError", "Enter a valid product name");
+      req.flash("strapmaterialError", "Enter a valid product name");
+      req.flash("strapColorError", "Enter a valid product name");
+      req.flash("powerSourceErrorr", "Enter a valid product name");
+      req.flash("dialColorError", "Enter a valid product name");
+      req.flash("featureError", "Enter a valid product name");
+      console.log("hahahah");
+      req.session.productInfo = req.body;
+      console.log("ivee ethunind");
+      return res.redirect("/admin/newproduct");
+    }
+
     const newproduct = await productModel.create({
       name: productName,
       category: category,
       mrp: mrp,
       price: price,
+      discount: discount,
       stock: stock,
       description: description,
       displayType: displayType,
@@ -312,9 +390,9 @@ const newproductpost = async (req, res) => {
       feature: feature,
       images: req.files.map((file) => file.path),
     });
-    req.session.productInfo=null
+    req.session.productInfo = null;
     await newproduct.save();
-    res.redirect("/admin/newproduct");
+    res.redirect("/admin/product");
   } catch (error) {
     res.status(400).send("error adding" + error.message);
     console.log("error adding", error);
@@ -343,7 +421,26 @@ const updatepro = async (req, res) => {
   try {
     const id = req.params.id;
     const product = await productModel.findOne({ _id: id });
-    res.render("admin/updateproduct", { product: product });
+    res.render("admin/updateproduct", {
+      product: product,
+      productInfo: req.session.productInfo,
+      expressFlash: {
+        productNameError: req.flash("productNameError"),
+        categoryError: req.flash("categoryError"),
+        stockError: req.flash("stockError"),
+        mrpError: req.flash("mrpError"),
+        priceError: req.flash("priceError"),
+        discountError: req.flash("discountError"),
+        descriptionError: req.flash("descriptionError"),
+        displayError: req.flash("displayError"),
+        strapTypeError: req.flash("strapError"),
+        strapmaterialError: req.flash("starpmaterialError"),
+        strapColorError: req.flash("strapColorError"),
+        powerSourceError: req.flash("powerSourceError"),
+        dialColorError: req.flash("dialColorError"),
+        featureError: req.flash("featureError"),
+      },
+    });
   } catch (error) {
     console.log("error update product", error);
     res.status(400).send("error updating product");
@@ -372,6 +469,7 @@ const updatepropost = async (req, res) => {
     const {
       productName,
       mrp,
+      discount,
       productprice,
       stock,
       description,
@@ -383,13 +481,52 @@ const updatepropost = async (req, res) => {
       dialColor,
       feature,
     } = req.body;
-    const product = await productModel.findOne({ _id: id });
-    if (mrp <= 0 || productprice <= 0) {
-      return res.render("admin/updateproduct", {
-        product: product,
-        priceerror: "Price and MRP must be greater than 0",
-      });
+    const productNameValid = alphanumValid(productName);
+    const stockValid = onlyNumbers(stock);
+    const mrpValid = onlyNumbers(mrp);
+    const discountValid = zerotonine(discount);
+    const descriptionValid = alphanumValid(description);
+    const displayTypeValid = alphanumValid(displayType);
+    const strapTypeValid = alphanumValid(strapType);
+    const strapMaterialValid = alphanumValid(strapMaterial);
+    const strapColorValid = alphanumValid(strapColor);
+    const powerSourceValid = alphanumValid(powerSource);
+    const dialColorValid = alphanumValid(dialColor);
+    const featureValid = alphanumValid(feature);
+    if (
+      !productNameValid ||
+      !stockValid ||
+      !mrpValid ||
+      !discountValid ||
+      !descriptionValid ||
+      !displayTypeValid ||
+      !strapTypeValid ||
+      !strapMaterialValid ||
+      !strapColorValid ||
+      !powerSourceValid ||
+      !dialColorValid ||
+      !featureValid
+    ) {
+      console.log("heyyyyyyssss");
+      req.flash("productNameError", "Enter a valid product name");
+      req.flash("stockError", "Enter a valid product name");
+      req.flash("mrpError", "Enter a valid product name");
+      req.flash("priceError", "Enter a valid product name");
+      req.flash("discountError", "Enter a valid product name");
+      req.flash("descriptionError", "Enter a valid product name");
+      req.flash("displayError", "Enter a valid product name");
+      req.flash("strapTypeError", "Enter a valid product name");
+      req.flash("strapmaterialError", "Enter a valid product name");
+      req.flash("strapColorError", "Enter a valid product name");
+      req.flash("powerSourceErrorr", "Enter a valid product name");
+      req.flash("dialColorError", "Enter a valid product name");
+      req.flash("featureError", "Enter a valid product name");
+      console.log("hahahah");
+      req.session.productInfo = req.body;
+      console.log("ivee ethunind");
+      return res.redirect(`/admin/updatepro/${id}`);
     }
+    req.session.productInfo = req.body;
     await productModel.updateOne(
       { _id: id },
       {
@@ -684,110 +821,118 @@ const chartDetails = async (req, res) => {
           },
         },
       ]);
-      const salesByMonth = await orderModel.aggregate([{
-        $group:{
-          _id:{
-            month:{$month:'$createdAt'}
+      const salesByMonth = await orderModel.aggregate([
+        {
+          $group: {
+            _id: {
+              month: { $month: "$createdAt" },
+            },
+            totalAmount: { $sum: "$totalPrice" },
           },
-          totalAmount:{$sum:"$totalPrice"}
-        }
-      }])
+        },
+      ]);
       const responseData = {
-        order:orderByMonth,
-        sales:salesByMonth
-      }
-      res.status(200).json(responseData)
-    }
-    else if (selected=="year") {
-      const orderByYear = await orderModel.aggregate([{
-        $group:{
-          _id:{
-            year:{$year:'$createdAt'},
+        order: orderByMonth,
+        sales: salesByMonth,
+      };
+      res.status(200).json(responseData);
+    } else if (selected == "year") {
+      const orderByYear = await orderModel.aggregate([
+        {
+          $group: {
+            _id: {
+              year: { $year: "$createdAt" },
+            },
+            count: { $sum: 1 },
           },
-          count:{$sum:1}
-        }
-      }])
-      const salesByYear = await orderModel.aggregate([{
-        $group:{
-          _id:{
-            year:{$year:'$createdAt'},
+        },
+      ]);
+      const salesByYear = await orderModel.aggregate([
+        {
+          $group: {
+            _id: {
+              year: { $year: "$createdAt" },
+            },
+            totalAmount: { $sum: "$totalPrice" },
           },
-         totalAmount:{$sum:'$totalPrice'}
-        }
-      }])
-      const responseData ={
-        order:orderByYear,
-        sales:salesByYear
-      }
-      res.status(200).json(responseData)
+        },
+      ]);
+      const responseData = {
+        order: orderByYear,
+        sales: salesByYear,
+      };
+      res.status(200).json(responseData);
     }
   } catch (error) {
     console.log("error occured admin chart");
-    res.status(404).send("error occured ",error)
+    res.status(404).send("error occured ", error);
   }
 };
 
-
-const downloadSalesReport = async(req,res)=>{
+const downloadSalesReport = async (req, res) => {
   try {
-    const {startDate,endDate} = req.body
-    console.log('sssssss',startDate,endDate);
-    const salesData = await orderModel.aggregate([{
-      $match:{
-        createdAt:{
-          $gte: new Date(startDate),
-          $lte: new Date(endDate)
-        }
-      }
-    },
-  {
-    $group:{
-      _id:"",
-      totalOrders:{$sum:1},
-      totalAmount:{$sum:'$totalPrice'}
-    }
-  }])
+    const { startDate, endDate } = req.body;
+    console.log("sssssss", startDate, endDate);
+    const salesData = await orderModel.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "",
+          totalOrders: { $sum: 1 },
+          totalAmount: { $sum: "$totalPrice" },
+        },
+      },
+    ]);
 
-  const products = await orderModel.aggregate([{
-    $match:{
-      createdAt:{
-        $gte: new Date(startDate),
-        $lte: new Date(endDate)
-      }
-    }
-  },
-{
-  $unwind:"$items"
-},
-{
-  $group:{
-    _id:"$items.productId",
-    totalSold:{$sum:"$items.quantity"}
-  }
-},
-{
-  $lookup:{
-    from:"product",
-    localField:"_id",
-    foreignField:"_id",
-    as:"productDetails"
-  }
-},
-{
-  $unwind:"$productDetails"
-},
-{
-  $project:{
-    _id:1,
-    totalSold:1,
-    productName:"$productDetails.name"
-  }
-},
-{
-  $sort:{totalSold:-1}
-}])
-console.log("sawas",salesData);
-const htmlContent = `
+    const products = await orderModel.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate),
+          },
+        },
+      },
+      {
+        $unwind: "$items",
+      },
+      {
+        $group: {
+          _id: "$items.productId",
+          totalSold: { $sum: "$items.quantity" },
+        },
+      },
+      {
+        $lookup: {
+          from: "product",
+          localField: "_id",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      {
+        $unwind: "$productDetails",
+      },
+      {
+        $project: {
+          _id: 1,
+          totalSold: 1,
+          productName: "$productDetails.name",
+        },
+      },
+      {
+        $sort: { totalSold: -1 },
+      },
+    ]);
+    console.log("sawas", salesData);
+    const htmlContent = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -819,7 +964,9 @@ const htmlContent = `
           .map(
             (item, index) => `
             <tr>
-                <td style="border: 1px solid #000; padding: 8px;">${index + 1}</td>
+                <td style="border: 1px solid #000; padding: 8px;">${
+                  index + 1
+                }</td>
                 <td style="border: 1px solid #000; padding: 8px;">${
                   item.productName || "N/A"
                 }</td>
@@ -852,26 +999,26 @@ const htmlContent = `
 </html>
 `;
 
-const browser = await puppeteer.launch({ headless: "new" });
-const page = await browser.newPage();
-await page.setContent(htmlContent);
-const pdfBuffer = await page.pdf();
-await browser.close();
+    const browser = await puppeteer.launch({ headless: "new" });
+    const page = await browser.newPage();
+    await page.setContent(htmlContent);
+    const pdfBuffer = await page.pdf();
+    await browser.close();
 
-const downloadPath = path.join(os.homedir(), "Downloads");
-const pdfFilePath = path.join(downloadPath, "sales.pdf");
+    const downloadPath = path.join(os.homedir(), "Downloads");
+    const pdfFilePath = path.join(downloadPath, "sales.pdf");
 
-fs.writeFileSync(pdfFilePath, pdfBuffer);
+    fs.writeFileSync(pdfFilePath, pdfBuffer);
 
-res.setHeader("Content-Length", pdfBuffer.length);
-res.setHeader("Content-Type", "application/pdf");
-res.setHeader("Content-Disposition", "attachment; filename=sales.pdf");
-res.status(200).end(pdfBuffer);
+    res.setHeader("Content-Length", pdfBuffer.length);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=sales.pdf");
+    res.status(200).end(pdfBuffer);
   } catch (error) {
-    console.log("error cant download the sales Report",error);
-    res.status(404).send("Error downloading the sales report",error)
+    console.log("error cant download the sales Report", error);
+    res.status(404).send("Error downloading the sales report", error);
   }
-}
+};
 
 const adlogout = async (req, res) => {
   req.session.admin = false;
@@ -915,5 +1062,5 @@ module.exports = {
   editCoupon,
   editCouponPost,
   chartDetails,
-  downloadSalesReport
+  downloadSalesReport,
 };

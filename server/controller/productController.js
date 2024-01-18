@@ -2,19 +2,13 @@ const productModel = require('../model/productModels');
 const categoryModel = require('../model/categoryModel');
 const { ObjectId } = require('mongodb');
 
-console.log("product list working");
+;
 
 const products = async (req, res) => {
     try {
-        console.log("checking here");
         const categoryId = req.params.id;
-        console.log("id",categoryId);
-       
         const categorys = await categoryModel.find({ status: true });
-        console.log("stage1",categorys)
-
         const products = await productModel.find({ category: categoryId , status: true });
-        console.log("stage2",products)
         res.render('user/shop', { products, categorys });
     } catch (err) {
         console.log(err);
@@ -33,7 +27,6 @@ const singleproduct = async (req, res) => {
         });
 
         const type = product.type;
-console.log("ss",type);
         const convertedId = new ObjectId(pid);
 
         const result = await productModel.aggregate([

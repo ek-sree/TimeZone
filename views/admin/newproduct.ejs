@@ -50,7 +50,10 @@
                     <div class="mb-3">
                         <label for="productName" class="form-label">Product Name:</label>
                         <input type="text" class="form-control" id="productName" name="productName" required>
-                    </div>
+                        <% if(expressFlash.productNameError){%>
+                          <div class="alter text-danger text-start"><%= expressFlash.productNameError%></div>
+                        <%}%>
+                      </div>
 
                     <div class="mb-3">
                       <label for="parentCategory" class="form-label">Category:</label>
@@ -78,7 +81,9 @@
                 <div class="mb-3 d-flex">
                   <label for="subCategory" class="form-label">Stock:</label><br>
                   <input type="number" class="form-control ml-3" id="productName" name="stock" required>
-                  
+                  <% if(expressFlash.stockError){%>
+                    <div class="alter text-danger text-start"><%= expressFlash.stockError%></div>
+                  <%}%>
                   
               </div>
 
@@ -110,46 +115,69 @@
                     <div class="mb-3">
                         <label for="description" class="form-label">Description:</label>
                         <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
-                    </div>
+                        <% if(expressFlash.descriptionError){%>
+                          <div class="alter text-danger text-start"><%= expressFlash.descriptionError%></div>
+                        <%}%>
+                      </div>
 
                     <div class="mb-3 d-flex">
                       <label for="height" class="form-label">Display type:</label><br>
                       <input type="text" class="form-control ml-3" id="productName" name="displayType" required>
-                      
+                      <% if(expressFlash.displayError){%>
+                        <div class="alter text-danger text-start"><%= expressFlash.displayError%></div>
+                      <%}%>
                       
                   </div>
 
                   <div class="mb-3 d-flex">
                     <label for="height" class="form-label">Strap type:</label><br>
                     <input type="text" class="form-control ml-3" id="productName" name="strapType" required>
-                    
+                    <% if(expressFlash.strapTypeError){%>
+                      <div class="alter text-danger text-start"><%= expressFlash.strapTypeError%></div>
+                    <%}%>
                     
                 </div>
 
                   <div class="mb-3 d-flex">
                     <label for="width" class="form-label">Strap material:</label><br>
                     <input type="text" class="form-control ml-3" id="width" name="strapMaterial" required>
-                </div>
+                    <% if(expressFlash.strapmaterialError){%>
+                      <div class="alter text-danger text-start"><%= expressFlash.strapmaterialError%></div>
+                    <%}%>
+                  </div>
 
                 <div class="mb-3 d-flex">
                   <label for="sidelength" class="form-label">Strap color:</label><br>
                   <input type="text" class="form-control ml-3" id="sidelength" name="strapColor" required>
-              </div>
+                  <% if(expressFlash.strapColorErrorr){%>
+                    <div class="alter text-danger text-start"><%= expressFlash.strapColorError%></div>
+                  <%}%>
+                </div>
+                </div>
 
               <div class="mb-3">
                 <label for="madeof" class="form-label">Power source:</label>
                 <input type="text" class="form-control" id="price" name="powerSource" required>
-            </div>
+                <% if(expressFlash.powerSourceError){%>
+                  <div class="alter text-danger text-start"><%= expressFlash.powerSourceError%></div>
+                <%}%>
+              </div>
 
             <div class="mb-3">
               <label for="color" class="form-label">Dial color:</label>
               <input type="text" class="form-control" id="color" name="dialColor" required>
-          </div>
+              <% if(expressFlash.dialColorError){%>
+                <div class="alter text-danger text-start"><%= expressFlash.dialColorError%></div>
+              <%}%>
+            </div>
 
           <div class="mb-3">
             <label for="manufacturer" class="form-label">Novelty feature:</label>
             <input type="text" class="form-control" id="manufacturer" name="feature" required>
-        </div>
+            <% if(expressFlash.featureError){%>
+              <div class="alter text-danger text-start"><%= expressFlash.featureError%></div>
+            <%}%>
+          </div>
 
 
         

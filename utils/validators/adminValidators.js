@@ -1,5 +1,5 @@
 const alphanumValid = (name) => {
-    nameRegex = /^(?! )[A-Za-z0-9 ]*(?<! )$/;
+    const nameRegex = /^(?! )[A-Za-z0-9, ' .]*(?<! )$/;
     return nameRegex.test(name);
 }
 

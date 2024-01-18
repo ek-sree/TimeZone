@@ -413,7 +413,7 @@ hr {
                 <% product.userRatings.forEach(userRating => { %>
                     <div class=" col-md-4 col-lg-6 " >
                         <div class="user-rating">
-                            <p class="user-name"><strong>User:</strong> <%= userRating.userId.firstname %></p>
+                            <p class="user-name"><strong>User:</strong> <%= userRating.userId.name %></p>
                             <div class="rating">
                                 <p><strong>Rating:</strong> <%= userRating.rating %> <%= '★'.repeat(Math.floor(userRating.rating)) + (userRating.rating % 1 !== 0 ? '½' : '') %></p>
                             </div>

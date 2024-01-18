@@ -43,12 +43,22 @@
                     <div class="mb-3">
                         <label for="categoryName" class="form-label">Category Name:</label>
                         <input type="text" class="form-control" id="categoryName" name="categoryName" value="<%= itemcat.name %>" required>
-                    </div>
+                        <% if(expressFlash.categoryError){%>
+                          <div class="alter text-danger text-start"><%= expressFlash.categoryError%></div>
+                        <%}%>
+                      </div>
+
+                      <% if(expressFlash.categoryExistError){%>
+                        <div class="alter text-danger text-start"><%= expressFlash.categoryExistError%></div>
+                      <%}%>
         
                     <div class="mb-3">
                         <label for="description" class="form-label">Description:</label>
                         <textarea class="form-control" id="description" name="description" rows="4" required><%= itemcat.description%></textarea>
-                    </div>
+                        <% if(expressFlash.descriptionError){%>
+                          <div class="alter text-danger text-start"><%= expressFlash.descriptionError%></div>
+                        <%}%>
+                      </div>
         
                     <button type="submit" class="btn btn-primary">Update</button>
                 </form>

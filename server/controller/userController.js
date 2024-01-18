@@ -907,15 +907,19 @@ const ordercancelling = async (req,res)=>{
 
     const items = result.items.map(item=>({
       productId:item.productId,
-      quantity:item.quantity
+      quantity:item.quantity,
+      status:item.status
     }))
 
     for(const item of items){
-      const product = await productModel.findOne({_id:item.productId})
+      if (item.status!=="cancelled") {
+        const product = await productModel.findOne({_id:item.productId})
 
-      product.stock += item.quantity
-      await product.save()
-    }
+        product.stock += item.quantity
+        await product.save()
+      }
+      }
+   
     res.redirect('/orderdetails')
     console.log("order cancelled");
   } catch (error) {
