@@ -98,7 +98,7 @@
                   </div>
                   <div class="mb-3">
                     <label for="productType" class="form-label">Subtitle:</label>
-                    <input type="text" class="form-control" id="bannerSubtitle" name="bannerSubtitle" value="<%= bannerInfo && bannerInfo.bannerTitle ?bannerInfo.bannerTitle : '' %>" required>
+                    <input type="text" class="form-control" id="bannerSubtitle" name="bannerSubtitle" value="<%= bannerInfo && bannerInfo.bannerSubtitle ?bannerInfo.bannerSubtitle : '' %>" required>
                     <% if(expressFlash.subtitleError){%>
                       <div class="alter text-danger text-start"><%= expressFlash.subtitleError%></div>
                   <%}%>

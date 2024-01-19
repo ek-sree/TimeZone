@@ -49,11 +49,8 @@ const addBannerPost = async (req, res) => {
     const titleValid = alphanumValid(bannerTitle);
     const subtitleValid = alphanumValid(bannerSubtitle);
 
-    if (!titleValid) {
+    if (!titleValid || !subtitleValid) {
       req.flash("titleError", "Enter valid title");
-      return req.redirect("/admin/newbanner");
-    }
-    if (!subtitleValid) {
       req.flash("subtitleError", "Enter a valid subtitle");
       return res.redirect("/admin/newbanner");
     }

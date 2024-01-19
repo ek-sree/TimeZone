@@ -1,23 +1,21 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <style>
-    .nav-search{
+    .nav-search {
         width: 100%;
         margin-right: 5px;
     }
 
-    .nav-search > input{
+    .nav-search > input {
         padding: 3px 20px;
         border: 2px solid orange;
-       
-        
     }
 
     .nav-search > input:focus {
         outline: none;
         border: none;
     }
-    
-    .nav-search > button{
+
+    .nav-search > button {
         background: tomato;
         padding: 5px 10px;
         border: none;
@@ -26,16 +24,33 @@
         letter-spacing: 1px;
     }
 
-    .nav-search > button:hover{
+    .nav-search > button:hover {
         background-color: black;
     }
 
-    .nav-search ,fa-magnifying-glass{
+    .nav-search,
+    .fa-magnifying-glass {
         color: blue;
         padding-left: 100px !important;
     }
-  
+
+    @media only screen and (max-width: 767px) {
+        /* Add your responsive styles here */
+        .nav-search {
+            margin-right: 0;
+        }
+
+        .nav-search > input {
+            width: 100%;
+        }
+
+        .nav-search > button {
+            width: 100%;
+            margin-top: 5px;
+        }
+    }
 </style>
+
 
 <div class="header-area">
     <div class="main-header header-sticky">

@@ -97,6 +97,10 @@ const signuppost = async (req, res) => {
     const phone = req.body.phoneNumber;
     const password = req.body.password;
     const conformPass = req.body.conform - password;
+    let referralCode;
+    if (req.body.referralCode) {
+      referralCode = req.body.referralCode
+    }
     console.log("reached signup");
 
     const isNameValid = nameValid(username);
@@ -138,6 +142,9 @@ const signuppost = async (req, res) => {
         phonenumber: phone,
         password: hashedpassword,
       });
+      if (referralCode) {
+        req.session.referralCode=referralCode
+      }
       req.session.user = user;
       req.session.signup = true;
       req.session.forgot = false;
@@ -204,7 +211,49 @@ const verifyotp = async (req, res) => {
             const userdata = await userModels.findOne({ email: email });
             req.session.userId = userdata._id;
             req.session.isAuth = true;
+            req.session.admin= false
+            req.session.otppressed=false
+            const referal = req.session.referralCode
+            const userIdObject = await userModels.findOne({ _id: referal });
+const idUser = userIdObject._id;
+console.log("user id obj",idUser);
+const refeWallet = await walletModel.findOne({ userId: idUser });
 
+console.log("wallet kittiyo",refeWallet.userId);
+if (idUser) {
+  console.log("enter for checking credit user exists");
+  const updateWallet = refeWallet.wallet + 50;
+
+  const walletUpdateResult = await walletModel.findOneAndUpdate(
+    { userId: idUser },
+    { $set: { wallet: updateWallet } },
+    { new: true }
+  );
+
+  if (walletUpdateResult) {
+    const transaction = {
+      date: new Date(),
+      type: "Credited",
+      amount: 50,
+    };
+
+    await walletModel.findOneAndUpdate(
+      { userId: idUser },
+      { $push: { walletTransactions: transaction } },
+      { new: true }
+    );
+
+    console.log("money credited");
+  } else {
+    console.log("user not found with that provided referral code");
+  }
+} else {
+  console.log("user not found with that provided referral code");
+}
+
+
+            req.session.otppressed=false
+            req.session.forgotpressed=false
             console.log("User created successfully");
             res.redirect("/login");
           } else if (req.session.forgot) {
@@ -525,7 +574,9 @@ const newAddresspost = async (req, res) => {
         res.redirect("/userdetails");
       }
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log("error happened new address adding");
+  }
 };
 
 const editprofile = async (req, res) => {
@@ -888,45 +939,48 @@ const walletTopup = async (req,res)=>{
 }
 
 
-const ordercancelling = async (req,res)=>{
+const ordercancelling = async (req, res) => {
   try {
-    const userId = req.session.userId
-    const oid = req.params.id
-    await orderModel.updateOne({_id:oid},{status:"Cancelled"})
-    const result = await orderModel.findOne({_id:oid})
-    
-    if (result.paymentMethod == 'Razorpay' || result.paymentMethod == "Wallet") {
-      const user = await walletModel.findOne({userId:userId})
+    const userId = req.session.userId;
+    const orderId = req.params.id;
 
-      const refund = result.totalPrice
-      const currentWallet = user.wallet
+    await orderModel.updateOne({ _id: orderId }, { status: "Cancelled" });
 
-      const newWallet = currentWallet + refund
-      await walletModel.updateOne({userId:userId},{$set:{wallet:newWallet},$push:{walletTransactions:{date: new Date(),type:"Credited",amount:refund }}})
+    const order = await orderModel.findOne({ _id: orderId });
+
+    if (order.paymentMethod === 'Razorpay' || order.paymentMethod === 'Wallet') {
+      const user = await walletModel.findOne({ userId: userId });
+      const refund = order.totalPrice;
+      const currentWallet = user.wallet;
+      const newWallet = currentWallet + refund;
+
+      await walletModel.updateOne(
+        { userId: userId },
+        {
+          $set: { wallet: newWallet },
+          $push: { walletTransactions: { date: new Date(), type: 'Credited', amount: refund } },
+        }
+      );
     }
 
-    const items = result.items.map(item=>({
-      productId:item.productId,
-      quantity:item.quantity,
-      status:item.status
-    }))
+    for (const item of order.items) {
+      if (item.status !== 'cancelled') {
+        const product = await productModel.findOne({ _id: item.productId });
+        product.discount = 0;
 
-    for(const item of items){
-      if (item.status!=="cancelled") {
-        const product = await productModel.findOne({_id:item.productId})
+        product.stock += item.quantity;
+        await product.save();
+      }
+    }
 
-        product.stock += item.quantity
-        await product.save()
-      }
-      }
-   
-    res.redirect('/orderdetails')
-    console.log("order cancelled");
+    console.log("Order cancelled");
+    res.redirect('/orderdetails');
   } catch (error) {
-    console.log("error cancelling product",error);
-    res.status(404).send('error cancelling product')
+    console.log("Error cancelling product", error);
+    res.status(404).send('Error cancelling product');
   }
-}
+};
+
 
 const orderReturning = async (req,res)=>{
   try {
@@ -946,14 +1000,17 @@ const orderReturning = async (req,res)=>{
 
     const items = result.items.map(item=>({
       productId:item.productId,
-      quantity:item.quantity
+      quantity:item.quantity,
+      status:item.status
     }))
 
     for(const item of items){
+      if (item.status!=='returned') {
       const product = await productModel.findOne({_id:item.productId})
       product.stock+= item.quantity
       await product.save()
       console.log("order returned success");
+      }
     }
     res.redirect('/orderdetails')
   } catch (error) {
@@ -1014,7 +1071,7 @@ const itemCancel = async (req, res) => {
     const product = await productModel.findOne({
       _id: singleItem.productId,
     });
-
+product.discount=0
     product.stock += singleItem.quantity;
     await product.save();
 console.log("reaminging canccel working??");
@@ -1198,8 +1255,10 @@ const upi = async(req,res)=>{
 const coupons = async(req,res)=>{
   try {
     const userId = req.session.userId
+    const referralCodetaking = await userModels.findOne({_id:userId})
+    const referralCode = referralCodetaking._id
     const coupons = await couponModel.find({couponCode:{$nin:userId.usedCoupons},status:true})
-    res.render('user/rewards',{coupons})
+    res.render('user/rewards',{coupons,referralCode})
   } catch (error) {
     
   }
@@ -1293,7 +1352,8 @@ const searchFunc = async (req, res) => {
           $or: [
               { name: { $regex: new RegExp(searchTerm, 'i') } },
               { description: { $regex: new RegExp(searchTerm, 'i') } }
-          ]
+          ],
+          status:true
       });
 
       res.render('user/shop', { categorys, products });

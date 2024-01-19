@@ -221,7 +221,12 @@ const favouritesView = async(req,res)=>{
         total:0
       })
     }
-    res.render("user/favourites",{favourite})
+    res.render("user/favourites", {
+      favourite,
+      expressFlash: {
+        productExist: req.flash("productExist")
+      }
+    });
   } catch (error) {
     console.log("fav page viewing error");
     res.status(400).send("error showing favourite page")
@@ -279,7 +284,7 @@ const addToFav = async (req, res) => {
   }
 };
 
-const favToCart = async(req,res)=>{
+const favToCart = async (req, res) => {
   try {
     console.log("add to cart from fav is started");
     const pid = req.params.id;
@@ -289,50 +294,57 @@ const favToCart = async(req,res)=>{
     const stock = product.stock;
     const quantity = req.body.quantity || 1;
 
-    // Check if the product is in stock
     if (stock === 0) {
-        return res.redirect('/favourites');
+      return res.redirect('/favourites');
     }
 
     let cart = await cartModel.findOne({ userId: userId });
 
-    // If the user has an existing cart
     if (!cart) {
-        cart = new cartModel({
-            item: [],
-            total: 0,
-            userId:userId
-        });
+      cart = new cartModel({
+        item: [],
+        total: 0,
+        userId: userId
+      });
     }
 
-    // Check if the product is already in the cart
-    const productExist = cart.item.findIndex((item) => item.productId == pid);
+    const productExistIndex = cart.item.findIndex((item) => item.productId == pid);
 
-    if (productExist !== -1) {
-        cart.item[productExist].quantity += quantity;
-        cart.item[productExist].total = cart.item[productExist].quantity * price;
-    } else {
-        const newItems = {
-            productId: pid,
-            quantity: quantity,
-            price: price,
-            stock: stock,
-            total: quantity * price
-        };
-        cart.item.push(newItems);
+    if (productExistIndex !== -1) {
+      req.flash("productExist", "This product is already in the cart");
+      return res.redirect('/favourites');
     }
 
-    // Update the cart total
+    const newItems = {
+      productId: pid,
+      quantity: quantity,
+      price: price,
+      stock: stock,
+      total: quantity * price
+    };
+
+    cart.item.push(newItems);
+
     cart.total = cart.item.reduce((num, item) => num + item.total, 0);
 
     await cart.save();
-console.log("done add to fav");
+
+    const wishlist = await favouritesModel.findOne({ userId: userId });
+
+    if (wishlist) {
+      wishlist.item = wishlist.item.filter(item => item.productId != pid);
+      await wishlist.save();
+    }
+
+    console.log("done add to fav");
     res.redirect('/cart');
   } catch (error) {
-    console.log("not woking add to cart from favourites");
-    res.status(400).send("Error occure adding product from favourites to cart")
+    console.log("not working add to cart from favourites", error);
+    res.status(400).send("Error occurred adding product from favourites to cart");
   }
-}
+};
+
+
 
 
 const deleteFav = async(req,res)=>{

@@ -141,8 +141,12 @@
 
   <!-- Continue with the rest of your code... -->
 
- 
-
+  <% if (expressFlash.productExist) { %>
+    <div class="alert alert-danger d-flex align-items-center justify-content-center">
+      <%= expressFlash.productExist %>
+    </div>
+  <% } %>
+  
 
   <div class="untree_co-section before-footer-section">
     <div class="container">

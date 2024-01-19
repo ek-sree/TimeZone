@@ -70,6 +70,15 @@
                         
                                     <%}%>
                                 </div>
+
+                                <div class="form-group mt-3">
+                                    <label for="referralCode">Enter ReferralCode</label>
+                                    <input type="text" class="form-control" id="referralCode" name="referralCode" placeholder="Enter referralCode(if u have any...)">
+                                    <% if(locals.referralCodeError){%>
+                                        <div class="alter text-danger text-start"><%= referralCodeError%></div>
+                        
+                                    <%}%>
+                                </div>
                                 <div class="margin-ls">
                                     <button type="submit" class="btn btn-primary mt-4">Create</button>
                                     <div class="mb-3"><a href="login">Already have an account</a></div>
