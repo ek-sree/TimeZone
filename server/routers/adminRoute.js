@@ -7,94 +7,96 @@ const bannerController = require('../controller/bannerController')
 
 
 const adrouter = express.Router()
+adrouter.use(express.urlencoded({extended:true}))
 
-adrouter.get('/', adminController.login)
+
+adrouter.get('/',adauth.logoutAdmin, adminController.login)
 
 adrouter.post('/adminlogin', adminController.adminloginpost)
 
-adrouter.get('/adminpanel',adauth.adminlogout, adminController.adminpanel)
+adrouter.get('/adminpanel',adauth.loggedadmin, adminController.adminpanel)
 
-adrouter.get('/userslist',adauth.adminlogout, adminController.userslist)
+adrouter.get('/userslist',adauth.loggedadmin, adminController.userslist)
 
-adrouter.get('/product',adauth.adminlogout, adminController.product)
+adrouter.get('/product',adauth.loggedadmin, adminController.product)
 
-adrouter.get('/Category',adauth.adminlogout, adminController.categories)
+adrouter.get('/Category',adauth.loggedadmin, adminController.categories)
 
-adrouter.get('/newproduct',adauth.adminlogout, adminController.newproduct)
+adrouter.get('/newproduct',adauth.loggedadmin, adminController.newproduct)
 
-adrouter.get('/update/:email',adminController.userupdate)
+adrouter.get('/update/:email',adauth.loggedadmin, adminController.userupdate)
 
-adrouter.post('/searchUser',adminController.searchpost)
+adrouter.post('/searchUser',adauth.loggedadmin, adminController.searchpost)
 
-adrouter.get('/searchView', adminController.searchView)
+adrouter.get('/searchView',adauth.loggedadmin, adminController.searchView)
 
-adrouter.get('/filter/:option', adminController.sort)
+adrouter.get('/filter/:option',adauth.loggedadmin, adminController.sort)
 
-adrouter.get('/addcategories',adminController.addcategory)
+adrouter.get('/addcategories',adauth.loggedadmin, adminController.addcategory)
 
-adrouter.post('/add-category',adminController.addcategorypost)
+adrouter.post('/add-category',adauth.loggedadmin, adminController.addcategorypost)
 
-adrouter.get('/unlistcat/:id' , adminController.unlistcat)
+adrouter.get('/unlistcat/:id' ,adauth.loggedadmin, adminController.unlistcat)
 
-adrouter.get('/editcat/:id',adminController.editcat)
+adrouter.get('/editcat/:id',adauth.loggedadmin, adminController.editcat)
 
-adrouter.post('/update-category/:id', adminController.editcatppost)
+adrouter.post('/update-category/:id',adauth.loggedadmin, adminController.editcatppost)
 
-adrouter.post('/addproduct',uploads.array('images'),adminController.newproductpost)
+adrouter.post('/addproduct',adauth.loggedadmin, uploads.array('images'),adminController.newproductpost)
 
-adrouter.get('/unlist/:id', adminController.productUnlist)
+adrouter.get('/unlist/:id',adauth.loggedadmin, adminController.productUnlist)
 
-adrouter.get('/updatepro/:id', adminController.updatepro)
+adrouter.get('/updatepro/:id',adauth.loggedadmin, adminController.updatepro)
 
-adrouter.get('/editimg/:id',adminController.editimg)
+adrouter.get('/editimg/:id',adauth.loggedadmin, adminController.editimg)
 
-adrouter.post('/updateproduct/:id', adminController.updatepropost)
+adrouter.post('/updateproduct/:id',adauth.loggedadmin, adminController.updatepropost)
 
-adrouter.get('/deleteimg', adminController.deleteimg)
+adrouter.get('/deleteimg',adauth.loggedadmin, adminController.deleteimg)
 
-adrouter.post('/updateimg/:id', uploads.array('images'),adminController.newimg)
+adrouter.post('/updateimg/:id',adauth.loggedadmin, uploads.array('images'),adminController.newimg)
 
-adrouter.get('/deletepro/:id', adminController.deletepro)
+adrouter.get('/deletepro/:id',adauth.loggedadmin, adminController.deletepro)
 
-adrouter.get('/resizeimg/:id', adminController.resizeimg)
+adrouter.get('/resizeimg/:id',adauth.loggedadmin, adminController.resizeimg)
 
-adrouter.get('/orderPage',adminController.orderPage)
+adrouter.get('/orderPage',adauth.loggedadmin, adminController.orderPage)
 
-adrouter.post('/updateOrderStatus', adminController.orderStatus)
+adrouter.post('/updateOrderStatus',adauth.loggedadmin, adminController.orderStatus)
 
-adrouter.get('/couponList', adminController.couponView)
+adrouter.get('/couponList',adauth.loggedadmin, adminController.couponView)
 
-adrouter.get('/newcoupon', adminController.addCouponView)
+adrouter.get('/newcoupon',adauth.loggedadmin, adminController.addCouponView)
 
-adrouter.post('/add_coupon',adminController.createCoupon)
+adrouter.post('/add_coupon',adauth.loggedadmin, adminController.createCoupon)
 
-adrouter.get('/unlistCoupon/:id', adminController.couponUnist)
+adrouter.get('/unlistCoupon/:id',adauth.loggedadmin, adminController.couponUnist)
 
-adrouter.get('/editCouponGet/:id', adminController.editCoupon)
+adrouter.get('/editCouponGet/:id',adauth.loggedadmin, adminController.editCoupon)
 
-adrouter.post('/updateCoupon/:id',adminController.editCouponPost)
+adrouter.post('/updateCoupon/:id',adauth.loggedadmin, adminController.editCouponPost)
 
-adrouter.post('/chartData',adminController.chartDetails)
+adrouter.post('/chartData',adauth.loggedadmin, adminController.chartDetails)
 
-adrouter.post('/downloadsales',adminController.downloadSalesReport)
-
-
-adrouter.get('/bannerList',bannerController.bannerView)
-
-adrouter.get('/newbanner',bannerController.addBanner)
-
-adrouter.post('/addBanner',uploads.single('image'),bannerController.addBannerPost)
-
-adrouter.get('/unlistBanner/:id',bannerController.unlistBanner)
-
-adrouter.get('/updateBanner/:id', bannerController.editBanner)
-
-adrouter.post('/updateBannerPost/:id', uploads.single('image'), bannerController.editBannerPost)
-
-adrouter.get('/deleteBanner/:id',bannerController.deleteBanner)
+adrouter.post('/downloadsales',adauth.loggedadmin, adminController.downloadSalesReport)
 
 
-adrouter.get('/adminlogout',adauth.adminlogout, adminController.adlogout)
+adrouter.get('/bannerList',adauth.loggedadmin, bannerController.bannerView)
+
+adrouter.get('/newbanner',adauth.loggedadmin, bannerController.addBanner)
+
+adrouter.post('/addBanner',adauth.loggedadmin, uploads.single('image'),bannerController.addBannerPost)
+
+adrouter.get('/unlistBanner/:id',adauth.loggedadmin, bannerController.unlistBanner)
+
+adrouter.get('/updateBanner/:id',adauth.loggedadmin, bannerController.editBanner)
+
+adrouter.post('/updateBannerPost/:id',adauth.loggedadmin, uploads.single('image'), bannerController.editBannerPost)
+
+adrouter.get('/deleteBanner/:id',adauth.loggedadmin, bannerController.deleteBanner)
+
+
+adrouter.get('/adminlogout',adauth.logouting, adminController.adlogout)
 
 
 module.exports= adrouter

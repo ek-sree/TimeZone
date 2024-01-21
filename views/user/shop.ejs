@@ -103,19 +103,7 @@
                         </form>
                     </div>
                     <!-- Select items -->
-                    <div class="select-this">
-                        <form action="#">
-                            <div class="select-itms">
-                                <select name="select" id="select1">
-                                    <option value="">40 per page</option>
-                                    <option value="">50 per page</option>
-                                    <option value="">60 per page</option>
-                                    <option value="">70 per page</option>
-                                </select>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                   
                 <!-- Nav Card -->
                 <div class="tab-content" id="nav-tabContent">
                     <!-- All Collection -->
@@ -158,6 +146,17 @@
                 </div>
             </div>
                 
+
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    <% const totalPages = Math.ceil(totalProducts / perPage); %>
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
             
         </section>
         <!-- Latest Products End -->

@@ -256,11 +256,13 @@
           ----------------------------------------------
         </div>
         <br>
+        <% if (cart && cart.item && cart.item.length > 0) { %>
         <div class="row justify-content-center">
           <div class="col-md-12 text-center">
             <form action="/checkout" method="get">
               <input type="hidden" name="cartId" value="<%= cart._id %>">
-              <button class="btn btn-dark btn-custom-size py-3 btn-block">Proceed To Checkout</button>
+              <button id="proceedbtn" class="btn btn-dark btn-custom-size py-3 btn-block">Proceed To Checkout</button>
+              <% }; %>
 
             </form>
             <a href="/shop"><button class="btn btn-dark btn-custom-size py-3 btn-block btn-continue-shopping">Continue shopping</button></a>
@@ -284,6 +286,7 @@
   <%-include('partials/footer')%>
 
   <script>
+
 
 
 

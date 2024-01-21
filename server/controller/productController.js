@@ -2,19 +2,26 @@ const productModel = require('../model/productModels');
 const categoryModel = require('../model/categoryModel');
 const { ObjectId } = require('mongodb');
 
-;
+
 
 const products = async (req, res) => {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const perPage = 6;
+
         const categoryId = req.params.id;
         const categorys = await categoryModel.find({ status: true });
-        const products = await productModel.find({ category: categoryId , status: true });
-        res.render('user/shop', { products, categorys });
+        const products = await productModel.find({ category: categoryId, status: true })
+            .skip((page - 1) * perPage)
+            .limit(perPage);
+            const totalProducts = await productModel.countDocuments({category:categoryId, status: true });
+        res.render('user/shop', { products, categorys, currentPage: page, perPage: perPage,totalProducts });
     } catch (err) {
         console.log(err);
         res.status(500).send('Internal Server Error');
     }
 };
+
 
 
 const singleproduct = async (req, res) => {

@@ -42,35 +42,35 @@ usrouter.post('/newpasswordpost',usercontroller.newpasswordpost)
 
 usrouter.get('/profile', usercontroller.profile)
 
-usrouter.get("/userdetails", usercontroller.userdetails)
+usrouter.get("/userdetails",auth.islogged, usercontroller.userdetails)
 
-usrouter.get("/newAddress", usercontroller.newAddress)
+usrouter.get("/newAddress",auth.islogged, usercontroller.newAddress)
 
 usrouter.post("/addressUpdating", usercontroller.newAddresspost)
 
-usrouter.get("/editprofile", usercontroller.editprofile)
+usrouter.get("/editprofile",auth.islogged, usercontroller.editprofile)
 
 usrouter.post('/updateprofile', usercontroller.editprofilepost)
 
-usrouter.get('/changepass', usercontroller.changepass)
+usrouter.get('/changepass',auth.islogged, usercontroller.changepass)
 
 usrouter.post("/changepasspost", usercontroller.changepasspost)
 
-usrouter.get('/editaddress/:addressId', usercontroller.editAddress)
+usrouter.get('/editaddress/:addressId',auth.islogged, usercontroller.editAddress)
 
 usrouter.post("/updateaddress/:addressId", usercontroller.editAddresspost)
 
-usrouter.get("/deleteaddress/:addressId", usercontroller.deleteAddress)
+usrouter.get("/deleteaddress/:addressId",auth.islogged, usercontroller.deleteAddress)
 
 usrouter.post('/select1', usercontroller.sortPrice);
 
-usrouter.get('/orderTracking', usercontroller.orderTracking)
+usrouter.get('/orderTracking',auth.islogged, usercontroller.orderTracking)
 
-usrouter.get('/singleorder/:id', usercontroller.orderHistoryShown)
+usrouter.get('/singleorder/:id',auth.islogged, usercontroller.orderHistoryShown)
 
-usrouter.get('/wallet', usercontroller.wallet)
+usrouter.get('/wallet',auth.islogged, usercontroller.wallet)
 
-usrouter.post('/walletTopup', usercontroller.walletTopup)
+usrouter.post('/walletTopup',auth.islogged, usercontroller.walletTopup)
 
 usrouter.get('/logout',auth.islogged, usercontroller.logout)
 
@@ -92,9 +92,9 @@ usrouter.get('/singleproduct/:id', productController.singleproduct)
 
 usrouter.get("/cart",auth.islogged, cartcontroller.cartView)
 
-usrouter.get('/addtocart/:id', cartcontroller.addToCart)
+usrouter.get('/addtocart/:id',auth.islogged, cartcontroller.addToCart)
 
-usrouter.post('/update-cart-quantity/:id', cartcontroller.updateCart);
+usrouter.post('/update-cart-quantity/:id',auth.islogged, cartcontroller.updateCart);
 
 usrouter.get('/delete-cart/:id', cartcontroller.deleteCart);
 
@@ -104,11 +104,11 @@ usrouter.post('/cart', (req, res) => {
  });
  
 // <<<<<<<<<--------facourite-------------->>>>>>>>>>>
-usrouter.get("/favourites",cartcontroller.favouritesView)
+usrouter.get("/favourites", cartcontroller.favouritesView)
 
 usrouter.get('/addtofavourites/:id', cartcontroller.addToFav)
 
-usrouter.get('/addtocartfrmfav/:id', cartcontroller.favToCart)
+usrouter.get('/addtocartfrmfav/:id',auth.islogged, cartcontroller.favToCart)
 
 usrouter.get('/deletefav/:id',cartcontroller.deleteFav)
 
@@ -117,30 +117,30 @@ usrouter.get('/deletefav/:id',cartcontroller.deleteFav)
 
 
 
-usrouter.get('/checkout', checkoutcontroller.checkOutView)
+usrouter.get('/checkout',auth.islogged, checkoutcontroller.checkOutView)
 
-usrouter.post('/checkoutreload', checkoutcontroller.checkoutreload);
-
-
-
-usrouter.post('/placeOrder', checkoutcontroller.orderingView)
-
-usrouter.get('/orderdetails', usercontroller.orderDetailsView)
-
-usrouter.get('/cancelorder/:id', usercontroller.ordercancelling)
-
-usrouter.get('/returnorder/:id', usercontroller.orderReturning)
-
-usrouter.get('/cancelitem/:productId/:orderId', usercontroller.itemCancel)
-
-usrouter.get('/returnitem/:productId/:orderId', usercontroller.itemReturn)
-
-usrouter.get('/download-invoice/:orderId',usercontroller.downloadInvoice)
+usrouter.post('/checkoutreload',auth.islogged, checkoutcontroller.checkoutreload);
 
 
-usrouter.post('/wallettransaction',usercontroller.walletTransaction)
 
-usrouter.post('/create/orderId', usercontroller.upi)
+usrouter.post('/placeOrder',auth.islogged, checkoutcontroller.orderingView)
+
+usrouter.get('/orderdetails',auth.islogged, usercontroller.orderDetailsView)
+
+usrouter.get('/cancelorder/:id',auth.islogged, usercontroller.ordercancelling)
+
+usrouter.get('/returnorder/:id',auth.islogged, usercontroller.orderReturning)
+
+usrouter.get('/cancelitem/:productId/:orderId',auth.islogged, usercontroller.itemCancel)
+
+usrouter.get('/returnitem/:productId/:orderId',auth.islogged, usercontroller.itemReturn)
+
+usrouter.get('/download-invoice/:orderId',auth.islogged, usercontroller.downloadInvoice)
+
+
+usrouter.post('/wallettransaction',auth.islogged, usercontroller.walletTransaction)
+
+usrouter.post('/create/orderId',auth.islogged, usercontroller.upi)
 
 
 usrouter.get('/Rewards',usercontroller.coupons)
@@ -156,6 +156,6 @@ usrouter.get('/search',usercontroller.searchFunc)
 usrouter.get('/bannerUrl', bannerController.bannerUrl)
 
 
-usrouter.post('/rateAndReview',usercontroller.ratingUser)
+usrouter.post('/rateAndReview',auth.islogged, usercontroller.ratingUser)
 
 module.exports = usrouter

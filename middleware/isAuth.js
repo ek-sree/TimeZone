@@ -28,24 +28,30 @@ const checkSessionVariable = (variableName,redirectPath)=>{
 }
 
 
-const adminlogout = (req,res,next) =>{
-    if(req.session.admin){
+const loggedadmin = (req, res,next)=>{
+    if (req.session.admin) {
         next()
     }else{
         res.redirect('/admin')
     }
 }
 
-const logoutAdmin = (req, res, next) => {
+
+const logoutAdmin = (req,res,next) =>{
     if(!req.session.admin){
-        res.redirect("/admin")
         next()
-    } else {
+    }else{
         res.redirect('/admin/adminpanel')
     }
+}
+
+const logouting = (req, res, next) => {
+   req.session.admin= false;
+   req.session.destroy();
+   res.redirect('/admin')
 }
 
 
 
 
-module.exports={iflogged, islogged, checkSessionVariable, adminlogout ,logoutAdmin}
+module.exports={iflogged, islogged, checkSessionVariable, logouting ,logoutAdmin, loggedadmin}
