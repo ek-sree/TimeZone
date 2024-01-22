@@ -92,7 +92,7 @@
                                         
                                         <label for="status"></label>
                                         <select name="status" id="status_<%= order._id %>" onchange="submitForm('<%= order._id %>')">
-                                            <% const statuses = ['Pending', 'Processing', 'Shipped', 'Delivered','Cancelled','Returned']; %>
+                                            <% const statuses = ['Pending', 'Processing', 'Shipped', 'Delivered']; %>
                                             <% for (const status of statuses) { %>
                                                 <option value="<%= status %>" <%= order.status === status ? 'selected' : '' %>><%= status.charAt(0).toUpperCase() + status.slice(1) %></option>
                                             <% } %>

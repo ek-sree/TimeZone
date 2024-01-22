@@ -15,7 +15,7 @@
                 <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
                     <a href="/bannerURL?id=<%= banner.bannerlink %>">
                         <img src="<%= banner.image.url %>" class="d-block w-100 sliderimg" alt="<%= banner.title %>">
-                        <div class="carousel-caption d-none d-md-block btitle" style="color: <%= (banner.color !== undefined && banner.color !== null) ? banner.color : '#fff' %>;">
+                        <div class="carousel-caption d-none d-md-block btitle">
                             <h1 style="font-size: 10vw;"><%= banner.title %></h1>
                             <h3><%= banner.subtitle %></h3>
                         </div>

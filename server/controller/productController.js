@@ -18,7 +18,7 @@ const products = async (req, res) => {
         res.render('user/shop', { products, categorys, currentPage: page, perPage: perPage,totalProducts });
     } catch (err) {
         console.log(err);
-        res.status(500).send('Internal Server Error');
+        res.render('user/serverError')
     }
 };
 
@@ -61,7 +61,7 @@ const singleproduct = async (req, res) => {
         res.render('user/singleproduct', { product, similar, averageRating, totalRatings });
     } catch (err) {
         console.log(err);
-        res.status(500).send('Internal Server Error');
+        res.render('user/serverError')
     }
 };
 

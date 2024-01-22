@@ -290,6 +290,34 @@ hr {
     background-color: white; 
 }
 
+
+.user-rating {
+    margin-bottom: 20px;
+}
+
+.review-container {
+    max-height: 100px;
+    overflow-y: auto; /* Add this line for vertical scrollbar */
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+/* Add the following style to handle the scrollbar appearance */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
+
     </style>
 </head>
 
@@ -317,17 +345,7 @@ hr {
             </div>
 
   
-            <div class="row">
-                <p class="col-12 d-flex justify-content-end">
-                   <% if (product.userRatings && product.userRatings.length > 0) { %>
-        <span id="ratingContainer" class="rating-container">
-            ★&nbsp;<span id="avgrating"><%= averageRating %> </span>&nbsp;<span>(<%= totalRatings %>)</span>
-        </span>
-    <% } else { %>
-        <p>No ratings yet</p>
-    <% } %>
-                </p>
-            </div>
+           
   
             <!-- Product Details Section -->
             <div class="product-details-section">
@@ -410,24 +428,25 @@ hr {
 
             <div class="row">
                 <% if (locals.product.userRatings && product.userRatings.length > 0) { %>
-                <% product.userRatings.forEach(userRating => { %>
-                    <div class=" col-md-4 col-lg-6 " >
-                        <div class="user-rating">
-                            <p class="user-name"><strong>User:</strong> <%= userRating.userId.name %></p>
-                            <div class="rating">
-                                <p><strong>Rating:</strong> <%= userRating.rating %> <%= '★'.repeat(Math.floor(userRating.rating)) + (userRating.rating % 1 !== 0 ? '½' : '') %></p>
+                    <% product.userRatings.forEach(userRating => { %>
+                        <div class="col-md-4 col-lg-6">
+                            <div class="user-rating">
+                                <p class="user-name"><strong>User:</strong> <%= userRating.userId.name %></p>
+                                <div class="rating">
+                                    <p><strong>Rating:</strong> <%= userRating.rating %> <%= '★'.repeat(Math.floor(userRating.rating)) + (userRating.rating % 1 !== 0 ? '½' : '') %></p>
+                                </div>
+                                <div class="review-container">
+                                    <p class="review"><strong>Review:</strong> <%= userRating.review %></p>
+                                </div>
+                                <hr>
                             </div>
-                            <p class="review"><strong>Review:</strong> <%= userRating.review %></p>
-                            <hr>
                         </div>
-                    </div>
-                <% }); %>
+                    <% }); %>
                 <% } else { %>
                     <p>No ratings yet</p>
-
                 <% } %>
-
             </div>
+            
         </div>
     </div>
       

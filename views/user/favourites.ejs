@@ -110,6 +110,31 @@
       border-bottom-right-radius: 20px;
       cursor: pointer;
     }
+    
+    @media (max-width: 767px) {
+      /* Styles for small screens */
+
+      .hero {
+        height: 10vh; /* Adjusted height for small screens */
+      }
+
+      .search-input {
+        width: 100%; /* Full width for small screens */
+      }
+
+      /* Add any other specific styles for small screens here */
+    }
+
+    @media (min-width: 768px) and (max-width: 1199px) {
+      /* Styles for medium screens */
+
+      .search-input {
+        width: 50%; /* Adjusted width for medium screens */
+      }
+
+      /* Add any other specific styles for medium screens here */
+    }
+
   </style>
 </head>
 
@@ -133,8 +158,7 @@
             
           </div>
         </div>
-        <div class="col-lg-7">
-        </div>
+       
       </div>
     </div>
   </div>

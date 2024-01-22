@@ -16,15 +16,9 @@ const Collection = async (req, res) => {
         res.render('user/shop', { categorys, products, currentPage: page, perPage, totalProducts });
     } catch (error) {
         console.log("error showing category", error);
-        res.status(500).send('Internal Server Error');
+        res.render('user/serverError')
     }
 };
-
-
-
-
-
-
 
 
 module.exports = { Collection };

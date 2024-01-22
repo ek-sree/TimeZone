@@ -1,3 +1,6 @@
+const userModels = require("../server/model/userModels")
+
+
 const iflogged = async(req,res,next)=>{
     if(req.session.isAuth){
         res.redirect('/')
@@ -6,12 +9,13 @@ const iflogged = async(req,res,next)=>{
     }
 }
 
-const islogged= (req,res,next)=>{
-    if(req.session.isAuth){
+const islogged= async(req,res,next)=>{
+    const user = await userModels.findOne({_id:req.session.userId})
+    if(req.session.isAuth && user && user.status==true){
         req.user = req.session.user
         next()
     }else{
-        res.redirect('/profile')
+        res.redirect('/login')
     }
 }
 

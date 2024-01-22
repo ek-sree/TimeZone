@@ -8,21 +8,14 @@ const favouritesModel = require('../model/favouriteModel')
 const cartView = async (req, res) => {
   try {
       const userId = req.session.userId;
-      console.log("Cart view userid", userId);
-
       let cart;
 
       if (userId) {
-          console.log("dddd", userId);
-         
           cart = await cartModel.findOne({ userId: userId }).populate({
               path: 'item.productId',
               select: 'images name price stock',
           });
-          console.log("inside", cart);
       }
-
-      console.log("cart finded", cart);
 
       if (!cart || !cart.item) {
           cart = new cartModel({
@@ -30,12 +23,10 @@ const cartView = async (req, res) => {
               total: 0,
           });
       }
-
-      console.log("cart item", cart);
       res.render("user/cart", { cart });
   } catch (error) {
       console.log("Error while loading or showing cart page or list:", error);
-      res.status(400).send("Error loading or showing cart page or list");
+      res.render('user/serverError')
   }
 };
 
@@ -49,7 +40,7 @@ const addToCart = async (req, res) => {
       const price = product.price;
       const stock = product.stock;
       const quantity = req.body.quantity || 1;
-console.log("userIddddddd",userId);
+
       // Check if the product is in stock
       if (stock === 0) {
           return res.redirect('/cart');
@@ -65,7 +56,6 @@ console.log("userIddddddd",userId);
               userId:userId
           });
       }
-console.log("aaaaaaa",cart);
       // Check if the product is already in the cart
       const productExist = cart.item.findIndex((item) => item.productId == pid);
 
@@ -87,11 +77,10 @@ console.log("aaaaaaa",cart);
       cart.total = cart.item.reduce((num, item) => num + item.total, 0);
 
       await cart.save();
-console.log("ssssssssssssaaa",cart);
       res.redirect('/cart');
   } catch (error) {
       console.error("Error adding cart item:", error);
-      res.status(400).send("Error rendering this page");
+      res.render('user/serverError')
   }
 };
 
@@ -103,11 +92,8 @@ console.log("ssssssssssssaaa",cart);
 
 const updateCart = async (req, res) => {
   try {
-    console.log("update quanty starting");
       const productId = req.params.id;
       const { action, cartId } = req.body;
-      console.log("aaaaa",productId);
-      console.log("bbbbb",action,cartId);
       const cart = await cartModel.findOne({ _id: cartId });
 
       // Find the item in the cart
@@ -148,7 +134,6 @@ const updateCart = async (req, res) => {
       cart.total = cart.item.reduce((total, item) => total + item.total, 0);
 
       await cart.save();
-      console.log("Updated Cart:", cart);
       res.json({
         success: true,
         newQuantity: updatedQuantity,
@@ -165,9 +150,6 @@ const updateCart = async (req, res) => {
 
 const deleteCart = async (req, res) => {
   try {
-console.log("jjjjjjjjjjjjjjjj")
-    console.log(req.body,"2",req.params.id)
-      console.log("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
     const userId = req.session.userId;
     const productId = req.params.id;
 
@@ -185,10 +167,8 @@ console.log("jjjjjjjjjjjjjjjj")
     // Recalculate total
     const total = updatedCart.item.reduce((total, item) => total + item.total, 0);
     updatedCart.total = total;
-    console.log(total,"ggggg")
 
     await updatedCart.save();
-    console.log("work1")
     let response = {success: true, total: total}
     res.json(response);
   } catch (error) {
@@ -229,22 +209,17 @@ const favouritesView = async(req,res)=>{
     });
   } catch (error) {
     console.log("fav page viewing error");
-    res.status(400).send("error showing favourite page")
+    res.render('user/serverError')
   }
 }
 
 
 const addToFav = async (req, res) => {
   try {
-    console.log("session", req.session);
     const pid = req.params.id;
-    console.log("here is pid fav list",pid);
     const product = await productModel.findOne({ _id: pid });
-    console.log("product",product);
     const userId = req.session.userId;
-    console.log(userId);
     const price = product.price;
-    console.log(price);
 
     let favourite;
     if (userId) {
@@ -277,16 +252,14 @@ const addToFav = async (req, res) => {
 
     await favourite.save();
     res.redirect('/favourites');
-    console.log("add to fav done end here");
   } catch (error) {
     console.log('error adding favourite');
-    res.status(400).send('error adding favourites page');
+    res.render('user/serverError')
   }
 };
 
 const favToCart = async (req, res) => {
   try {
-    console.log("add to cart from fav is started");
     const pid = req.params.id;
     const product = await productModel.findOne({ _id: pid });
     const userId = req.session.userId;
@@ -335,12 +308,10 @@ const favToCart = async (req, res) => {
       wishlist.item = wishlist.item.filter(item => item.productId != pid);
       await wishlist.save();
     }
-
-    console.log("done add to fav");
     res.redirect('/cart');
   } catch (error) {
     console.log("not working add to cart from favourites", error);
-    res.status(400).send("Error occurred adding product from favourites to cart");
+    res.render('user/serverError')
   }
 };
 
@@ -350,8 +321,6 @@ const favToCart = async (req, res) => {
 const deleteFav = async(req,res)=>{
   const ItemId = req.params.id
   const userId = req.session.userId
-  console.log("user id",userId);
-  console.log("item id fav",ItemId);
   const newFav = await favouritesModel.updateOne({userId:userId},{$pull:{item:{_id:ItemId}}})
   console.log("deleted fav",newFav);
   res.redirect("/favourites")

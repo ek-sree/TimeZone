@@ -28,7 +28,7 @@ usrouter.post('/verifyOtp',auth.iflogged, usercontroller.verifyotp)
 
 usrouter.post('/resendotp',auth.iflogged, usercontroller.resendotp)
 
-usrouter.get('/login',auth.iflogged, auth.checkSessionVariable('loginpressed','/'), usercontroller.login)
+usrouter.get('/login',auth.iflogged, usercontroller.login)
 
 usrouter.post('/loginaction',auth.iflogged, usercontroller.loginaction)
 
@@ -40,7 +40,7 @@ usrouter.get('/newpassword',auth.checkSessionVariable('newpasspressed','/forgotp
 
 usrouter.post('/newpasswordpost',usercontroller.newpasswordpost)
 
-usrouter.get('/profile', usercontroller.profile)
+usrouter.get('/profile',auth.islogged, usercontroller.profile)
 
 usrouter.get("/userdetails",auth.islogged, usercontroller.userdetails)
 
@@ -143,7 +143,7 @@ usrouter.post('/wallettransaction',auth.islogged, usercontroller.walletTransacti
 usrouter.post('/create/orderId',auth.islogged, usercontroller.upi)
 
 
-usrouter.get('/Rewards',usercontroller.coupons)
+usrouter.get('/Rewards',auth.islogged,usercontroller.coupons)
 
 usrouter.post('/applyCoupon', usercontroller.couponApply)
 

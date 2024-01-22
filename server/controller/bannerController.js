@@ -16,6 +16,7 @@ const bannerView = async (req, res) => {
     res.render("admin/bannerview", { banners });
   } catch (error) {
     console.log("error occure loading banner viewing", error);
+    res.render('user/serverError')
   }
 };
 
@@ -37,6 +38,7 @@ const addBanner = async (req, res) => {
     });
   } catch (error) {
     console.log("error occured adding banner", error);
+    res.render('user/serverError')
   }
 };
 
@@ -85,25 +87,25 @@ const addBannerPost = async (req, res) => {
     res.render("admin/bannerview", { banners });
   } catch (error) {
     console.log("error occured adding ne banner", error);
+    res.render('user/serverError')
   }
 };
 
 const unlistBanner = async (req, res) => {
   try {
     const id = req.params.id;
-    console.log("aaaaaab", id);
     const banner = await bannerModel.findOne({ _id: id });
 
     if (!banner) {
       res.status(404).send("banner is not found");
     }
     banner.active = !banner.active;
-    console.log("aa", banner.active);
     await banner.save();
 
     res.redirect("/admin/bannerList");
   } catch (error) {
     console.log("unlist banner is not working", error);
+    res.render('user/serverError')
   }
 };
 
@@ -120,6 +122,7 @@ const editBanner = async (req, res) => {
     } });
   } catch (error) {
     console.log("error editing banner");
+    res.render('user/serverError')
   }
 };
 
@@ -127,9 +130,7 @@ const editBanner = async (req, res) => {
 const editBannerPost = async (req, res) => {
     try {
         const id = req.params.id;
-        console.log(id);
         const {bannerLabel,bannerTitle,bannerSubtitle,bannerColor } = req.body;
-        console.log("dssjs",req.body);
         const banner = await bannerModel.findOne({ _id: id });
 
         const subtitleValid = alphanumValid(bannerSubtitle);
@@ -159,7 +160,6 @@ const editBannerPost = async (req, res) => {
         banner.subtitle = bannerSubtitle;
         banner.color = bannerColor;
 
-        // Handle image upload if a new image is provided
         if (req.file) {
             banner.image = {
                 public_id: req.file.filename,
@@ -171,7 +171,7 @@ const editBannerPost = async (req, res) => {
         res.redirect('/admin/bannerList');
     } catch (error) {
         console.log("Error editing post banner", error);
-        res.status(500).send("Internal Server Error");
+        res.render('user/serverError')
     }
 };
 
@@ -189,37 +189,41 @@ const deleteBanner = async(req,res)=>{
         res.redirect('/admin/bannerList')
     } catch (error) {
         console.log("error deletingn the image from banner",error);
+        res.render('user/serverError')
     }
 }
 
 
-const bannerUrl = async(req,res)=>{
-    try {
-        const banner = req.query.id
-        if (banner.label=='category') {
-            const categoryId = new mongoose.Types.ObjectId(banner.bannerlink)
-            const category = await categoryModel.findOne({_id:categoryId})
-            res.redirect(`/shop?category=${categoryId}`) 
-        }   
-        else if (banner.label =="product") {
-            const productId = new mongoose.Types.ObjectId(banner.bannerlink)
-            const product = await productModel.findOne({_id:productId})
-            console.log('yeaaa',productId);
-            res.redirect(`/shop?product=${productId}`)
-        }
-        else if (banner.label=='coupon') {
-            const couponId = new mongoose.Types.ObjectId(banner.bannerlink)
-            const coupon = await couponModel.findOne({_id:couponId})
-            res.redirect('/Rewards')
-
-        }else{
-            res.redirect('/')
-        }
-
-    } catch (error) {
-        console.log("bannerUrl is not working error",error);
+const bannerUrl = async (req, res) => {
+  try {
+    const bannerId = req.query.id;
+    const banners = await bannerModel.findOne({ bannerlink: bannerId });
+    if (!banners) {
+      res.redirect('/');
+      return;
     }
-}
+
+    if (banners.label == 'category') {
+      const categoryId = new mongoose.Types.ObjectId(banners.bannerlink);
+      const category = await categoryModel.findOne({ _id: categoryId });
+      res.redirect(`/shop?category=${categoryId}`);
+    } else if (banners.label == "product") {
+      const productId = new mongoose.Types.ObjectId(banners.bannerlink);
+      const product = await productModel.findOne({ _id: productId });
+      res.redirect(`/shop?product=${productId}`);
+    } else if (banners.label == 'coupon') {
+      const couponId = new mongoose.Types.ObjectId(banners.bannerlink);
+      const coupon = await couponModel.findOne({ _id: couponId });
+      res.redirect('Rewards');
+    } else {
+      res.redirect('/');
+    }
+  } catch (error) {
+    console.log("bannerUrl is not working error", error);
+    res.redirect('/');
+  }
+};
+
   
 
 module.exports = { bannerView, addBanner, addBannerPost, unlistBanner, editBanner, editBannerPost,deleteBanner, bannerUrl };

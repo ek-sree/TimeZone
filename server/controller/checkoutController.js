@@ -12,7 +12,6 @@ const couponModel = require("../model/couponModel")
 
 const checkOutView = async(req,res)=>{
     try {
-        console.log("reached checkoutpage router");
         const userId = req.session.userId
         const cartId = req.query.cartId
         const categories = await categoryModel.find()
@@ -21,11 +20,9 @@ const checkOutView = async(req,res)=>{
             couponCode: { $nin: user.usedCoupons },
             status:true
           });
-console.log("issssssssssssssssssssssssssssssssssssss");
         const addresslist = await userModels.findOne({_id:userId})
 
         if (!addresslist) {
-            console.log("user ot found");
             return res.status(400).send("cant load this user not found")
         }
 
@@ -51,12 +48,11 @@ console.log("issssssssssssssssssssssssssssssssssssss");
             quantity: cartItem.quantity,
             itemTotal: cartItem.total,
         }));
-console.log("yyyyyyyyyyyyyyyyyyyy");
         res.render('user/checkout',{availableCoupons,addresses, cartItems, categories, cart, cartId, cartId: cartId,})
        
     } catch (error) {
         console.log("cant show checkout page");
-        res.status(400).send("cant rendering this page")
+        res.render('user/serverError')
     }
 }
 
@@ -105,7 +101,6 @@ const checkoutreload = async (req, res) => {
 
         // Ensure that the cartId is provided
         if (!cartId) {
-            console.log('Cart ID not provided');
             return res.status(400).send('Cart ID not provided');
         }
 
@@ -114,7 +109,6 @@ const checkoutreload = async (req, res) => {
 
         // Check if cart exists
         if (!cart) {
-            console.log('Cart not found');
             return res.status(404).send('Cart not found');
         }
 
@@ -147,7 +141,6 @@ const checkoutreload = async (req, res) => {
         });
 
         if (!addresslist) {
-            console.log('User not found');
             return res.status(404).send('User not found');
         }
 
@@ -170,7 +163,7 @@ const checkoutreload = async (req, res) => {
 
     } catch (error) {
         console.log("Error in checkout reload:", error);
-        res.status(400).send("Error in checkout reload");
+        res.render('user/serverError')
     }
 }
 
@@ -208,15 +201,10 @@ const orderingView = async (req, res) => {
             singleprice: parseInt(req.body.selectedProductPrices[index]),
             quantity: parseInt(req.body.selectedQuantities[index]),
             price: parseInt(req.body.selectedCartTotals[index]),
-        }));
-console.log("aaaaaaaaaaaahhhhhhh",items.productId);
-console.log("totalll pricee", items.price);
-
-        
+        }));  
         
         if (items.some(item => isNaN(item.quantity))) {
             const invalidItem = items.find(item => isNaN(item.quantity));
-            console.log("Invalid quantity value found for item:", invalidItem);
             return res.status(400).send("Invalid quantity value found");
         }
         
@@ -238,11 +226,8 @@ console.log("totalll pricee", items.price);
             status: "pending",
             updatedAt: new Date(),
         });
-console.log("ssssss",order);
-        console.log("Order saving process");
         await order.save();
-        console.log("Order saved successfully");
-        console.log("selectedProductIds:", req.body.selectedProductIds);
+
         // Update user's cart and product stocks
         for (const item of items) {
             const updatedQuantity = -item.quantity; 
@@ -250,15 +235,12 @@ console.log("ssssss",order);
             await cartModel.updateOne({ userId }, { $set: { total: 0 } });
             await productModel.updateOne({ _id: item.productId }, { $inc: { stock: updatedQuantity } });
         }
-        
-
-        console.log("Order processing completed");
 
         // Render order confirmation page
         res.render("user/orderConformation", { order });
     } catch (error) {
         console.error("Error processing order:", error);
-        res.status(400).send("Error processing order");
+        res.render('user/serverError')
     }
 };
 

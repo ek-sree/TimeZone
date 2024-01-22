@@ -32,7 +32,6 @@ const adminloginpost = async (req, res) => {
     const email = req.body.email;
     const user = await userModels.findOne({ email: email });
     const password = await bcrypt.compare(req.body.password, user.password);
-    console.log("admin pass ready");
     if (password && user.isAdmin) {
       req.session.admin = true;
       res.render("admin/adminpanel");
@@ -112,16 +111,11 @@ const searchView = (req, res) => {
 // <<<<<<<<<<<<<<<<<<-----------------User sorting------------------->>>>>>>>>>>>>>>>>
 
 const sort = async (req, res) => {
-  console.log("getting");
   try {
     const option = req.params.option;
-    console.log(option);
     if (option === "A-Z") {
-      console.log("nnnooooo");
       user = await userModels.find({ isAdmin: false }).sort({ name: 1 });
-      console.log("hhh");
     } else if (option === "Z-A") {
-      console.log("tttt");
       user = await userModels.find({ isAdmin: false }).sort({ name: -1 });
     } else if (option === "Blocked") {
       user = await userModels.find({ status: false });
@@ -176,7 +170,6 @@ const addcategorypost = async (req, res) => {
         description: description,
       });
       res.redirect("/admin/category");
-      console.log("added");
     }
   } catch (error) {
     console.log("error add post categories", error);
@@ -209,7 +202,6 @@ const editcat = async (req, res) => {
   try {
     const id = req.params.id;
     const category = await categoryModel.findOne({ _id: id });
-    console.log("edit cat page");
     res.render("admin/editcat", { itemcat: category, categoryInfo:req.session.categoryInfo ,expressFlash:{
       categoryError:req.flash("categoryError"),
       descriptionError:req.flash("descriptionError"),
@@ -224,7 +216,6 @@ const editcat = async (req, res) => {
 const editcatppost = async (req, res) => {
   try {
     const id = req.params.id;
-    console.log(id);
     const catName = req.body.categoryName;
     const catDes = req.body.description;
 const categoryExist = await categoryModel.findOne({name:catName, _id: { $ne: id } })
@@ -246,7 +237,6 @@ else{
       { _id: id },
       { $set: { name: catName, description: catDes } }
     );
-    console.log("working post cat");
     res.redirect("/admin/Category");
 }
   } catch (error) {
@@ -264,7 +254,6 @@ const product = async (req, res) => {
       options: { strictPopulate: false },
       select: "name",
     });
-    console.log("ssseeeeeaaa", product);
     res.render("admin/product", { product: product });
   } catch (error) {
     console.log("error occured cant load the page", error);
@@ -277,7 +266,6 @@ const newproduct = async (req, res) => {
   try {
     req.session.productInfo = req.body;
     const category = await categoryModel.find({ status: true });
-    console.log("category", category);
     res.render("admin/newproduct", {
       category: category,
       productInfo: req.session.productInfo,
@@ -352,7 +340,6 @@ const newproductpost = async (req, res) => {
       !dialColorValid ||
       !featureValid
     ) {
-      console.log("heyyyyyyssss");
       req.flash("productNameError", "Enter a valid product name");
       req.flash("categoryError", "Enter a valid product name");
       req.flash("stockError", "Enter a valid product name");
@@ -367,9 +354,7 @@ const newproductpost = async (req, res) => {
       req.flash("powerSourceErrorr", "Enter a valid product name");
       req.flash("dialColorError", "Enter a valid product name");
       req.flash("featureError", "Enter a valid product name");
-      console.log("hahahah");
       req.session.productInfo = req.body;
-      console.log("ivee ethunind");
       return res.redirect("/admin/newproduct");
     }
 
@@ -405,7 +390,6 @@ const productUnlist = async (req, res) => {
   try {
     const id = req.params.id;
     const product = await productModel.findOne({ _id: id });
-
     product.status = !product.status;
     await product.save();
     res.redirect("/admin/product");
@@ -507,7 +491,6 @@ const updatepropost = async (req, res) => {
       !dialColorValid ||
       !featureValid
     ) {
-      console.log("heyyyyyyssss");
       req.flash("productNameError", "Enter a valid product name");
       req.flash("stockError", "Enter a valid product name");
       req.flash("mrpError", "Enter a valid product name");
@@ -521,9 +504,7 @@ const updatepropost = async (req, res) => {
       req.flash("powerSourceErrorr", "Enter a valid product name");
       req.flash("dialColorError", "Enter a valid product name");
       req.flash("featureError", "Enter a valid product name");
-      console.log("hahahah");
       req.session.productInfo = req.body;
-      console.log("ivee ethunind");
       return res.redirect(`/admin/updatepro/${id}`);
     }
     req.session.productInfo = req.body;
@@ -562,12 +543,10 @@ const deleteimg = async (req, res) => {
       try {
         fs.unlinkSync(filename);
         res.redirect(`/admin/editimg/${pid}`);
-        console.log("image delete");
         await productModel.updateOne(
           { _id: pid },
           { $pull: { images: filename } }
         );
-        console.log("image deleted from database");
       } catch (error) {
         console.log("cant delete image", error);
       }
@@ -589,19 +568,15 @@ const newimg = async (req, res) => {
     const product = await productModel.findOne({ _id: id });
 
     if (product) {
-      console.log("Product found:", product);
 
       if (imgPaths.length > 0) {
         product.images.push(...imgPaths);
         await product.save();
-        console.log("Images added:", imgPaths);
         res.redirect(`/admin/updatepro/${id}`);
       } else {
-        console.log("No images to add");
         res.status(400).send("No images to add");
       }
     } else {
-      console.log("Product not found");
       res.status(404).send("Product not found");
     }
   } catch (error) {
@@ -614,16 +589,12 @@ const deletepro = async (req, res) => {
   try {
     const id = req.params.id;
     const filename = req.query.filename;
-    console.log(filename);
     const product = await productModel.findOne({ _id: id });
     if (product) {
       await productModel.deleteOne({ _id: id });
-      console.log("Attempting to delete file:", filename);
       if (fs.existsSync(filename)) {
         fs.unlinkSync(filename);
-        console.log("image deleted from folder");
       }
-      console.log("product deleted");
       res.redirect("/admin/product");
     } else {
       res.status(400).send("product not found");
@@ -681,7 +652,6 @@ const orderStatus = async (req, res) => {
 
     if (updateOrder) {
       res.redirect("admin/orderPage");
-      console.log("update completed");
     }
     res.status(400).send("cant change the order status error");
     console.log("error changing order status");
@@ -781,7 +751,6 @@ const editCouponPost = async (req, res) => {
     });
 
     if (existingCoupon) {
-      console.log("Coupon with the same code already exists");
       req.flash("existingCouponError", "coupon code is already exist");
       return res.redirect(`/admin/editCouponGet/${id}`);
     } else {
@@ -798,7 +767,6 @@ const editCouponPost = async (req, res) => {
           },
         }
       );
-      console.log("final", result);
       res.redirect("/admin/couponList");
     }
   } catch (error) {
@@ -872,7 +840,6 @@ const chartDetails = async (req, res) => {
 const downloadSalesReport = async (req, res) => {
   try {
     const { startDate, endDate } = req.body;
-    console.log("sssssss", startDate, endDate);
     const salesData = await orderModel.aggregate([
       {
         $match: {
@@ -907,6 +874,7 @@ const downloadSalesReport = async (req, res) => {
         $group: {
           _id: "$items.productId",
           totalSold: { $sum: "$items.quantity" },
+          productName: { $first: "$items.productName" }, // Add this line
         },
       },
       {
@@ -924,14 +892,13 @@ const downloadSalesReport = async (req, res) => {
         $project: {
           _id: 1,
           totalSold: 1,
-          productName: "$productDetails.name",
+          productName: "$items.productName",
         },
       },
       {
         $sort: { totalSold: -1 },
       },
     ]);
-    console.log("sawas", salesData);
     const htmlContent = `
 <!DOCTYPE html>
 <html lang="en">
@@ -968,7 +935,7 @@ const downloadSalesReport = async (req, res) => {
                   index + 1
                 }</td>
                 <td style="border: 1px solid #000; padding: 8px;">${
-                  item.productName || "N/A"
+                  item.productDetails.name || "N/A"
                 }</td>
                 <td style="border: 1px solid #000; padding: 8px;">${
                   item.totalSold || 0

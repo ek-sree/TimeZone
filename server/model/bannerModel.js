@@ -31,7 +31,7 @@ const bannerSchema = mongoose.Schema({
     },
     bannerlink:{
         type:String,
-        required:true
+     
     },
 
     active:{

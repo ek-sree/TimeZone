@@ -32,12 +32,11 @@ const home = async (req, res) => {
     req.session.loginpressed = true;
     const products = await productModel.find().limit(6);
     const banners = await bannerModel.find()
-    console.log("sssss", banners[0].bannerlink);
     res.render("user/index", { products , banners});
     // console.log(banners);
   } catch (error) {
     console.log(error);
-    res.status(400).send("error page not found");
+    res.render('user/serverError')
   }
 };
 
@@ -48,6 +47,7 @@ const signup = async (req, res) => {
     res.render("user/signup");
   } catch (error) {
     console.log(error);
+    res.render('user/serverError')
   }
 };
 
@@ -70,9 +70,9 @@ const sendmail = async (email, otp) => {
     };
 
     transporter.sendMail(mailOptions);
-    console.log("Email sent successfully");
   } catch (error) {
     console.log("cant send message", error);
+    res.render('user/serverError')
   }
 };
 
@@ -101,8 +101,6 @@ const signuppost = async (req, res) => {
     if (req.body.referralCode) {
       referralCode = req.body.referralCode
     }
-    console.log("reached signup");
-
     const isNameValid = nameValid(username);
     const isEmailValid = emailValid(email);
     const isPhoneValid = phoneValid(phone);
@@ -113,9 +111,6 @@ const signuppost = async (req, res) => {
       req.body["conform-password"],
       req.body.password
     );
-
-    console.log("reached validate");
-
     const emailExist = await userModels.findOne({ email: email });
     if (emailExist) {
       res.render("user/signup", { emailerror: "E-mail already exits" });
@@ -148,8 +143,6 @@ const signuppost = async (req, res) => {
       req.session.user = user;
       req.session.signup = true;
       req.session.forgot = false;
-
-      console.log("reached here");
       const otp = generateotp();
       const currentTimestamp = Date.now();
       const expiryTimestamp = currentTimestamp + 30 * 1000;
@@ -170,21 +163,18 @@ const signuppost = async (req, res) => {
     }
   } catch (error) {
     console.log("Error", error);
-    res.send("error");
+    res.render('user/serverError')
   }
 };
-console.log("signup finish");
 
 //    <<<<<<<<<---------- RENDERING OTP PAGE---------->>>>>>>>>>
 const otp = (req, res) => {
   try {
     res.render("user/otp");
   } catch (error) {
-    res.status(200).send("error occured");
+    res.render('user/serverError')
   }
 };
-
-console.log("otp found");
 
 //    <<<<<<<<<---------- VERIFY OTP ---------->>>>>>>>>>
 
@@ -192,10 +182,6 @@ const verifyotp = async (req, res) => {
   try {
     const enteredotp = req.body.otp;
     const user = req.session.user;
-
-    console.log(enteredotp);
-    console.log(req.session.user);
-
     const email = req.session.user.email;
     const userdb = await otpModel.findOne({ email: email });
     const otp = userdb.otp;
@@ -218,10 +204,7 @@ const verifyotp = async (req, res) => {
 const idUser = userIdObject._id;
 console.log("user id obj",idUser);
 const refeWallet = await walletModel.findOne({ userId: idUser });
-
-console.log("wallet kittiyo",refeWallet.userId);
 if (idUser) {
-  console.log("enter for checking credit user exists");
   const updateWallet = refeWallet.wallet + 50;
 
   const walletUpdateResult = await walletModel.findOneAndUpdate(
@@ -242,8 +225,6 @@ if (idUser) {
       { $push: { walletTransactions: transaction } },
       { new: true }
     );
-
-    console.log("money credited");
   } else {
     console.log("user not found with that provided referral code");
   }
@@ -254,11 +235,9 @@ if (idUser) {
 
             req.session.otppressed=false
             req.session.forgotpressed=false
-            console.log("User created successfully");
             res.redirect("/login");
           } else if (req.session.forgot) {
             req.session.newpasspressed = true;
-            console.log("Redirecting to newpassword page");
             res.redirect("/newpassword");
           }
         } catch (error) {
@@ -270,12 +249,11 @@ if (idUser) {
         res.status(400).send("Name field is missing in req.session.user");
       }
     } else {
-      console.log("Wrong OTP or time is expired");
       res.render("user/otp", { otperror: "Invaild otp or time expired" });
     }
   } catch (error) {
     console.log(error);
-    res.status(500).send("Error occurred");
+    res.render('user/serverError')
   }
 };
 
@@ -285,8 +263,6 @@ const resendotp = async (req, res) => {
   try {
     const email = req.session.user.email;
     const otp = generateotp();
-    console.log("Resended otp", otp);
-
     const currentTimestamp = Date.now();
     const expiryTimestamp = currentTimestamp + 60 * 1000;
     await otpModel.updateOne(
@@ -296,6 +272,7 @@ const resendotp = async (req, res) => {
     await sendmail(email, otp);
   } catch (error) {
     console.log(error);
+    res.render('user/serverError')
   }
 };
 
@@ -313,11 +290,9 @@ const loginaction = async (req, res) => {
   try {
     const email = req.body.email;
     const user = await userModels.findOne({ email: email });
-    console.log("here orrrr");
     if (!user) {
       throw new Error("User not found");
     }
-    console.log("reached hereee");
     const passwordmatch = await bcrypt.compare(
       req.body.password,
       user.password
@@ -379,7 +354,7 @@ const forgotpasspost = async (req, res) => {
     }
   } catch (error) {
     console.log(error, "error in forgotpass checking");
-    res.status(400).send("error occured page not found" + error);
+    res.render('user/serverError')
   }
 };
 
@@ -419,7 +394,7 @@ const newpasswordpost = async (req, res) => {
       res.redirect("/profile");
     }
   } catch (error) {
-    res.status(400).send("error occured page not found" + error);
+    res.render('user/serverError')
   }
 };
 
@@ -429,26 +404,26 @@ const profile = async (req, res) => {
       const userId = req.session.userId;
       const user = await userModels.findOne({ _id: userId });
       const name = user.name;
-      console.log("username:", name);
       res.render("user/profile", { name, userId });
     } else {
       req.session.signuppressed = true;
       req.session.forgotpressed = true;
       res.render("user/login");
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log("error rendering profile page",err);
+    res.render('user/serverError')
+  }
 };
 
 const userdetails = async (req, res) => {
   try {
     const userId = req.session.userId;
-    console.log("is it comming ", userId);
     const data = await userModels.findOne({ _id: userId });
-    console.log("is it comming data", data);
     res.render("user/userdetails", { userData: data });
   } catch (error) {
     console.log("error showing user details");
-    res.status(400).send("error showing userdetails");
+    res.render('user/serverError')
   }
 };
 
@@ -458,7 +433,6 @@ const newAddress = async (req, res) => {
 
 const newAddresspost = async (req, res) => {
   try {
-    console.log("is post address working");
     const {
       saveas,
       fullname,
@@ -470,11 +444,8 @@ const newAddresspost = async (req, res) => {
       country,
       phone,
     } = req.body;
-    console.log("gettig in body");
     const userId = req.session.userId;
-    console.log("body id", userId);
     const userExisted = await userModels.findOne({ _id: userId });
-    console.log("bhhhhhhhhhhhhhhhhhhh", userExisted);
     const fullnamevalid = bnameValid(fullname);
     const saveasvalid = bnameValid(saveas);
     const adnameValid = bnameValid(adname);
@@ -484,7 +455,6 @@ const newAddresspost = async (req, res) => {
     const stateValid = bnameValid(state);
     const countryValid = bnameValid(country);
     const phoneValid = adphoneValid(phone);
-    console.log("assiing validation");
     if (!saveasvalid) {
       return res.render("user/newAddress", {
         saveaserror: "Enter valid address type",
@@ -548,13 +518,8 @@ const newAddresspost = async (req, res) => {
       });
 
       if (addressExist) {
-        console.log("Address already exists");
         res.redirect("/newAddress");
       } else {
-        console.log("userexist", userExisted);
-        console.log("addressexist", addressExist);
-        console.log("Before pushing address:", userExisted.address);
-        console.log("Address does not exist, adding new address");
         userExisted.address.types.push({
           saveas,
           fullname,
@@ -568,14 +533,12 @@ const newAddresspost = async (req, res) => {
         });
 
         const result = await userExisted.save();
-        console.log("Save result:", result);
-
-        console.log("Here is the updated address", userExisted);
         res.redirect("/userdetails");
       }
     }
   } catch (error) {
     console.log("error happened new address adding");
+    res.render('user/serverError')
   }
 };
 
@@ -586,16 +549,14 @@ const editprofile = async (req, res) => {
     res.render("user/editprofile", { userData });
   } catch (error) {
     console.log("error loading edit user details page");
-    res.status(400).send("error loading page");
+    res.render('user/serverError')
   }
 };
 
 const editprofilepost = async (req, res) => {
   try {
     const { name, phone } = req.body;
-    console.log("edit post value get", name, phone);
     const userId = req.session.userId;
-    console.log("user id get for edit details", userId);
     await userModels.updateOne(
       { _id: userId },
       { $set: { name: name, phonenumber: phone } }
@@ -603,7 +564,7 @@ const editprofilepost = async (req, res) => {
     res.redirect("/userdetails");
   } catch (error) {
     console.log("cant edit user details");
-    res.status(400).send("error editing user details");
+    res.render('user/serverError')
   }
 };
 
@@ -612,7 +573,7 @@ const changepass = async (req, res) => {
     res.render("user/changepass");
   } catch (error) {
     console.log("error rendering changepass page");
-    res.status(400).send("error rendering change password page");
+    res.render('user/serverError')
   }
 };
 
@@ -651,20 +612,16 @@ const changepasspost = async (req, res) => {
     res.redirect("/userdetails");
   } catch (error) {
     console.log("Error changing password:", error);
-    res.status(500).send("Internal Server Error");
+    res.render('user/serverError')
   }
 };
 
 const editAddress = async (req, res) => {
   try {
     const userId = req.session.userId;
-    console.log("edit address", userId);
     const addressId = req.params.addressId;
-    console.log("edit address id", addressId);
     const user = await userModels.findOne({ _id: userId });
-    console.log("hhhhhhhhhhhhh");
     const addressToEdit = user.address.types.id(addressId);
-    console.log("thiisss", addressToEdit);
     res.render("user/editaddress", { addressToEdit: addressToEdit ,expressFlash:{
       saveaserror:req.flash('saveaserror'),
       fullnameerror:req.flash('fullnameerror'),
@@ -678,12 +635,12 @@ const editAddress = async (req, res) => {
     } });
   } catch (error) {
     console.log("error editing address");
+    res.render('user/serverError')
   }
 };
 
 const editAddresspost = async (req, res) => {
   try {
-    console.log("is post address working");
     const {
       saveas,
       fullname,
@@ -695,9 +652,7 @@ const editAddresspost = async (req, res) => {
       country,
       phone,
     } = req.body;
-    console.log("gettig in body");
     const userId = req.session.userId;
-    console.log("body id", userId);
     const addressId = req.params.addressId;
 
     const isAddressExist = await userModels.findOne({
@@ -720,7 +675,6 @@ const editAddresspost = async (req, res) => {
     });
 
     const userExisted = await userModels.findOne({ _id: userId });
-    console.log("bhhhhhhhhhhhhhhhhhhh", userExisted);
     const fullnamevalid = bnameValid(fullname);
     const saveasvalid = bnameValid(saveas);
     const adnameValid = bnameValid(adname);
@@ -730,7 +684,6 @@ const editAddresspost = async (req, res) => {
     const stateValid = bnameValid(state);
     const countryValid = bnameValid(country);
     const phoneValid = adphoneValid(phone);
-    console.log("assiing validation");
     if (!saveasvalid) {
       req.flash('saveaserror',"Enter valid address type")
       return res.redirect(`/editaddress/${addressId}`);
@@ -793,10 +746,9 @@ const editAddresspost = async (req, res) => {
     );
 
     res.redirect("/userdetails");
-    console.log("address edited");
   } catch (error) {
     console.log("update address error");
-    res.status(400).send("cant edit address error!");
+    res.render('user/serverError')
   }
 };
 
@@ -804,7 +756,6 @@ const deleteAddress = async (req, res) => {
   try {
     const userId = req.session.userId;
     const addressId = req.params.addressId;
-    console.log("address id for delete", addressId);
     await userModels.updateOne(
       { _id: userId, "address.types._id": addressId },
       { $pull: { "address.types": { _id: addressId } } }
@@ -812,7 +763,7 @@ const deleteAddress = async (req, res) => {
     res.redirect("/userdetails");
   } catch (error) {
     console.log("delete address is not working");
-    res.status(400).send("delete address is not wooking");
+    res.render('user/serverError')
   }
 };
 
@@ -852,7 +803,7 @@ const updatedOrders = orders.map(order => ({
         res.render('user/orderdetails',{orders:updatedOrders})
     } catch (error) {
         console.log("cant show order details of users");
-        res.status(400).send("cant show user order details error happened",error)
+        res.render('user/serverError')
     }
 }
 
@@ -876,7 +827,7 @@ const sortPrice = async (req, res) => {
       res.json(data);
   } catch (error) {
       console.error('Error sorting products:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.render('user/serverError')
   }
 };
 
@@ -884,12 +835,11 @@ const sortPrice = async (req, res) => {
 const orderTracking = async (req,res)=>{
   try {
     const oid = req.params.id
-
     const  order = await orderModel.findOne({_id:oid})
-
     res.render('user/orderTrack',{order})
   } catch (error) {
-    
+    console.log("error",error);
+    res.render('user/serverError')
   }
 }
 
@@ -900,7 +850,8 @@ const orderHistoryShown = async(req,res)=>{
     const order = await orderModel.findOne({_id:pid})
     res.render('user/orderTrack',{order:order})
   } catch (error) {
-    
+    console.log("error",error);
+    res.render('user/serverError')
   }
 }
 
@@ -914,10 +865,10 @@ const wallet = async(req,res)=>{
     }
     const userWallet = user.wallet
     const usertransactions = user.walletTransactions.reverse()
-
     res.render('user/wallet',{userWallet,usertransactions})
   } catch (error) {
-    
+    console.log("error",error);
+    res.render('user/serverError')
   }
 }
 
@@ -933,7 +884,7 @@ const walletTopup = async (req,res)=>{
     await wallet.save()
     res.redirect('/wallet')
   } catch (error) {
-    res.status(404).send("cant add amount to wallet",error)
+    res.render('user/serverError')
     console.log("cant add amount to wallet",error);
   }
 }
@@ -943,17 +894,13 @@ const ordercancelling = async (req, res) => {
   try {
     const userId = req.session.userId;
     const orderId = req.params.id;
-
     await orderModel.updateOne({ _id: orderId }, { status: "Cancelled" });
-
     const order = await orderModel.findOne({ _id: orderId });
-
     if (order.paymentMethod === 'Razorpay' || order.paymentMethod === 'Wallet') {
       const user = await walletModel.findOne({ userId: userId });
       const refund = order.totalPrice;
       const currentWallet = user.wallet;
       const newWallet = currentWallet + refund;
-
       await walletModel.updateOne(
         { userId: userId },
         {
@@ -972,12 +919,10 @@ const ordercancelling = async (req, res) => {
         await product.save();
       }
     }
-
-    console.log("Order cancelled");
     res.redirect('/orderdetails');
   } catch (error) {
     console.log("Error cancelling product", error);
-    res.status(404).send('Error cancelling product');
+    res.render('user/serverError')
   }
 };
 
@@ -986,18 +931,13 @@ const orderReturning = async (req,res)=>{
   try {
     const userId = req.session.userId
     const id = req.params.id
-    console.log("aaa",id,"user",userId);
-
     const user = await walletModel.findOne({userId:userId})
     await orderModel.updateOne({_id:id},{status:"Returned"})
     const result = await orderModel.findOne({_id:id})
     const refund = result.totalPrice
-
     const currentWallet = user.wallet
     const newWallet = currentWallet + refund
-
     await walletModel.updateOne({userId:userId},{$set:{wallet:newWallet},$push:{walletTransactions:{date:new Date(),type:"Credited",amount:refund}}})
-
     const items = result.items.map(item=>({
       productId:item.productId,
       quantity:item.quantity,
@@ -1014,7 +954,7 @@ const orderReturning = async (req,res)=>{
     }
     res.redirect('/orderdetails')
   } catch (error) {
-    res.status(404).send("cant return order error",error)
+    res.render('user/serverError')
     console.log("Cant return order error happened",error);
   }
 }
@@ -1024,10 +964,8 @@ const itemCancel = async (req, res) => {
     const userId = req.session.userId;
     const productId = req.params.productId;
     const orderId = req.params.orderId;
-
     const order = await orderModel.findOne({ _id: orderId });
     const singleItem = order.items.find((item) => item.productId == productId);
-
     if (!singleItem) {
       return res.status(404).send("Item is not found!!");
     }
@@ -1035,10 +973,8 @@ const itemCancel = async (req, res) => {
     if (order.paymentMethod == "Razorpay" || order.paymentMethod == "Wallet") {
       const user = await walletModel.findOne({ userId: userId });
       const refund = singleItem.price;
-
       const currentWallet = user.wallet;
       const newWallet = currentWallet + refund;
-
       await walletModel.updateOne(
         { userId: userId },
         {
@@ -1067,28 +1003,25 @@ const itemCancel = async (req, res) => {
         },
       }
     );
-
     const product = await productModel.findOne({
       _id: singleItem.productId,
     });
 product.discount=0
     product.stock += singleItem.quantity;
     await product.save();
-console.log("reaminging canccel working??");
     const remainingNotCancelled =  order.items.filter(
       (item) => item.status !== "cancelled"
     );
-console.log("items remainging cancel",remainingNotCancelled)
+
     if (remainingNotCancelled.length <2) {
       order.status = "Cancelled";
       await order.save();
-      console.log("its working: all items cancelled, main status updated");
     }
 
     res.redirect(`/singleorder/${orderId}`);
   } catch (error) {
     console.log("error cancelling single product", error);
-    res.status(404).send("error cancelling single product");
+    res.render('user/serverError')
   }
 };
 
@@ -1133,16 +1066,14 @@ const itemReturn = async(req,res)=>{
     res.redirect(`/singleorder/${orderId}`)
   } catch (error) {
     console.log("error on returning single order ",error);
-    res.status(404).send("error returning this product",error)
+    res.render('user/serverError')
   }
 }
 
 const downloadInvoice = async (req, res) => {
   try {
     const orderId = req.params.orderId;
-    console.log(orderId);
     const order = await orderModel.findOne({ orderId: orderId });
-    console.log("innn", order);
 
     const pdfBuffer = await generateInvoice(order);
 
@@ -1152,11 +1083,11 @@ const downloadInvoice = async (req, res) => {
       res.send(pdfBuffer);
     } else {
       console.log("Error generating PDF");
-      res.status(500).send('Error generating invoice PDF');
+      res.render('user/serverError')
     }
   } catch (error) {
     console.log("cant send pdf invoice", error);
-    res.status(500).send('Error generating invoice PDF');
+    res.render('user/serverError')
   }
 };
 
@@ -1164,7 +1095,6 @@ const downloadInvoice = async (req, res) => {
 const generateInvoice = async (order) => {
   try {
     let totalAmount = order.totalPrice;
-    console.log("from invoice", totalAmount);
     const data = {
       documentTitle: 'Invoice',
       currency: 'INR',
@@ -1211,7 +1141,6 @@ const generateInvoice = async (order) => {
 
 
 const walletTransaction = async(req,res)=>{
-  console.log("wallet trasaction is woroking??");
   try {
     const userId = req.session.userId
     const amount = req.body.amount
@@ -1233,7 +1162,7 @@ const walletTransaction = async(req,res)=>{
     }
   } catch (error) {
     console.log("error in wallet transaction");
-    res.status(404).send("error occured during wallet transaction!!")
+    res.render('user/serverError')
   }
 } 
 
@@ -1260,7 +1189,8 @@ const coupons = async(req,res)=>{
     const coupons = await couponModel.find({couponCode:{$nin:userId.usedCoupons},status:true})
     res.render('user/rewards',{coupons,referralCode})
   } catch (error) {
-    
+    console.log("error coupon",error);
+    res.render('user/serverError')
   }
 }
 
@@ -1270,19 +1200,14 @@ const couponApply = async(req,res)=>{
     const {couponCode,subtotal}= req.body
     const user = await userModels.findOne({_id:userId})
     const coupon = await couponModel.findOne({couponCode:couponCode.trim()})
-console.log("here all",couponCode,"subtot",subtotal,"coupon",coupon,"user",user);
     if (coupon && coupon.status == true) {
-      console.log("entered checking stage frst");
       if (user && user.usedCoupons.includes(couponCode)) {
-        console.log("enterd inclludedddddd");
         res.json({success:false, message:"Already Redeemed this Coupon!"})
       }
       else if (coupon.expiry > new Date() && coupon.minimumPrice <= subtotal) {
-        console.log("elseif getteddddd");
         let dicprice
         let price
         if (coupon.type === 'flatDiscount') {
-          console.log("typesssssss");
           dicprice= coupon.discount
           price = subtotal-dicprice
         }
@@ -1291,14 +1216,11 @@ console.log("here all",couponCode,"subtot",subtotal,"coupon",coupon,"user",user)
           if (dicprice>= coupon.maxRedeem) {
             dicprice=coupon.maxRedeem
           }
-          console.log("hmmmmm",dicprice);
           price=subtotal-dicprice
         }
-        console.log("finallll",price);
         await userModels.findByIdAndUpdate(userId,{
           $addToSet:{usedCoupons:couponCode}
         },{new:true})
-        console.log("priceeee",dicprice,price);
         res.json({success:true, dicprice,price})
       }else{
         res.json({success:false,message:"Invaild coupon"})
@@ -1308,7 +1230,7 @@ console.log("here all",couponCode,"subtot",subtotal,"coupon",coupon,"user",user)
     }
   } catch (error) {
     console.log("error adding couppon on checkout");
-    res.status(404).send("error happed adding coupon")
+    res.render('user/serverError')
   }
 }
 
@@ -1332,15 +1254,17 @@ const revokedCoupon = async(req,res)=>{
     }
   } catch (error) {
     console.log("revoked coupon not working");
-    res.status(404).send("Revoked coupon error!")
+    res.render('user/serverError')
   }
 }
 
 
 const searchFunc = async (req, res) => {
   try {
-    console.log("search??");
       const searchTerm = req.query.q;
+      const page = parseInt(req.query.page) || 1;
+        const perPage = 6;
+
 
       const categorys = await categoryModel.find({
           name: {
@@ -1354,12 +1278,15 @@ const searchFunc = async (req, res) => {
               { description: { $regex: new RegExp(searchTerm, 'i') } }
           ],
           status:true
-      });
+      })
+      .skip((page - 1) * perPage)
+      .limit(perPage);
+      const totalProducts = await productModel.countDocuments({ status: true });
 
-      res.render('user/shop', { categorys, products });
+      res.render('user/shop', { categorys, products,currentPage: page, perPage, totalProducts });
   } catch (error) {
       console.error('Error during search:', error);
-      res.status(500).send('Internal Server Error');
+      res.render('user/serverError')
   }
 };
 
@@ -1368,34 +1295,25 @@ const ratingUser = async (req, res) => {
     const { id, rating, review } = req.body;
     const userId = req.session.userId;
     const productId = id;
-    console.log('ll',req.body);
-    console.log("Product ID:", productId);
-    console.log("User ID:", userId);
-
-    // Find the product by ID
+    
     const product = await productModel.findById(productId);
 
     if (!product) {
       return res.status(404).send("Product not found");
     }
-
-    // Ensure that userRatings is initialized as an array
     if (!product.userRatings) {
       product.userRatings = [];
     }
 
-    // Find the user's existing rating
     const existingUserRating = product.userRatings.find(
       (userRating) => userRating.userId.toString() === userId
     );
-
-    console.log("User Ratings:", product.userRatings);
 
     if (existingUserRating) {
       existingUserRating.rating = rating;
       existingUserRating.review = review;
     } else {
-      // If no existing rating, add a new one
+     
       product.userRatings.push({ userId, review, rating });
     }
 
@@ -1404,7 +1322,7 @@ const ratingUser = async (req, res) => {
     res.redirect('/orderdetails');
   } catch (error) {
     console.log("Can't rate product", error);
-    res.status(500).send("Internal Server Error");
+    res.render('user/serverError')
   }
 };
 
@@ -1417,7 +1335,7 @@ const logout = async (req, res) => {
     res.redirect("/");
   } catch (error) {
     console.log(error);
-    res.status(404).send("error occured",error);
+    res.render('user/serverError')
   }
 };
 
