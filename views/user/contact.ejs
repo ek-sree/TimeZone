@@ -107,7 +107,7 @@
                         <h2 class="contact-title">Get in Touch</h2>
                     </div>
                     <div class="col-lg-8">
-                        <form class="form-contact contact_form" action="contact_process.php" method="post" id="contactForm" novalidate="novalidate">
+                        <form class="form-contact contact_form" action="/submitForm" method="post" id="contactForm" novalidate="novalidate">
                             <div class="row">
                                 <div class="col-12">
                                     <div class="form-group">
@@ -121,7 +121,7 @@
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <input class="form-control valid" name="email" id="email" type="email" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter email address'" placeholder="Email">
+                                        <input class="form-control valid" name="emails" id="email" type="email" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter email address'" placeholder="Email">
                                     </div>
                                 </div>
                                 <div class="col-12">
@@ -131,7 +131,7 @@
                                 </div>
                             </div>
                             <div class="form-group mt-3">
-                                <button type="submit" class="button button-contactForm boxed-btn">Send</button>
+                                <button type="submit" class="button button-contactForm boxed-btn"onclick="sended()" >Send</button>
                             </div>
                         </form>
                     </div>
@@ -146,14 +146,14 @@
                         <div class="media contact-info">
                             <span class="contact-info__icon"><i class="ti-tablet"></i></span>
                             <div class="media-body">
-                                <h3>+1 253 565 2365</h3>
+                                <h3>+91 9562605265</h3>
                                 <p>Mon to Fri 9am to 6pm</p>
                             </div>
                         </div>
                         <div class="media contact-info">
                             <span class="contact-info__icon"><i class="ti-email"></i></span>
                             <div class="media-body">
-                                <h3>support@colorlib.com</h3>
+                                <h3>timezoneofficial09@gmail.com</h3>
                                 <p>Send us your query anytime!</p>
                             </div>
                         </div>
@@ -180,7 +180,30 @@
     <!-- Search model end -->
 
     <!-- JS here -->
-	
+
+    <script>
+        function sended() {
+            if (!validateForm()) {
+                alert("Please fill in all required fields before sending.");
+                return;
+            }
+            alert("Message sent!");
+            location.reload();
+        }
+        
+        function validateForm() {
+            var name = document.getElementById("name").value;
+            var email = document.getElementById("email").value;
+            var subject = document.getElementById("subject").value;
+            var message = document.getElementById("message").value;
+        
+            if (name.trim() === '' || email.trim() === '' || subject.trim() === '' || message.trim() === '') {
+                return false;
+            }
+            return true;
+        }
+    </script>
+    
     <script src=".//js/vendor/modernizr-3.5.0.min.js"></script>
     <!-- Jquery, Popper, Bootstrap -->
     <script src=".//js/vendor/jquery-1.12.4.min.js"></script>
@@ -188,7 +211,7 @@
     <script src=".//js/bootstrap.min.js"></script>
     <!-- Jquery Mobile Menu -->
     <script src=".//js/jquery.slicknav.min.js"></script>
-
+    
     <!-- Jquery Slick , Owl-Carousel Plugins -->
     <script src=".//js/owl.carousel.min.js"></script>
     <script src=".//js/slick.min.js"></script>
@@ -202,9 +225,9 @@
     <script src=".//js/jquery.nice-select.min.js"></script>
     <script src=".//js/jquery.sticky.js"></script>
     <script src=".//js/jquery.magnific-popup.js"></script>
-
+    
     <!-- contact js -->
-    <script src=".//js/contact.js"></script>
+
     <script src=".//js/jquery.form.js"></script>
     <script src=".//js/jquery.validate.min.js"></script>
     <script src=".//js/mail-script.js"></script>
@@ -213,6 +236,92 @@
     <!-- Jquery Plugins, main Jquery -->	
     <script src=".//js/plugins.js"></script>
     <script src=".//js/main.js"></script>
+    
+    <script>
+        $(document).ready(function(){
+            (function($) {
+                "use strict";
+    
+                jQuery.validator.addMethod('answercheck', function (value, element) {
+                    return this.optional(element) || /^\bcat\b$/.test(value);
+                }, "type the correct answer -_-");
+    
+                // validate contactForm form
+                $(function() {
+                    $('#contactForm').validate({
+                        rules: {
+                            name: {
+                                required: true,
+                                minlength: 2
+                            },
+                            subject: {
+                                required: true,
+                                minlength: 4
+                            },
+                            number: {
+                                required: true,
+                                minlength: 5
+                            },
+                            email: {
+                                required: true,
+                                email: true
+                            },
+                            message: {
+                                required: true,
+                                minlength: 20
+                            }
+                        },
+                        messages: {
+                            name: {
+                                required: "come on, you have a name, don't you?",
+                                minlength: "your name must consist of at least 2 characters"
+                            },
+                            subject: {
+                                required: "come on, you have a subject, don't you?",
+                                minlength: "your subject must consist of at least 4 characters"
+                            },
+                            number: {
+                                required: "come on, you have a number, don't you?",
+                                minlength: "your Number must consist of at least 5 characters"
+                            },
+                            email: {
+                                required: "no email, no message",
+                                email: true  // Add this line for email validation
+                            },
+                            message: {
+                                required: "um...yea, you have to write something to send this form.",
+                                minlength: "thats all? really?"
+                            }
+                        },
+                        submitHandler: function(form) {
+                            $(form).ajaxSubmit({
+                                type:"POST",
+                                data: $(form).serialize(),
+                                url:"/submitForm", // Update this URL to match your form's action
+                                success: function() {
+                                    $('#contactForm :input').attr('disabled', 'disabled');
+                                    $('#contactForm').fadeTo( "slow", 1, function() {
+                                        $(this).find(':input').attr('disabled', 'disabled');
+                                        $(this).find('label').css('cursor','default');
+                                        $('#success').fadeIn();
+                                        $('.modal').modal('hide');
+                                        $('#success').modal('show');
+                                    });
+                                },
+                                error: function() {
+                                    $('#contactForm').fadeTo( "slow", 1, function() {
+                                        $('#error').fadeIn();
+                                        $('.modal').modal('hide');
+                                        $('#error').modal('show');
+                                    });
+                                }
+                            });
+                        }
+                    });
+                });
+            })(jQuery);
+        });
+    </script>
         
 </body>
 

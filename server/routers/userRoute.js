@@ -8,7 +8,7 @@ const cartcontroller = require("../controller/cartController")
 const checkoutcontroller = require('../controller/checkoutController')
 const userModels = require('../model/userModels')
 const bannerController = require('../controller/bannerController')
-
+const contactController = require('../controller/contactController')
 
 
 const usrouter = express.Router()
@@ -150,12 +150,18 @@ usrouter.post('/applyCoupon', usercontroller.couponApply)
 usrouter.post('/revokeCoupon',usercontroller.revokedCoupon)
 
 
-usrouter.get('/search',usercontroller.searchFunc)
+usrouter.get('/search', usercontroller.searchFunc);
 
 
 usrouter.get('/bannerUrl', bannerController.bannerUrl)
 
 
 usrouter.post('/rateAndReview',auth.islogged, usercontroller.ratingUser)
+
+usrouter.get('/contact', usercontroller.contact)
+
+usrouter.post('/submitForm', contactController.contactSend)
+
+usrouter.get('/about', usercontroller.about)
 
 module.exports = usrouter

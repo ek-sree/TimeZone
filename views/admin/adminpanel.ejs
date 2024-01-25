@@ -12,6 +12,21 @@
     <link rel="stylesheet" href="/adminassets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css" />
     <link rel="stylesheet" href="/adminassets/css/style.css" />
     <link rel="shortcut icon" href="/adminassets/images/favicon.png" />
+  
+    <style>
+      .main-panel {
+         margin-left: 300px !important;
+     }
+     
+     .card{
+      margin-left: 100px;
+     }
+  .btn-icon-text {
+    white-space: nowrap;
+  }
+
+         </style>
+
   </head>
   <body>
     <div class="container-scroller">
@@ -63,7 +78,24 @@
                         <button type="submit" class="btn btn-icon-text mb-3 mt-2 mb-sm-0 btn-inverse-primary font-weight-normal" onclick="">
                           <i class="mdi mdi-email btn-icon-prepend"></i>Download Report </button>
                         </form>
+                        <br><br>
+                        <div class="row">
+                          <div class="col-sm-7">
+                            
+                          
+                          <div class="col-sm-5 text-md-right">
+                            <form action="/admin/downloadexcelexport" method="post">
+                              <input type="date" id="startDate" name="startDate" placeholder="Start Date" required>
+                              <input type="date" id="endDate" name="endDate" placeholder="End Date" required>
+                              <button type="submit" class="btn btn-icon-text mb-3 mt-2 mb-sm-0 btn-inverse-primary font-weight-normal">
+                                <i class="mdi mdi-download btn-icon-prepend"></i>Download Excel Report </button>
+                            </form>
+                          </div>
+                        </div>
                       </div>
+                      </div>
+                     
+                      
                     </div>
                     
                     <div class="row my-3">

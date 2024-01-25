@@ -13,6 +13,14 @@
     <link rel="stylesheet" href="/adminassets/css/style.css" />
     <link rel="shortcut icon" href="/adminassets/images/favicon.png" />
     
+    <style>
+      .main-panel {
+         margin-left: 200px !important;
+     }
+     
+         </style>
+
+
   </head>
   <body>
     <div class="container-scroller">
@@ -161,6 +169,7 @@
       </div>
       <a href="/admin/editimg/<%= product._id %>" class="btn btn-danger btn-xs">Edit Images</a>
                     <button type="submit" class="btn btn-primary">Update</button>
+                    <button style="background-color: red; border-radius: 5; border: none;" type="button" class="btn btn-primary" onclick="goBack()">Cancel</button>
                   </form>
             </div>
           
@@ -174,6 +183,11 @@
     </div>
     <!-- container-scroller -->
     <!-- plugins:js -->
+    <script>
+      function goBack() {
+          window.history.back();
+      }
+  </script>
 
     <script>
       function calculatePrice() {

@@ -1,26 +1,25 @@
-*{
+* {
     padding: 0;
     margin: 0;
 }
 
-body{
+body {
     background-image: url(../img/gallery/service-center-5.jpg);
     background-size: cover;
 }
 
-.d-flex{
+.d-flex {
     margin-left: 250px;
 }
 
-.card-header{
+.card-header {
     padding-left: 260px;
     font-weight: bold;
     font-size: 18px;
     background-color: rgba(223, 235, 244, 0.2);
-    
 }
 
-.card{
+.card {
     background-color: rgba(255, 255, 255, 0.2);
     border-radius: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
@@ -29,45 +28,40 @@ body{
 
 .btn:hover {
     background-color: rgba(199, 198, 195, 0.2);
-    color: #fff; 
+    color: #fff;
     border-radius: 10px;
     transition: background-color 0.3s, color 0.3s;
-  }
-
-  .btn {
-    transition: border-radius 0.3s; 
-    background: rgba(117, 102, 102, 0.3);
-    border: none;
-    margin-left: 260px;
-    padding: 15px 15px; 
-    font-size: 16px;
-    margin-left: 250px;
-    
 }
 
-  .custom-margin a{
+.btn {
+    transition: border-radius 0.3s;
+    background: rgba(117, 102, 102, 0.3);
+    border: none;
+    padding: 15px 15px;
+    font-size: 16px;
+    margin-left: 250px;
+}
+
+.custom-margin a {
     text-decoration: none;
     color: antiquewhite;
     margin-left: 220px;
-  }
+}
 
-.custom-margin a:hover{
+.custom-margin a:hover {
     color: #FF5733;
     text-decoration: underline;
-  }
+}
 
-
-
-  .form-control{
+.form-control {
     background-color: rgba(255, 255, 255, 0.2);
     border: none;
     border-radius: 10px;
     transition: background-color 0.3s;
     color: black;
-  }
+}
 
-
-  .form-control:focus {
+.form-control:focus {
     background-color: rgba(120, 112, 112, 0.2);
 }
 
@@ -76,17 +70,28 @@ body{
     color: white;
 }
 
-
-.links{
+.links {
     text-decoration: none;
 }
 
-.crt-new{
+.crt-new {
     padding-left: 220px;
-   
 }
 
-
-.fp{
+.fp {
     padding-left: 50px;
+}
+
+/* Media Queries */
+
+@media (max-width: 1366px) {
+    .d-flex,
+    .card-header,
+    .btn,
+    .custom-margin a,
+    .crt-new,
+    .fp {
+        margin-left: 0;
+        padding-left: 0;
+    }
 }

@@ -12,7 +12,12 @@
     <link rel="stylesheet" href="/adminassets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css" />
     <link rel="stylesheet" href="/adminassets/css/style.css" />
     <link rel="shortcut icon" href="/adminassets/images/favicon.png" />
-    
+    <style>
+      .main-panel {
+         margin-left: 200px !important;
+     }
+     
+         </style>
   </head>
   <body>
     <div class="container-scroller">
@@ -51,6 +56,7 @@
                             <input type="file" class="form-control" id="images" name="images" accept="image/*" multiple style="width: 20%;">
                         </div>
                     <button type="submit" class="btn btn-primary">Save Image</button>
+                    <button style="background-color: red; border-radius: 5; border: none;" type="button" class="btn btn-primary" onclick="goBack()">Cancel</button>
                   </form>
             </div>
           
@@ -64,7 +70,12 @@
     </div>
     <!-- container-scroller -->
     <!-- plugins:js -->
-    
+    <script>
+      function goBack() {
+          window.history.back();
+      }
+  </script>
+
     <script src="/adminassets/vendors/js/vendor.bundle.base.js"></script>
     <!-- endinject -->
     <!-- Plugin js for this page -->

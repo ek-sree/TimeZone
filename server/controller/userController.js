@@ -2,7 +2,7 @@ const userModels = require("../model/userModels");
 const otpModel = require("../model/userOtpModels");
 const otpgenerator = require("otp-generator");
 const bcrypt = require("bcrypt");
-const { Email, pass,key_id, key_secret } = require("../../.env");
+const { Email, pass, key_id, key_secret } = require("../../.env");
 const nodemailer = require("nodemailer");
 const {
   nameValid,
@@ -19,24 +19,23 @@ const {
 const productModel = require("../model/productModels");
 const orderModel = require("../model/orderModel");
 const walletModel = require("../model/walletModel");
-const Razorpay = require('razorpay')
-var easyinvoice = require('easyinvoice');
+const Razorpay = require("razorpay");
+var easyinvoice = require("easyinvoice");
 const couponModel = require("../model/couponModel");
 const categoryModel = require("../model/categoryModel");
 const bannerModel = require("../model/bannerModel");
-
 
 //    <<<<<<<<<---------- RENDERING HOMEPAGE ---------->>>>>>>>>>
 const home = async (req, res) => {
   try {
     req.session.loginpressed = true;
     const products = await productModel.find().limit(6);
-    const banners = await bannerModel.find()
-    res.render("user/index", { products , banners});
+    const banners = await bannerModel.find();
+    res.render("user/index", { products, banners });
     // console.log(banners);
   } catch (error) {
     console.log(error);
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -47,7 +46,7 @@ const signup = async (req, res) => {
     res.render("user/signup");
   } catch (error) {
     console.log(error);
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -72,7 +71,7 @@ const sendmail = async (email, otp) => {
     transporter.sendMail(mailOptions);
   } catch (error) {
     console.log("cant send message", error);
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -90,6 +89,16 @@ const generateotp = () => {
 
 //    <<<<<<<<<---------- SIGNUP VALIDATION ---------->>>>>>>>>>
 
+const generateReferralCode = () => {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    code += characters[randomIndex];
+  }
+  return code;
+};
+
 const signuppost = async (req, res) => {
   try {
     const username = req.body.username;
@@ -98,8 +107,9 @@ const signuppost = async (req, res) => {
     const password = req.body.password;
     const conformPass = req.body.conform - password;
     let referralCode;
+
     if (req.body.referralCode) {
-      referralCode = req.body.referralCode
+      referralCode = req.body.referralCode;
     }
     const isNameValid = nameValid(username);
     const isEmailValid = emailValid(email);
@@ -136,9 +146,10 @@ const signuppost = async (req, res) => {
         email: email,
         phonenumber: phone,
         password: hashedpassword,
+        referralCode: generateReferralCode(),
       });
       if (referralCode) {
-        req.session.referralCode=referralCode
+        req.session.referralCode = referralCode;
       }
       req.session.user = user;
       req.session.signup = true;
@@ -163,7 +174,7 @@ const signuppost = async (req, res) => {
     }
   } catch (error) {
     console.log("Error", error);
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -172,7 +183,7 @@ const otp = (req, res) => {
   try {
     res.render("user/otp");
   } catch (error) {
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -197,44 +208,46 @@ const verifyotp = async (req, res) => {
             const userdata = await userModels.findOne({ email: email });
             req.session.userId = userdata._id;
             req.session.isAuth = true;
-            req.session.admin= false
-            req.session.otppressed=false
-            const referal = req.session.referralCode
-            const userIdObject = await userModels.findOne({ _id: referal });
-const idUser = userIdObject._id;
-console.log("user id obj",idUser);
-const refeWallet = await walletModel.findOne({ userId: idUser });
-if (idUser) {
-  const updateWallet = refeWallet.wallet + 50;
+            req.session.admin = false;
+            req.session.otppressed = false;
+            const referal = req.session.referralCode;
+            const userIdObject = await userModels.findOne({
+              referralCode: referal,
+            });
+            const idUser = userIdObject._id;
+            console.log("user id obj", idUser);
+            const refeWallet = await walletModel.findOne({ userId: idUser });
+            if (idUser) {
+              const updateWallet = refeWallet.wallet + 50;
 
-  const walletUpdateResult = await walletModel.findOneAndUpdate(
-    { userId: idUser },
-    { $set: { wallet: updateWallet } },
-    { new: true }
-  );
+              const walletUpdateResult = await walletModel.findOneAndUpdate(
+                { userId: idUser },
+                { $set: { wallet: updateWallet } },
+                { new: true }
+              );
 
-  if (walletUpdateResult) {
-    const transaction = {
-      date: new Date(),
-      type: "Credited",
-      amount: 50,
-    };
+              if (walletUpdateResult) {
+                const transaction = {
+                  date: new Date(),
+                  type: "Credited",
+                  amount: 50,
+                  reason: "via referal code",
+                };
 
-    await walletModel.findOneAndUpdate(
-      { userId: idUser },
-      { $push: { walletTransactions: transaction } },
-      { new: true }
-    );
-  } else {
-    console.log("user not found with that provided referral code");
-  }
-} else {
-  console.log("user not found with that provided referral code");
-}
+                await walletModel.findOneAndUpdate(
+                  { userId: idUser },
+                  { $push: { walletTransactions: transaction } },
+                  { new: true }
+                );
+              } else {
+                console.log("user not found with that provided referral code");
+              }
+            } else {
+              console.log("user not found with that provided referral code");
+            }
 
-
-            req.session.otppressed=false
-            req.session.forgotpressed=false
+            req.session.otppressed = false;
+            req.session.forgotpressed = false;
             res.redirect("/login");
           } else if (req.session.forgot) {
             req.session.newpasspressed = true;
@@ -253,7 +266,7 @@ if (idUser) {
     }
   } catch (error) {
     console.log(error);
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -272,7 +285,7 @@ const resendotp = async (req, res) => {
     await sendmail(email, otp);
   } catch (error) {
     console.log(error);
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -354,7 +367,7 @@ const forgotpasspost = async (req, res) => {
     }
   } catch (error) {
     console.log(error, "error in forgotpass checking");
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -394,7 +407,7 @@ const newpasswordpost = async (req, res) => {
       res.redirect("/profile");
     }
   } catch (error) {
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -411,8 +424,8 @@ const profile = async (req, res) => {
       res.render("user/login");
     }
   } catch (error) {
-    console.log("error rendering profile page",err);
-    res.render('user/serverError')
+    console.log("error rendering profile page", err);
+    res.render("user/serverError");
   }
 };
 
@@ -423,7 +436,7 @@ const userdetails = async (req, res) => {
     res.render("user/userdetails", { userData: data });
   } catch (error) {
     console.log("error showing user details");
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -538,7 +551,7 @@ const newAddresspost = async (req, res) => {
     }
   } catch (error) {
     console.log("error happened new address adding");
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -549,7 +562,7 @@ const editprofile = async (req, res) => {
     res.render("user/editprofile", { userData });
   } catch (error) {
     console.log("error loading edit user details page");
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -564,7 +577,7 @@ const editprofilepost = async (req, res) => {
     res.redirect("/userdetails");
   } catch (error) {
     console.log("cant edit user details");
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -573,7 +586,7 @@ const changepass = async (req, res) => {
     res.render("user/changepass");
   } catch (error) {
     console.log("error rendering changepass page");
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -612,7 +625,7 @@ const changepasspost = async (req, res) => {
     res.redirect("/userdetails");
   } catch (error) {
     console.log("Error changing password:", error);
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -622,20 +635,23 @@ const editAddress = async (req, res) => {
     const addressId = req.params.addressId;
     const user = await userModels.findOne({ _id: userId });
     const addressToEdit = user.address.types.id(addressId);
-    res.render("user/editaddress", { addressToEdit: addressToEdit ,expressFlash:{
-      saveaserror:req.flash('saveaserror'),
-      fullnameerror:req.flash('fullnameerror'),
-      adnameerror:req.flash('adnameerror'),
-      streeterror:req.flash('streeterror'),
-      pinerror:req.flash('pinerror'),
-      cityerror:req.flash('cityerror'),
-       stateerror:req.flash(' stateerror'),
-      countryerror:req.flash('countryerror'),
-      phoneerror:req.flash('phoneerror'),
-    } });
+    res.render("user/editaddress", {
+      addressToEdit: addressToEdit,
+      expressFlash: {
+        saveaserror: req.flash("saveaserror"),
+        fullnameerror: req.flash("fullnameerror"),
+        adnameerror: req.flash("adnameerror"),
+        streeterror: req.flash("streeterror"),
+        pinerror: req.flash("pinerror"),
+        cityerror: req.flash("cityerror"),
+        stateerror: req.flash(" stateerror"),
+        countryerror: req.flash("countryerror"),
+        phoneerror: req.flash("phoneerror"),
+      },
+    });
   } catch (error) {
     console.log("error editing address");
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -685,39 +701,39 @@ const editAddresspost = async (req, res) => {
     const countryValid = bnameValid(country);
     const phoneValid = adphoneValid(phone);
     if (!saveasvalid) {
-      req.flash('saveaserror',"Enter valid address type")
+      req.flash("saveaserror", "Enter valid address type");
       return res.redirect(`/editaddress/${addressId}`);
     }
     if (!fullnamevalid) {
-      req.flash('fullnameerror',"Enter valid Name")
+      req.flash("fullnameerror", "Enter valid Name");
       return res.redirect(`/editaddress/${addressId}`);
     }
     if (!adnameValid) {
-      req.flash('adnameerror',"Enter valid house or flat name")
+      req.flash("adnameerror", "Enter valid house or flat name");
       return res.redirect(`/editaddress/${addressId}`);
     }
     if (!streetValid) {
-      req.flash('streeterror',"Enter valid street name")
+      req.flash("streeterror", "Enter valid street name");
       return res.redirect(`/editaddress/${addressId}`);
     }
     if (!pinvalid) {
-      req.flash('pinerror',"Enter valid pincode")
+      req.flash("pinerror", "Enter valid pincode");
       return res.redirect(`/editaddress/${addressId}`);
     }
     if (!cityValid) {
-      req.flash('cityerror',"Enter valid city")
+      req.flash("cityerror", "Enter valid city");
       return res.redirect(`/editaddress/${addressId}`);
     }
     if (!stateValid) {
-      req.flash('stateerro',"Enter valid state")
+      req.flash("stateerro", "Enter valid state");
       return res.redirect(`/editaddress/${addressId}`);
     }
     if (!countryValid) {
-      req.flash('countryerror',"Enter valid country")
+      req.flash("countryerror", "Enter valid country");
       return res.redirect(`/editaddress/${addressId}`);
     }
     if (!phoneValid) {
-      req.flash('phoneerror',"Enter valid Phone number")
+      req.flash("phoneerror", "Enter valid Phone number");
       return res.redirect(`/editaddress/${addressId}`);
     }
     console.log("validation of edit address completed");
@@ -748,7 +764,7 @@ const editAddresspost = async (req, res) => {
     res.redirect("/userdetails");
   } catch (error) {
     console.log("update address error");
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -763,132 +779,133 @@ const deleteAddress = async (req, res) => {
     res.redirect("/userdetails");
   } catch (error) {
     console.log("delete address is not working");
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
-const orderDetailsView = async(req,res)=>{
-    try {
-        const userId = req.session.userId
-        const order = await orderModel.find({userId:userId})
-        
-        const allOrderItems=[]
-         order.forEach((order)=>{
-            allOrderItems.push(...order.items)
-        })
-        const orders = await orderModel.aggregate([
-          { $match: { userId: userId, 'items.productId': { $ne: '' } } }, // Exclude documents with empty product IDs
-          { $sort: { createdAt: -1 } },
-          {
-              $lookup: {
-                  from: 'products',
-                  let: { productIds: '$items.productId' },
-                  pipeline: [
-                      // ...
-                  ],
-                  as: 'productDetails'
-              }
-          }
-      ]);
-const updatedOrders = orders.map(order => ({
-    ...order,
-    items: order.items.map(item => ({
+const orderDetailsView = async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const order = await orderModel.find({ userId: userId });
+
+    const allOrderItems = [];
+    order.forEach((order) => {
+      allOrderItems.push(...order.items);
+    });
+    const orders = await orderModel.aggregate([
+      { $match: { userId: userId, "items.productId": { $ne: "" } } }, // Exclude documents with empty product IDs
+      { $sort: { createdAt: -1 } },
+      {
+        $lookup: {
+          from: "products",
+          let: { productIds: "$items.productId" },
+          pipeline: [
+            // ...
+          ],
+          as: "productDetails",
+        },
+      },
+    ]);
+    const updatedOrders = orders.map((order) => ({
+      ...order,
+      items: order.items.map((item) => ({
         ...item,
-        productDetails: order.productDetails.find(product => product._id.toString() === item.productId.toString())
-    }))
-}));
+        productDetails: order.productDetails.find(
+          (product) => product._id.toString() === item.productId.toString()
+        ),
+      })),
+    }));
 
-        
-
-        res.render('user/orderdetails',{orders:updatedOrders})
-    } catch (error) {
-        console.log("cant show order details of users");
-        res.render('user/serverError')
-    }
-}
-
+    res.render("user/orderdetails", { orders: updatedOrders });
+  } catch (error) {
+    console.log("cant show order details of users");
+    res.render("user/serverError");
+  }
+};
 
 const sortPrice = async (req, res) => {
   try {
-      let data;
-      const sortedProduct = req.body.sortOrder;
+    let data;
+    const sortedProduct = req.body.sortOrder;
 
-      if (sortedProduct === 'allProduct') {
-        data = await productModel.find({})
-      }
-      else if (sortedProduct === 'highToLow') {
-          data = await productModel.find({}).sort({ price: -1 });
-      } else if (sortedProduct === 'lowToHigh') {
-          data = await productModel.find({}).sort({ price: 1 });
-      } else {
-          
-      }
+    if (sortedProduct === "allProduct") {
+      data = await productModel.find({});
+    } else if (sortedProduct === "highToLow") {
+      data = await productModel.find({}).sort({ price: -1 });
+    } else if (sortedProduct === "lowToHigh") {
+      data = await productModel.find({}).sort({ price: 1 });
+    } else {
+    }
 
-      res.json(data);
+    res.json(data);
   } catch (error) {
-      console.error('Error sorting products:', error);
-      res.render('user/serverError')
+    console.error("Error sorting products:", error);
+    res.render("user/serverError");
   }
 };
 
-
-const orderTracking = async (req,res)=>{
+const orderTracking = async (req, res) => {
   try {
-    const oid = req.params.id
-    const  order = await orderModel.findOne({_id:oid})
-    res.render('user/orderTrack',{order})
+    const oid = req.params.id;
+    const order = await orderModel.findOne({ _id: oid });
+    res.render("user/orderTrack", { order });
   } catch (error) {
-    console.log("error",error);
-    res.render('user/serverError')
+    console.log("error", error);
+    res.render("user/serverError");
   }
-}
+};
 
-
-const orderHistoryShown = async(req,res)=>{
+const orderHistoryShown = async (req, res) => {
   try {
-    const pid = req.params.id
-    const order = await orderModel.findOne({_id:pid})
-    res.render('user/orderTrack',{order:order})
+    const pid = req.params.id;
+    const order = await orderModel.findOne({ _id: pid });
+    res.render("user/orderTrack", { order: order });
   } catch (error) {
-    console.log("error",error);
-    res.render('user/serverError')
+    console.log("error", error);
+    res.render("user/serverError");
   }
-}
+};
 
-const wallet = async(req,res)=>{
+const wallet = async (req, res) => {
   try {
-    const userId = req.session.userId
-    const user = await walletModel.findOne({userId:userId}).sort({'walletTransactions':-1})
+    const userId = req.session.userId;
+    let user = await walletModel
+      .findOne({ userId: userId })
+      .sort({ walletTransactions: -1 });
 
     if (!user) {
-      user = await walletModel.create({userId:userId})
+      user = await walletModel.create({ userId: userId });
     }
-    const userWallet = user.wallet
-    const usertransactions = user.walletTransactions.reverse()
-    res.render('user/wallet',{userWallet,usertransactions})
+
+    const userWallet = user.wallet;
+    const usertransactions = user.walletTransactions.reverse();
+    res.render("user/wallet", { userWallet, usertransactions });
   } catch (error) {
-    console.log("error",error);
-    res.render('user/serverError')
+    console.log("Error in wallet function:", error);
+    res.render("user/serverError");
   }
-}
+};
 
-
-const walletTopup = async (req,res)=>{
+const walletTopup = async (req, res) => {
   try {
-    const userId = req.session.userId
-    const Amount = parseFloat(req.body.Amount)
-    const wallet = await walletModel.findOne({userId:userId})
+    const userId = req.session.userId;
+    const Amount = parseFloat(req.body.Amount);
+    const wallet = await walletModel.findOne({ userId: userId });
 
-    wallet.wallet = wallet.wallet + Amount
-    wallet.walletTransactions.push({type:'Credited', amount:Amount, date: new Date()})
-    await wallet.save()
-    res.redirect('/wallet')
+    wallet.wallet = wallet.wallet + Amount;
+    wallet.walletTransactions.push({
+      type: "Credited",
+      amount: Amount,
+      date: new Date(),
+      reason: "From Bank",
+    });
+    await wallet.save();
+    res.redirect("/wallet");
   } catch (error) {
-    res.render('user/serverError')
-    console.log("cant add amount to wallet",error);
+    res.render("user/serverError");
+    console.log("cant add amount to wallet", error);
   }
-}
-
+};
 
 const ordercancelling = async (req, res) => {
   try {
@@ -896,7 +913,10 @@ const ordercancelling = async (req, res) => {
     const orderId = req.params.id;
     await orderModel.updateOne({ _id: orderId }, { status: "Cancelled" });
     const order = await orderModel.findOne({ _id: orderId });
-    if (order.paymentMethod === 'Razorpay' || order.paymentMethod === 'Wallet') {
+    if (
+      order.paymentMethod === "Razorpay" ||
+      order.paymentMethod === "Wallet"
+    ) {
       const user = await walletModel.findOne({ userId: userId });
       const refund = order.totalPrice;
       const currentWallet = user.wallet;
@@ -905,13 +925,20 @@ const ordercancelling = async (req, res) => {
         { userId: userId },
         {
           $set: { wallet: newWallet },
-          $push: { walletTransactions: { date: new Date(), type: 'Credited', amount: refund } },
+          $push: {
+            walletTransactions: {
+              date: new Date(),
+              type: "Credited",
+              amount: refund,
+              reason: "order Cancelled",
+            },
+          },
         }
       );
     }
 
     for (const item of order.items) {
-      if (item.status !== 'cancelled') {
+      if (item.status !== "cancelled") {
         const product = await productModel.findOne({ _id: item.productId });
         product.discount = 0;
 
@@ -919,45 +946,57 @@ const ordercancelling = async (req, res) => {
         await product.save();
       }
     }
-    res.redirect('/orderdetails');
+    res.redirect("/orderdetails");
   } catch (error) {
     console.log("Error cancelling product", error);
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
-
-const orderReturning = async (req,res)=>{
+const orderReturning = async (req, res) => {
   try {
-    const userId = req.session.userId
-    const id = req.params.id
-    const user = await walletModel.findOne({userId:userId})
-    await orderModel.updateOne({_id:id},{status:"Returned"})
-    const result = await orderModel.findOne({_id:id})
-    const refund = result.totalPrice
-    const currentWallet = user.wallet
-    const newWallet = currentWallet + refund
-    await walletModel.updateOne({userId:userId},{$set:{wallet:newWallet},$push:{walletTransactions:{date:new Date(),type:"Credited",amount:refund}}})
-    const items = result.items.map(item=>({
-      productId:item.productId,
-      quantity:item.quantity,
-      status:item.status
-    }))
+    const userId = req.session.userId;
+    const id = req.params.id;
+    const user = await walletModel.findOne({ userId: userId });
+    await orderModel.updateOne({ _id: id }, { status: "Returned" });
+    const result = await orderModel.findOne({ _id: id });
+    const refund = result.totalPrice;
+    const currentWallet = user.wallet;
+    const newWallet = currentWallet + refund;
+    await walletModel.updateOne(
+      { userId: userId },
+      {
+        $set: { wallet: newWallet },
+        $push: {
+          walletTransactions: {
+            date: new Date(),
+            type: "Credited",
+            amount: refund,
+            reason: "Order Returned",
+          },
+        },
+      }
+    );
+    const items = result.items.map((item) => ({
+      productId: item.productId,
+      quantity: item.quantity,
+      status: item.status,
+    }));
 
-    for(const item of items){
-      if (item.status!=='returned') {
-      const product = await productModel.findOne({_id:item.productId})
-      product.stock+= item.quantity
-      await product.save()
-      console.log("order returned success");
+    for (const item of items) {
+      if (item.status !== "returned") {
+        const product = await productModel.findOne({ _id: item.productId });
+        product.stock += item.quantity;
+        await product.save();
+        console.log("order returned success");
       }
     }
-    res.redirect('/orderdetails')
+    res.redirect("/orderdetails");
   } catch (error) {
-    res.render('user/serverError')
-    console.log("Cant return order error happened",error);
+    res.render("user/serverError");
+    console.log("Cant return order error happened", error);
   }
-}
+};
 
 const itemCancel = async (req, res) => {
   try {
@@ -984,6 +1023,7 @@ const itemCancel = async (req, res) => {
               date: new Date(),
               type: "Credited",
               amount: refund,
+              reason: "order item Cancelled",
             },
           },
         }
@@ -1006,14 +1046,14 @@ const itemCancel = async (req, res) => {
     const product = await productModel.findOne({
       _id: singleItem.productId,
     });
-product.discount=0
+    product.discount = 0;
     product.stock += singleItem.quantity;
     await product.save();
-    const remainingNotCancelled =  order.items.filter(
+    const remainingNotCancelled = order.items.filter(
       (item) => item.status !== "cancelled"
     );
 
-    if (remainingNotCancelled.length <2) {
+    if (remainingNotCancelled.length < 2) {
       order.status = "Cancelled";
       await order.save();
     }
@@ -1021,54 +1061,75 @@ product.discount=0
     res.redirect(`/singleorder/${orderId}`);
   } catch (error) {
     console.log("error cancelling single product", error);
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
-const itemReturn = async(req,res)=>{
+const itemReturn = async (req, res) => {
   try {
-    const userId = req.session.userId
-    const orderId = req.params.orderId
-    const productId = req.params.productId
+    const userId = req.session.userId;
+    const orderId = req.params.orderId;
+    const productId = req.params.productId;
 
-    const order = await orderModel.findOne({_id:orderId})
-    const singleItem = order.items.find((item)=>item.productId == productId)
+    const order = await orderModel.findOne({ _id: orderId });
+    const singleItem = order.items.find((item) => item.productId == productId);
 
     if (!singleItem) {
-      return res.status(404).send('product not found')
+      return res.status(404).send("product not found");
     }
 
-    if (order.paymentMethod == 'Razorpay' || order.paymentMethod == 'Wallet') {
-      const user = await walletModel.findOne({userId:userId})
+    if (order.paymentMethod == "Razorpay" || order.paymentMethod == "Wallet") {
+      const user = await walletModel.findOne({ userId: userId });
 
-      const refund = singleItem.price
-      const currentWallet = user.wallet
-      const newWallet = currentWallet + refund
-      
-      await walletModel.updateOne({userId:userId},{$set:{wallet:newWallet},$push:{walletTransactions:{date:new Date(),type:"Credited",amount:refund}}})
+      const refund = singleItem.price;
+      const currentWallet = user.wallet;
+      const newWallet = currentWallet + refund;
+
+      await walletModel.updateOne(
+        { userId: userId },
+        {
+          $set: { wallet: newWallet },
+          $push: {
+            walletTransactions: {
+              date: new Date(),
+              type: "Credited",
+              amount: refund,
+              reason: "order Item returned",
+            },
+          },
+        }
+      );
     }
 
-   await orderModel.updateOne({_id:orderId,'items.productId':singleItem.productId},
-   {$set:{"items.$.status":'returned',
-    totalPrice:order.totalPrice - singleItem.price,
-    updatedAt:new Date()}})
+    await orderModel.updateOne(
+      { _id: orderId, "items.productId": singleItem.productId },
+      {
+        $set: {
+          "items.$.status": "returned",
+          totalPrice: order.totalPrice - singleItem.price,
+          updatedAt: new Date(),
+        },
+      }
+    );
 
-    const product = await productModel.findOne({_id:singleItem.productId})
+    const product = await productModel.findOne({ _id: singleItem.productId });
 
-    product.stock += singleItem.quantity
-    await product.save()
+    product.stock += singleItem.quantity;
+    await product.save();
 
-    const remainingNotReturned = order.items.filter((item)=>item.status!=='returned')
-    if (remainingNotReturned.length <2) {
-      order.status = "Returned"
-      await order.save()
+    const remainingNotReturned = order.items.filter(
+      (item) => item.status !== "returned"
+    );
+    if (remainingNotReturned.length < 2) {
+      order.status = "Returned";
+      await order.save();
     }
-    res.redirect(`/singleorder/${orderId}`)
+    res.redirect(`/singleorder/${orderId}`);
   } catch (error) {
-    console.log("error on returning single order ",error);
-    res.render('user/serverError')
+    console.log("error on returning single order ", error);
+    res.render("user/serverError");
   }
-}
+};
 
 const downloadInvoice = async (req, res) => {
   try {
@@ -1078,39 +1139,41 @@ const downloadInvoice = async (req, res) => {
     const pdfBuffer = await generateInvoice(order);
 
     if (pdfBuffer) {
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename=invoice-${order.orderId}.pdf`);
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=invoice-${order.orderId}.pdf`
+      );
       res.send(pdfBuffer);
     } else {
       console.log("Error generating PDF");
-      res.render('user/serverError')
+      res.render("user/serverError");
     }
   } catch (error) {
     console.log("cant send pdf invoice", error);
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
-
 
 const generateInvoice = async (order) => {
   try {
     let totalAmount = order.totalPrice;
     const data = {
-      documentTitle: 'Invoice',
-      currency: 'INR',
+      documentTitle: "Invoice",
+      currency: "INR",
       marginTop: 25,
       marginRight: 25,
       marginLeft: 25,
       marginBottom: 25,
       sender: {
-        company: 'TimeZone',
-        address: '123 Main Street, Bangalore, India',
-        zip: '651323',
-        city: 'Bangalore',
-        country: 'INDIA',
-        phone: '9562605265',
-        email: 'timezoneofficial09@gmail.com',
-        website: 'www.timezone.shop',
+        company: "TimeZone",
+        address: "123 Main Street, Bangalore, India",
+        zip: "651323",
+        city: "Bangalore",
+        country: "INDIA",
+        phone: "9562605265",
+        email: "timezoneofficial09@gmail.com",
+        website: "www.timezone.shop",
       },
       invoiceNumber: `INV-${order.orderId}`,
       invoiceDate: new Date().toJSON(),
@@ -1121,172 +1184,193 @@ const generateInvoice = async (order) => {
       })),
       total: `₹${totalAmount.toFixed(2)}`,
       tax: 0,
-      bottomNotice: 'Thank you for shopping at UrbanSole!',
+      bottomNotice: "Thank you for shopping at UrbanSole!",
     };
 
     const output = await easyinvoice.createInvoice(data);
     if (output && output.pdf) {
-      const bufferedPdf = Buffer.from(output.pdf, 'base64');
+      const bufferedPdf = Buffer.from(output.pdf, "base64");
       return bufferedPdf;
     } else {
       console.log("Error generating PDF. Response:", output);
       return null;
     }
-    
   } catch (error) {
     console.log("Error happened, can't download invoice", error);
     return null;
   }
 };
 
-
-const walletTransaction = async(req,res)=>{
+const walletTransaction = async (req, res) => {
   try {
-    const userId = req.session.userId
-    const amount = req.body.amount
-    const user = await walletModel.findOne({userId:userId})
-    const wallet = user.wallet
+    const userId = req.session.userId;
+    const amount = req.body.amount;
+    const user = await walletModel.findOne({ userId: userId });
+    const wallet = user.wallet;
 
     if (wallet >= amount) {
-      user.wallet -= amount
-      await user.save()
+      user.wallet -= amount;
+      await user.save();
 
-     const wallet = await walletModel.findOne({userId:userId})
+      const wallet = await walletModel.findOne({ userId: userId });
 
-     wallet.walletTransactions.push({type:"Debited",amount:amount,date:new Date()})
-     await wallet.save()  
-      res.json({success:true})
-    }
-    else{
-      res.json({success:false,message:"Don't have enough money in your wallet!"})
+      wallet.walletTransactions.push({
+        type: "Debited",
+        amount: amount,
+        date: new Date(),
+        reason: "Debited amount for ordering item",
+      });
+      await wallet.save();
+      res.json({ success: true });
+    } else {
+      res.json({
+        success: false,
+        message: "Don't have enough money in your wallet!",
+      });
     }
   } catch (error) {
     console.log("error in wallet transaction");
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
-} 
+};
 
+const instance = new Razorpay({ key_id: key_id, key_secret: key_secret });
 
-const instance = new Razorpay({key_id: key_id,key_secret:key_secret})
+const upi = async (req, res) => {
+  var option = {
+    amount: 500,
+    currency: "INR",
+    receipt: "order_rcpt",
+  };
+  instance.orders.create(option, function (err, order) {
+    res.send({ order: order.id });
+  });
+};
 
-const upi = async(req,res)=>{
-  var option  = {
-    amount :500,
-    currency:"INR",
-    receipt:'order_rcpt'
-  }
-  instance.orders.create(option,function(err,order){
-    res.send({order:order.id})
-  })
-}
-
-
-const coupons = async(req,res)=>{
+const coupons = async (req, res) => {
   try {
-    const userId = req.session.userId
-    const referralCodetaking = await userModels.findOne({_id:userId})
-    const referralCode = referralCodetaking._id
-    const coupons = await couponModel.find({couponCode:{$nin:userId.usedCoupons},status:true})
-    res.render('user/rewards',{coupons,referralCode})
+    const userId = req.session.userId;
+    const user = await userModels.findOne({ _id: userId });
+    const referralCode = user.referralCode;
+
+    const coupons = await couponModel.find({
+      couponCode: { $nin: userId.usedCoupons },
+      status: true,
+    });
+    res.render("user/rewards", { coupons, referralCode });
   } catch (error) {
-    console.log("error coupon",error);
-    res.render('user/serverError')
+    console.log("error coupon", error);
+    res.render("user/serverError");
   }
-}
+};
 
-const couponApply = async(req,res)=>{
+const couponApply = async (req, res) => {
   try {
-    const userId = req.session.userId
-    const {couponCode,subtotal}= req.body
-    const user = await userModels.findOne({_id:userId})
-    const coupon = await couponModel.findOne({couponCode:couponCode.trim()})
+    const userId = req.session.userId;
+    const { couponCode, subtotal } = req.body;
+    const user = await userModels.findOne({ _id: userId });
+    const coupon = await couponModel.findOne({ couponCode: couponCode.trim() });
     if (coupon && coupon.status == true) {
       if (user && user.usedCoupons.includes(couponCode)) {
-        res.json({success:false, message:"Already Redeemed this Coupon!"})
-      }
-      else if (coupon.expiry > new Date() && coupon.minimumPrice <= subtotal) {
-        let dicprice
-        let price
-        if (coupon.type === 'flatDiscount') {
-          dicprice= coupon.discount
-          price = subtotal-dicprice
-        }
-        else if (coupon.type === 'percentageDiscount') {
-          dicprice = (subtotal * coupon.discount)/100
-          if (dicprice>= coupon.maxRedeem) {
-            dicprice=coupon.maxRedeem
+        res.json({ success: false, message: "Already Redeemed this Coupon!" });
+      } else if (
+        coupon.expiry > new Date() &&
+        coupon.minimumPrice <= subtotal
+      ) {
+        let dicprice;
+        let price;
+        if (coupon.type === "flatDiscount") {
+          dicprice = coupon.discount;
+          price = subtotal - dicprice;
+        } else if (coupon.type === "percentageDiscount") {
+          dicprice = (subtotal * coupon.discount) / 100;
+          if (dicprice >= coupon.maxRedeem) {
+            dicprice = coupon.maxRedeem;
           }
-          price=subtotal-dicprice
+          price = subtotal - dicprice;
         }
-        await userModels.findByIdAndUpdate(userId,{
-          $addToSet:{usedCoupons:couponCode}
-        },{new:true})
-        res.json({success:true, dicprice,price})
-      }else{
-        res.json({success:false,message:"Invaild coupon"})
+        await userModels.findByIdAndUpdate(
+          userId,
+          {
+            $addToSet: { usedCoupons: couponCode },
+          },
+          { new: true }
+        );
+        res.json({ success: true, dicprice, price });
+      } else {
+        res.json({ success: false, message: "Invaild coupon" });
       }
-    }else{
-      res.json({success:false, message:"Coupon not found"})
+    } else {
+      res.json({ success: false, message: "Coupon not found" });
     }
   } catch (error) {
     console.log("error adding couppon on checkout");
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
-}
+};
 
-const revokedCoupon = async(req,res)=>{
+const revokedCoupon = async (req, res) => {
   try {
-    const userId = req.session.userId
-    const {couponCode,subtotal}= req.body
-    const coupon = await couponModel.findOne({couponCode:couponCode})
+    const userId = req.session.userId;
+    const { couponCode, subtotal } = req.body;
+    const coupon = await couponModel.findOne({ couponCode: couponCode });
     if (coupon) {
       if (coupon.expiry > new Date() && coupon.minimumPrice <= subtotal) {
-        const dicprice = 0
-        const price = subtotal
+        const dicprice = 0;
+        const price = subtotal;
 
-        await userModels.findByIdAndUpdate(userId,{$pull:{usedCoupons:couponCode}},{new:true})
-        res.json({success:true, dicprice,price})
-      }else{
-        res.json({success:false,message:"Invaild coupon"})
+        await userModels.findByIdAndUpdate(
+          userId,
+          { $pull: { usedCoupons: couponCode } },
+          { new: true }
+        );
+        res.json({ success: true, dicprice, price });
+      } else {
+        res.json({ success: false, message: "Invaild coupon" });
       }
-    }else{
-      res.json({success:false, message:"Coupon not found"})
+    } else {
+      res.json({ success: false, message: "Coupon not found" });
     }
   } catch (error) {
     console.log("revoked coupon not working");
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
-}
-
+};
 
 const searchFunc = async (req, res) => {
   try {
-      const searchTerm = req.query.q;
-      const page = parseInt(req.query.page) || 1;
-        const perPage = 6;
+    const searchTerm = req.query.q;
+    const page = parseInt(req.query.page) || 1;
+    const perPage = 6;
 
-
-      const categorys = await categoryModel.find({
-          name: {
-              $regex: new RegExp(searchTerm, 'i') 
-          },
-          status:true
-      });
-      const products = await productModel.find({
-          $or: [
-              { name: { $regex: new RegExp(searchTerm, 'i') } },
-              { description: { $regex: new RegExp(searchTerm, 'i') } }
-          ],
-          status:true
+    const categorys = await categoryModel.find({
+      name: {
+        $regex: new RegExp(searchTerm, "i"),
+      },
+      status: true,
+    });
+    const products = await productModel
+      .find({
+        $or: [
+          { name: { $regex: new RegExp(searchTerm, "i") } },
+          { description: { $regex: new RegExp(searchTerm, "i") } },
+        ],
+        status: true,
       })
       .skip((page - 1) * perPage)
       .limit(perPage);
-      const totalProducts = await productModel.countDocuments({ status: true });
+    const totalProducts = await productModel.countDocuments({ status: true });
 
-      res.render('user/shop', { categorys, products,currentPage: page, perPage, totalProducts });
+    res.render("user/shop", {
+      categorys,
+      products,
+      currentPage: page,
+      perPage,
+      totalProducts,
+    });
   } catch (error) {
-      console.error('Error during search:', error);
-      res.render('user/serverError')
+    console.error("Error during search:", error);
+    res.render("user/serverError");
   }
 };
 
@@ -1295,7 +1379,7 @@ const ratingUser = async (req, res) => {
     const { id, rating, review } = req.body;
     const userId = req.session.userId;
     const productId = id;
-    
+
     const product = await productModel.findById(productId);
 
     if (!product) {
@@ -1313,19 +1397,36 @@ const ratingUser = async (req, res) => {
       existingUserRating.rating = rating;
       existingUserRating.review = review;
     } else {
-     
       product.userRatings.push({ userId, review, rating });
     }
 
     await product.save();
 
-    res.redirect('/orderdetails');
+    res.redirect("/orderdetails");
   } catch (error) {
     console.log("Can't rate product", error);
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
+const contact = async(req,res)=>{
+  try {
+    res.render('user/contact')
+  } catch (error) {
+    console.log("not rendering conatct page");
+    es.render("user/serverError");
+  }
+}
+
+
+const about = async(req,res)=>{
+  try {
+    res.render('user/about')
+  } catch (error) {
+    console.log("not rendering conatct page");
+    res.render("user/serverError");
+  }
+}
 
 const logout = async (req, res) => {
   try {
@@ -1335,12 +1436,9 @@ const logout = async (req, res) => {
     res.redirect("/");
   } catch (error) {
     console.log(error);
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
-
-
-
 
 module.exports = {
   home,
@@ -1385,5 +1483,8 @@ module.exports = {
   couponApply,
   revokedCoupon,
   searchFunc,
-  ratingUser
+  ratingUser,
+  generateReferralCode,
+  contact,
+  about
 };

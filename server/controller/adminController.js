@@ -17,6 +17,7 @@ const {
   zerotonine,
 } = require("../../utils/validators/adminValidators");
 const flash = require("express-flash");
+const Excel = require("excel4node");
 
 // <<<<<<<<<<<<<<<<<<-----------------Admin login page rendering------------------->>>>>>>>>>>>>>>>>
 const login = (req, res) => {
@@ -202,11 +203,15 @@ const editcat = async (req, res) => {
   try {
     const id = req.params.id;
     const category = await categoryModel.findOne({ _id: id });
-    res.render("admin/editcat", { itemcat: category, categoryInfo:req.session.categoryInfo ,expressFlash:{
-      categoryError:req.flash("categoryError"),
-      descriptionError:req.flash("descriptionError"),
-      categoryExistError:req.flash("categoryExistError")
-    }});
+    res.render("admin/editcat", {
+      itemcat: category,
+      categoryInfo: req.session.categoryInfo,
+      expressFlash: {
+        categoryError: req.flash("categoryError"),
+        descriptionError: req.flash("descriptionError"),
+        categoryExistError: req.flash("categoryExistError"),
+      },
+    });
   } catch (error) {
     console.log("error editing", error);
     res.status(400).send("cant load this page");
@@ -218,27 +223,30 @@ const editcatppost = async (req, res) => {
     const id = req.params.id;
     const catName = req.body.categoryName;
     const catDes = req.body.description;
-const categoryExist = await categoryModel.findOne({name:catName, _id: { $ne: id } })
+    const categoryExist = await categoryModel.findOne({
+      name: catName,
+      _id: { $ne: id },
+    });
 
-    const catNameValid = alphanumValid(catName)
-    const catDesValid = alphanumValid(catDes)
-req.session.categoryInfo=req.body
+    const catNameValid = alphanumValid(catName);
+    const catDesValid = alphanumValid(catDes);
+    req.session.categoryInfo = req.body;
     if (!catNameValid || !catDesValid) {
-      req.flash('categoryError',"Enter a valid category name")
-      req.flash("descriptionError","Enter a valid category name")
-     return res.redirect(`/admin/editcat/${id}`)
-    } if (categoryExist) {
-      req.flash("categoryExistError","Category you entered is already exist!")
-       return res.redirect(`/admin/editcat/${id}`)
+      req.flash("categoryError", "Enter a valid category name");
+      req.flash("descriptionError", "Enter a valid category name");
+      return res.redirect(`/admin/editcat/${id}`);
     }
-else{
-  req.session.categoryInfo=null
-    await categoryModel.updateOne(
-      { _id: id },
-      { $set: { name: catName, description: catDes } }
-    );
-    res.redirect("/admin/Category");
-}
+    if (categoryExist) {
+      req.flash("categoryExistError", "Category you entered is already exist!");
+      return res.redirect(`/admin/editcat/${id}`);
+    } else {
+      req.session.categoryInfo = null;
+      await categoryModel.updateOne(
+        { _id: id },
+        { $set: { name: catName, description: catDes } }
+      );
+      res.redirect("/admin/Category");
+    }
   } catch (error) {
     console.log("error editing category", error);
     res.status(400).send("error loading this page", error);
@@ -568,7 +576,6 @@ const newimg = async (req, res) => {
     const product = await productModel.findOne({ _id: id });
 
     if (product) {
-
       if (imgPaths.length > 0) {
         product.images.push(...imgPaths);
         await product.save();
@@ -837,26 +844,30 @@ const chartDetails = async (req, res) => {
   }
 };
 
+const calculateSalesData = async (startDate, endDate) => {
+  return await orderModel.aggregate([
+    {
+      $match: {
+        createdAt: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+      },
+    },
+    {
+      $group: {
+        _id: "",
+        totalOrders: { $sum: 1 },
+        totalAmount: { $sum: "$totalPrice" },
+      },
+    },
+  ]);
+};
+
 const downloadSalesReport = async (req, res) => {
   try {
     const { startDate, endDate } = req.body;
-    const salesData = await orderModel.aggregate([
-      {
-        $match: {
-          createdAt: {
-            $gte: new Date(startDate),
-            $lte: new Date(endDate),
-          },
-        },
-      },
-      {
-        $group: {
-          _id: "",
-          totalOrders: { $sum: 1 },
-          totalAmount: { $sum: "$totalPrice" },
-        },
-      },
-    ]);
+    const salesData = await calculateSalesData(startDate, endDate);
 
     const products = await orderModel.aggregate([
       {
@@ -987,6 +998,100 @@ const downloadSalesReport = async (req, res) => {
   }
 };
 
+const downloadSalesReportExcel = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.body;
+
+    const salesData = await calculateSalesData(startDate, endDate);
+    const products = await orderModel.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate),
+          },
+        },
+      },
+      {
+        $unwind: "$items",
+      },
+      {
+        $group: {
+          _id: "$items.productId",
+          totalSold: { $sum: "$items.quantity" },
+          productName: { $first: "$items.productName" }, // Add this line
+        },
+      },
+      {
+        $lookup: {
+          from: "product",
+          localField: "_id",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      {
+        $unwind: "$productDetails",
+      },
+      {
+        $project: {
+          _id: 1,
+          totalSold: 1,
+          productName: "$items.productName",
+        },
+      },
+      {
+        $sort: { totalSold: -1 },
+      },
+    ]);
+
+    // Create a new Excel workbook and add a worksheet
+    const wb = new Excel.Workbook();
+    const ws = wb.addWorksheet("Sales Report");
+
+    // Set up headers
+    ws.cell(1, 1).string("Sl N0");
+    ws.cell(1, 2).string("Product Name");
+    ws.cell(1, 3).string("Quantity Sold");
+
+    // Populate product details
+    products.forEach((item, index) => {
+      ws.cell(index + 2, 1).number(index + 1);
+      ws.cell(index + 2, 2).string(item.productDetails.name || "N/A");
+      ws.cell(index + 2, 3).number(item.totalSold || 0);
+    });
+
+    // Add Total Orders and Revenue
+    ws.cell(products.length + 2, 2).string("Total No of Orders");
+    ws.cell(products.length + 2, 3).number(salesData[0].totalOrders || 0);
+
+    ws.cell(products.length + 3, 2).string("Total Revenue");
+    ws.cell(products.length + 3, 3).number(salesData[0].totalAmount || 0);
+
+    // Save the Excel file
+    const downloadPath = path.join(os.homedir(), "Downloads");
+
+    // Ensure the Downloads directory exists
+    if (!fs.existsSync(downloadPath)) {
+      fs.mkdirSync(downloadPath);
+    }
+
+    const excelFilePath = path.join(downloadPath, "sales.xlsx");
+    await wb.write(excelFilePath);
+
+    // Send the Excel file to the client for download
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader("Content-Disposition", "attachment; filename=sales.xlsx");
+    res.status(200).sendFile(excelFilePath);
+  } catch (error) {
+    console.log("Error generating or downloading the sales report", error);
+    res.status(500).send("Error generating or downloading the sales report");
+  }
+};
+
 const adlogout = async (req, res) => {
   req.session.admin = false;
   req.session.destroy();
@@ -1030,4 +1135,5 @@ module.exports = {
   editCouponPost,
   chartDetails,
   downloadSalesReport,
+  downloadSalesReportExcel,
 };

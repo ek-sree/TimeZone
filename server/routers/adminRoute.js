@@ -80,6 +80,8 @@ adrouter.post('/chartData',adauth.loggedadmin, adminController.chartDetails)
 
 adrouter.post('/downloadsales',adauth.loggedadmin, adminController.downloadSalesReport)
 
+adrouter.post('/downloadexcelexport',adauth.loggedadmin,adminController.downloadSalesReportExcel)
+
 
 adrouter.get('/bannerList',adauth.loggedadmin, bannerController.bannerView)
 

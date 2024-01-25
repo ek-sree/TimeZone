@@ -7,7 +7,7 @@ const {
   onlyNumbers,
   zerotonine,
 } = require("../../utils/validators/adminValidators");
-const fs = require('fs');
+const fs = require("fs");
 const { default: mongoose } = require("mongoose");
 
 const bannerView = async (req, res) => {
@@ -16,7 +16,7 @@ const bannerView = async (req, res) => {
     res.render("admin/bannerview", { banners });
   } catch (error) {
     console.log("error occure loading banner viewing", error);
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -38,7 +38,7 @@ const addBanner = async (req, res) => {
     });
   } catch (error) {
     console.log("error occured adding banner", error);
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -87,7 +87,7 @@ const addBannerPost = async (req, res) => {
     res.render("admin/bannerview", { banners });
   } catch (error) {
     console.log("error occured adding ne banner", error);
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -105,7 +105,7 @@ const unlistBanner = async (req, res) => {
     res.redirect("/admin/bannerList");
   } catch (error) {
     console.log("unlist banner is not working", error);
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
@@ -116,94 +116,97 @@ const editBanner = async (req, res) => {
     const products = await productModel.find({});
     const categories = await categoryModel.find({});
     const coupons = await couponModel.find({});
-    res.render("admin/editbanner", { banner, products, categories, coupons,expressFlash:{
+    res.render("admin/editbanner", {
+      banner,
+      products,
+      categories,
+      coupons,
+      expressFlash: {
         titleError: req.flash("titleError"),
-        subtitleError: req.flash("subtitleError"), 
-    } });
+        subtitleError: req.flash("subtitleError"),
+      },
+    });
   } catch (error) {
     console.log("error editing banner");
-    res.render('user/serverError')
+    res.render("user/serverError");
   }
 };
 
-
 const editBannerPost = async (req, res) => {
-    try {
-        const id = req.params.id;
-        const {bannerLabel,bannerTitle,bannerSubtitle,bannerColor } = req.body;
-        const banner = await bannerModel.findOne({ _id: id });
+  try {
+    const id = req.params.id;
+    const { bannerLabel, bannerTitle, bannerSubtitle, bannerColor } = req.body;
+    const banner = await bannerModel.findOne({ _id: id });
 
-        const subtitleValid = alphanumValid(bannerSubtitle);
-        const titleValid = alphanumValid(bannerTitle);
+    const subtitleValid = alphanumValid(bannerSubtitle);
+    const titleValid = alphanumValid(bannerTitle);
 
-        if (!titleValid || !subtitleValid) {
-            req.flash("titleError", "Invalid Entry!");
-            req.flash("subtitleError", "Invalid Entry!");
-            return res.redirect(`/admin/updateBanner/${id}`);
-        }
-
-        let bannerLink;
-
-        if (bannerLabel == "category") {
-            bannerLink = req.body.category;
-        } else if (bannerLabel == "product") {
-            bannerLink = req.body.product;
-        } else if (bannerLabel == "coupon") {
-            bannerLink = req.body.coupon;
-        } else {
-            bannerLink = "general";
-        }
-
-        banner.bannerlink = bannerLink;
-        banner.label = bannerLabel;
-        banner.title = bannerTitle;
-        banner.subtitle = bannerSubtitle;
-        banner.color = bannerColor;
-
-        if (req.file) {
-            banner.image = {
-                public_id: req.file.filename,
-                url: `/uploads/${req.file.filename}`,
-            };
-        }
-
-        await banner.save();
-        res.redirect('/admin/bannerList');
-    } catch (error) {
-        console.log("Error editing post banner", error);
-        res.render('user/serverError')
+    if (!titleValid || !subtitleValid) {
+      req.flash("titleError", "Invalid Entry!");
+      req.flash("subtitleError", "Invalid Entry!");
+      return res.redirect(`/admin/updateBanner/${id}`);
     }
+
+    let bannerLink;
+
+    if (bannerLabel == "category") {
+      bannerLink = req.body.category;
+    } else if (bannerLabel == "product") {
+      bannerLink = req.body.product;
+    } else if (bannerLabel == "coupon") {
+      bannerLink = req.body.coupon;
+    } else {
+      bannerLink = "general";
+    }
+
+    banner.bannerlink = bannerLink;
+    banner.label = bannerLabel;
+    banner.title = bannerTitle;
+    banner.subtitle = bannerSubtitle;
+    banner.color = bannerColor;
+
+    if (req.file) {
+      banner.image = {
+        public_id: req.file.filename,
+        url: `/uploads/${req.file.filename}`,
+      };
+    }
+
+    await banner.save();
+    res.redirect("/admin/bannerList");
+  } catch (error) {
+    console.log("Error editing post banner", error);
+    res.render("user/serverError");
+  }
 };
 
+const deleteBanner = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const banner = await bannerModel.findByIdAndDelete(id);
 
-const deleteBanner = async(req,res)=>{
-    try {
-        const id = req.params.id
-        const banner = await bannerModel.findByIdAndDelete(id)
-
-        if (banner && banner.image && banner.image.public_id) {
-            const imagePath = `./uploads/${banner.image.public_id}`
-            console.log(imagePath);
-            await fs.unlinkSync(imagePath)
-        }
-        res.redirect('/admin/bannerList')
-    } catch (error) {
-        console.log("error deletingn the image from banner",error);
-        res.render('user/serverError')
+    if (banner && banner.image && banner.image.public_id) {
+      const imagePath = `./uploads/${banner.image.public_id}`;
+      console.log(imagePath);
+      await fs.unlinkSync(imagePath);
     }
-}
-
+    res.redirect("/admin/bannerList");
+  } catch (error) {
+    console.log("error deletingn the image from banner", error);
+    res.render("user/serverError");
+  }
+};
 
 const bannerUrl = async (req, res) => {
   try {
     const bannerId = req.query.id;
     const banners = await bannerModel.findOne({ bannerlink: bannerId });
     if (!banners) {
-      res.redirect('/');
+      res.redirect("/");
       return;
     }
 
-    if (banners.label == 'category') {
+    if (banners.label == "category") {
       const categoryId = new mongoose.Types.ObjectId(banners.bannerlink);
       const category = await categoryModel.findOne({ _id: categoryId });
       res.redirect(`/shop?category=${categoryId}`);
@@ -211,19 +214,26 @@ const bannerUrl = async (req, res) => {
       const productId = new mongoose.Types.ObjectId(banners.bannerlink);
       const product = await productModel.findOne({ _id: productId });
       res.redirect(`/shop?product=${productId}`);
-    } else if (banners.label == 'coupon') {
+    } else if (banners.label == "coupon") {
       const couponId = new mongoose.Types.ObjectId(banners.bannerlink);
       const coupon = await couponModel.findOne({ _id: couponId });
-      res.redirect('Rewards');
+      res.redirect("Rewards");
     } else {
-      res.redirect('/');
+      res.redirect("/");
     }
   } catch (error) {
     console.log("bannerUrl is not working error", error);
-    res.redirect('/');
+    res.redirect("/");
   }
 };
 
-  
-
-module.exports = { bannerView, addBanner, addBannerPost, unlistBanner, editBanner, editBannerPost,deleteBanner, bannerUrl };
+module.exports = {
+  bannerView,
+  addBanner,
+  addBannerPost,
+  unlistBanner,
+  editBanner,
+  editBannerPost,
+  deleteBanner,
+  bannerUrl,
+};

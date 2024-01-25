@@ -12,6 +12,9 @@
             align-items: center;
         } */
 
+        ::placeholder {
+            color: rgb(183, 178, 169) !important;
+        }
         .margin-ls a {
              margin-left: 20px; 
              margin-top: 10px; 
@@ -31,7 +34,7 @@
                         <div class="card-body">
                             <form class="login" action="/signuppost" method="post">
                                 <div class="form-group mt-3">
-                                    <label for="username">First name</label>
+                                    <label style="color: white;" for="username">First name</label>
                                     <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username" required>
                                     <% if(locals.nameerror){%>
                                         <div class="alter text-danger text-start"><%= nameerror%></div>
@@ -39,7 +42,7 @@
                                     <%}%>
                                 </div>
                                 <div class="form-group mt-3">
-                                    <label for="email">Email</label>
+                                    <label style="color: white;" for="email">Email</label>
                                     <input type="text" class="form-control" id="email" name="email" placeholder="Enter your email" required>
                                     <% if(locals.emailerror){%>
                                         <div class="alter text-danger text-start"><%= emailerror%></div>
@@ -47,7 +50,7 @@
                                     <%}%>
                                 </div>
                                 <div class="form-group mt-3">
-                                    <label for="phoneNumber">Phone Number</label>
+                                    <label style="color: white;" for="phoneNumber">Phone Number</label>
                                     <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="Enter your phone number" required>
                                     <% if(locals.phoneerror){%>
                                         <div class="alter text-danger text-start"><%= phoneerror%></div>
@@ -55,7 +58,7 @@
                                     <%}%>
                                 </div>
                                 <div class="form-group mt-3">
-                                    <label for="password">Password</label>
+                                    <label style="color: white;" for="password">Password</label>
                                     <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
                                     <% if(locals.passworderror){%>
                                         <div class="alter text-danger text-start"><%= passworderror%></div>
@@ -63,7 +66,7 @@
                                     <%}%>
                                 </div>
                                 <div class="form-group mt-3">
-                                    <label for="password">Conform Password</label>
+                                    <label style="color: white;" for="password">Conform Password</label>
                                     <input type="password" class="form-control" id="password" name="conform-password" placeholder="Conform password" required>
                                     <% if(locals.cpassworderror){%>
                                         <div class="alter text-danger text-start"><%= cpassworderror%></div>
@@ -72,7 +75,7 @@
                                 </div>
 
                                 <div class="form-group mt-3">
-                                    <label for="referralCode">Enter ReferralCode</label>
+                                    <label style="color: white;" for="referralCode">Enter ReferralCode</label>
                                     <input type="text" class="form-control" id="referralCode" name="referralCode" placeholder="Enter referralCode(if u have any...)">
                                     <% if(locals.referralCodeError){%>
                                         <div class="alter text-danger text-start"><%= referralCodeError%></div>

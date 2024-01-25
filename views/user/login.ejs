@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="/css/login.css">
     <title>Login</title>
 </head>
+
 <body>
     <div class="d-flex align-items-center" style="min-height: 100vh">
         <div class="container">
@@ -19,18 +21,14 @@
                         <div class="card-body">
                             <form class="login" action="/loginaction" method="post">
                                 <div class="form-group mt-3">
-                                    <label for="email">Email</label>
+                                    <label style="color: white;" for="email">Email</label>
                                     <input type="text" class="form-control" id="Email" name="email" placeholder="Enter your email">
-                                    <% if(locals.emailerror){%>
-                                        <div class="alter text-danger text-start"><%= emailerror%></div>
-                                    <%}%>
+                                    <!-- Your existing code with conditionals -->
                                 </div>
                                 <div class="form-group mt-3">
-                                    <label for="password">Password</label>
+                                    <label style="color: white;" for="password">Password</label>
                                     <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password">
-                                    <% if(locals.passworderror){%>
-                                        <div class="alter text-danger text-start"><%= passworderror%></div>
-                                    <%}%>
+                                    <!-- Your existing code with conditionals -->
                                 </div>
                                 <button type="submit" class="btn btn-primary mt-4">Login</button>
                                 <div class="d-flex align-items-center mt-3 ms-auto">
@@ -47,4 +45,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </body>
+
 </html>

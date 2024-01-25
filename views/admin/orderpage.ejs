@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <!-- Required meta tags -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -12,170 +13,195 @@
     <link rel="stylesheet" href="/adminassets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css" />
     <link rel="stylesheet" href="/adminassets/css/style.css" />
     <link rel="shortcut icon" href="/adminassets/images/favicon.png" />
-  </head>
-  <style>
-    body{
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-            margin-top: 50px; /* Adjust the top margin as needed */
-        }
-    .table {
-            margin: 0 auto; /* Center the table */
-        }
-        
-      .table-bordered{
-        max-width:100%;
+    
+    <style>
+      body {
+          margin: 0;
+          padding: 0;
+      }
+  
+      .container {
+          margin-top: 50px !important;
+      }
+  
+      .table {
+          margin: 0 auto;
+          max-width: 90% !important;
+          /* Ensure the table does not exceed the available width */
+          width: 90% !important;
+          /* Make the table take up the full width */
+      }
+  
+      .table-bordered {
+          max-width: 90% !important;
+      }
+  
+      /* Add this style to make the sidebar fixed */
+      .sidebar {
+          position: fixed;
+          height: 100%;
+          overflow-y: auto;
+      }
+  
+      /* Add this style to limit the width of orderId column */
+      .table-bordered td:nth-child(1), .table-bordered th:nth-child(1) {
+          max-width: 100px; /* Adjust the width as needed */
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+      }
+
+      .table-responsive{
+        margin-left: 90px!important;
       }
   </style>
-  <body>
-    <div class="container-scroller">
-      <%- include('partials/sidebar')%>
-      <div class="container-fluid page-body-wrapper">
-        <div id="theme-settings" class="settings-panel">
-          <i class="settings-close mdi mdi-close"></i>
-          <p class="settings-heading">SIDEBAR SKINS</p>
-          <div class="sidebar-bg-options selected" id="sidebar-default-theme">
-            <div class="img-ss rounded-circle bg-light border mr-3"></div> Default
-          </div>
-          <div class="sidebar-bg-options" id="sidebar-dark-theme">
-            <div class="img-ss rounded-circle bg-dark border mr-3"></div> Dark
-          </div>
-          <p class="settings-heading mt-2">HEADER SKINS</p>
-          <div class="color-tiles mx-0 px-4">
-            <div class="tiles light"></div>
-            <div class="tiles dark"></div>
-          </div>
-        </div>
-        <%- include('partials/nav')%>
-        <div class="main-panel">
-         
+</head>
 
-          <div class="container mt-5">
-            <h1 class="mb-4 text-center text-primary">Order Management</h1>
-    
-            
-            
-    
-            <table class="table table-bordered">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>orderId</th>
-                        <th>Name</th>
-                        <th>Totalprice</th>
-                        <th>shippingAddress</th>
-                        <th>Payment method</th>
-                        <th>status</th>
-                        <th>createdAt</th>
-                        <th>UpdatedAt</th>
-                        
-                    </tr>
-                </thead>
-                <tbody>
-                    <% if(locals.order) { %>
-                        <% let slno = 1; %>
-                        <% order.forEach(order => { %>
-                            <tr>
-                                <td><%= order.orderId %></td>
-                                <td><%= order.userName %></td>
-                                <td><%= order.totalPrice %></td>
-                                <!-- Display shippingAddress properties as needed -->
-                                <td><%= order.shippingAddress.address %> <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %>, <%= order.shippingAddress.pincode %></td>
-                                <td><%= order.paymentMethod %></td>
-                                
-                                <!-- <td><%= order.createdAt %></td> -->
-                                <td>
-                                    <!-- Form for updating the order status -->
-                                    <form action="/admin/updateOrderStatus" method="post" id="orderStatusForm_<%= order._id %>">
-                                        <input type="hidden" name="orderId" value="<%= order._id %>">
-                                        
-                                        <label for="status"></label>
-                                        <select name="status" id="status_<%= order._id %>" onchange="submitForm('<%= order._id %>')">
-                                            <% const statuses = ['Pending', 'Processing', 'Shipped', 'Delivered']; %>
-                                            <% for (const status of statuses) { %>
-                                                <option value="<%= status %>" <%= order.status === status ? 'selected' : '' %>><%= status.charAt(0).toUpperCase() + status.slice(1) %></option>
-                                            <% } %>
-                                        </select>
-                                    </form>
-                                    
-                                </td>
-                                <td>
-                                  <%= order.createdAt.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }) %>
-                                  </td>
-                                  <td>
-                                    <%= order.updatedAt ? order.updatedAt.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }) : 'N/A' %>
-                                  </td>
-                            </tr>
-                      
-                       
-                        
-                    </tr>
-                    <% slno++; %>
-                    <% }) %>
-                    <% } else { %>
-                      <tr>
-                          <td colspan="5">No results found.</td>
-                      </tr>
-                      <% } %>
-                </tbody>
-            </table>
-
-
-
-         
-        </div>
-        <!-- main-panel ends -->
-      </div>
-      <!-- page-body-wrapper ends -->
+<body>
+    <div>
+        <%- include('partials/sidebar')%>
     </div>
-    <!-- container-scroller -->
-    <!-- plugins:js -->
-    
-    <script src="/adminassets/vendors/js/vendor.bundle.base.js"></script>
-    <!-- endinject -->
-    <!-- Plugin js for this page -->
-    <script src="/adminassets/vendors/chart.js/Chart.min.js"></script>
-    <script src="/adminassets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
-    <script src="/adminassets/vendors/flot/jquery.flot.js"></script>
-    <script src="/adminassets/vendors/flot/jquery.flot.resize.js"></script>
-    <script src="/adminassets/vendors/flot/jquery.flot.categories.js"></script>
-    <script src="/adminassets/vendors/flot/jquery.flot.fillbetween.js"></script>
-    <script src="assets/vendors/flot/jquery.flot.stack.js"></script>
-    <script src="/adminassets/vendors/flot/jquery.flot.pie.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="container-scroller">
 
-    <!-- End plugin js for this page -->
-    <!-- inject:js -->
-    <script src="/adminassets/js/off-canvas.js"></script>
-    <script src="/adminassets/js/hoverable-collapse.js"></script>
-    <script src="/adminassets/js/misc.js"></script>
-    <!-- endinject -->
-    <!-- Custom js for this page -->
-    <script src="/adminassets/js/dashboard.js"></script>
-  
-    <script>function submitForm(orderId) {
-      const statusElement = document.getElementById('status_' + orderId);
-    const status = statusElement.value;
-  
-      fetch('/admin/updateOrderStatus', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: `orderId=${orderId}&status=${status}`,
-      })
-      .then(response => {
-          if (response.ok) {
-              window.location.href = '/admin/orderPage';
-          } else {
-              console.error('Failed to update order status');
-          }
-      })
-      .catch(error => {
-          console.error('Error:', error);
-      });
-  }
-</script>
-  </body>
+        <div class="container-fluid page-body-wrapper">
+            <div id="theme-settings" class="settings-panel">
+                <i class="settings-close mdi mdi-close"></i>
+                <p class="settings-heading">SIDEBAR SKINS</p>
+                <div class="sidebar-bg-options selected" id="sidebar-default-theme">
+                    <div class="img-ss rounded-circle bg-light border mr-3"></div> Default
+                </div>
+                <div class="sidebar-bg-options" id="sidebar-dark-theme">
+                    <div class="img-ss rounded-circle bg-dark border mr-3"></div> Dark
+                </div>
+                <p class="settings-heading mt-2">HEADER SKINS</p>
+                <div class="color-tiles mx-0 px-4">
+                    <div class="tiles light"></div>
+                    <div class="tiles dark"></div>
+                </div>
+            </div>
+
+            <%- include('partials/nav')%>
+            <div class="main-panel">
+
+                <div class="container mt-5">
+                    <h1 class="mb-4 text-center text-primary">Order Management</h1>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>orderId</th>
+                                    <th>Name</th>
+                                    <th>Totalprice</th>
+                                    <th>shippingAddress</th>
+                                    <th>Payment method</th>
+                                    <th>status</th>
+                                    <th>createdAt</th>
+                                    <th>UpdatedAt</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                              <% if(locals.order) { %>
+                                <% let slno = 1; %>
+                                <% order.forEach(order => { %>
+                                    <tr>
+                                      <td data-toggle="tooltip" data-placement="top" title="<%= order.orderId %>">
+                                        <%= order.orderId %>
+                                    </td>
+                                        <td><%= order.userName %></td>
+                                        <td><%= order.totalPrice %></td>
+                                        <!-- Display shippingAddress properties as needed -->
+                                        <td><%= order.shippingAddress.address %> <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %>, <%= order.shippingAddress.pincode %></td>
+                                        <td><%= order.paymentMethod %></td>                     
+                                        <!-- <td><%= order.createdAt %></td> -->
+                                        <td>
+                                            <!-- Form for updating the order status -->
+                                            <form action="/admin/updateOrderStatus" method="post" id="orderStatusForm_<%= order._id %>">
+                                                <input type="hidden" name="orderId" value="<%= order._id %>">
+                                                
+                                                <label for="status"></label>
+                                                <select name="status" id="status_<%= order._id %>" onchange="submitForm('<%= order._id %>')">
+                                                    <% const statuses = ['Pending', 'Processing', 'Shipped', 'Delivered']; %>
+                                                    <% for (const status of statuses) { %>
+                                                        <option value="<%= status %>" <%= order.status === status ? 'selected' : '' %>><%= status.charAt(0).toUpperCase() + status.slice(1) %></option>
+                                                    <% } %>
+                                                </select>
+                                            </form>             
+                                        </td>
+                                        <td>
+                                          <%= order.createdAt.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }) %>
+                                          </td>
+                                          <td>
+                                            <%= order.updatedAt ? order.updatedAt.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }) : 'N/A' %>
+                                          </td>
+                                    </tr>   
+                            </tr>
+                            <% slno++; %>
+                            <% }) %>
+                            <% } else { %>
+                              <tr>
+                                  <td colspan="5">No results found.</td>
+                              </tr>
+                              <% } %>
+                                <!-- Your table body content -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+                <!-- main-panel ends -->
+            </div>
+            <!-- page-body-wrapper ends -->
+        </div>
+        <!-- container-scroller -->
+        <!-- plugins:js -->
+
+        <script src="/adminassets/vendors/js/vendor.bundle.base.js"></script>
+        <!-- endinject -->
+        <!-- Plugin js for this page -->
+        <script src="/adminassets/vendors/chart.js/Chart.min.js"></script>
+        <script src="/adminassets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+        <script src="/adminassets/vendors/flot/jquery.flot.js"></script>
+        <script src="/adminassets/vendors/flot/jquery.flot.resize.js"></script>
+        <script src="/adminassets/vendors/flot/jquery.flot.categories.js"></script>
+        <script src="/adminassets/vendors/flot/jquery.flot.fillbetween.js"></script>
+        <script src="assets/vendors/flot/jquery.flot.stack.js"></script>
+        <script src="/adminassets/vendors/flot/jquery.flot.pie.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+        <!-- End plugin js for this page -->
+        <!-- inject:js -->
+        <script src="/adminassets/js/off-canvas.js"></script>
+        <script src="/adminassets/js/hoverable-collapse.js"></script>
+        <script src="/adminassets/js/misc.js"></script>
+        <!-- endinject -->
+        <!-- Custom js for this page -->
+        <script src="/adminassets/js/dashboard.js"></script>
+
+        <script>
+            function submitForm(orderId) {
+                const statusElement = document.getElementById('status_' + orderId);
+                const status = statusElement.value;
+
+                fetch('/admin/updateOrderStatus', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `orderId=${orderId}&status=${status}`,
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            window.location.href = '/admin/orderPage';
+                        } else {
+                            console.error('Failed to update order status');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+        </script>
+    </body>
+
 </html>

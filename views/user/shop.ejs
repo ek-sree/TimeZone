@@ -124,7 +124,7 @@
                                                 <% } %>
                                                 
                                                 <div class="img-cap">
-                                                    <span>Add to cart</span>
+                                                    <span onclick="addToCart('<%= product._id %>')">Add to cart</span>
                                                 </div>
                                                 <div class="favorit-items">
                                                     <span class="flaticon-heart"></span>
@@ -132,7 +132,8 @@
                                             </div>
                                             <div class="popular-caption">
                                                 <h3><%= product.name %></h3>
-                                                <span>$ <%= product.price %></span>
+                                               <strike style="color: red;"><i><span><%= product.mrp %></span></i></strike>
+                                              <b> <span>INR <%= product.price %></span></b> 
                                             </div>
                                         </div>
                                     </a>
@@ -354,6 +355,29 @@ async function fetchProducts(sortOrder) {
 }
 
 
+
+function addToCart(productId) {
+        // Send a request to add the product to the cart
+        fetch(`/addtocart/${productId}`, {
+            method: 'GET', // You may need to adjust the method based on your server implementation
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to add the product to the cart');
+            }
+            // Handle success (optional)
+            console.log('Product added to cart successfully');
+            // Redirect to the cart page
+            console.log('Before redirect');
+window.location.href = '/cart';
+console.log('After redirect');
+        })
+        .catch(error => {
+            // Handle errors (optional)
+            console.error('Error:', error);
+            // You can show an error message to the user if needed
+        });
+    }
    
 </script>
 

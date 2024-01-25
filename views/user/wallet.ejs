@@ -197,6 +197,7 @@
                   <th style="text-align: center;">Date</th>
                   <th>Type</th>
                   <th>Amount</th>
+                  <th>Reason</th>
                 </tr>
               </thead>
               <tbody>
@@ -205,6 +206,7 @@
                     <td style="text-align: center;"><%= transaction.date.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }) %></td>
                     <td class="<%= transaction.type === 'Credited' ? 'credited' : 'debited' %>"><%= transaction.type %></td>
                     <td class="<%= transaction.type === 'Credited' ? 'credited' : 'debited' %>"><%= transaction.type === 'Credited' ? '+' : '-' %><%= transaction.amount %></td>
+                    <td class=""><%= transaction.reason %></td>
                   </tr>
                 <% }); %>
               </tbody>

@@ -1,26 +1,27 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
-mongoose.connect("mongodb://127.0.0.1:27017/TimeZone")
-.then(console.log("category databse is connected"))
-.catch((err)=>console.log(err,"error connecting category database"))
+mongoose
+  .connect("mongodb://127.0.0.1:27017/TimeZone")
+  .then(console.log("category databse is connected"))
+  .catch((err) => console.log(err, "error connecting category database"));
 
 const catSchema = new mongoose.Schema({
-    name:{
-        type:String,
-        required:true
-    },
-    
-    description:{
-        type:String,
-        required:true
-    },
-    status:{
-        type:Boolean,
-        required:true,
-        default:true
-    }
-})
+  name: {
+    type: String,
+    required: true,
+  },
 
-const categoryModel = new mongoose.model("categories",catSchema)
+  description: {
+    type: String,
+    required: true,
+  },
+  status: {
+    type: Boolean,
+    required: true,
+    default: true,
+  },
+});
 
-module.exports=categoryModel
+const categoryModel = new mongoose.model("categories", catSchema);
+
+module.exports = categoryModel;
