@@ -3,9 +3,7 @@ const otpModel = require("../model/userOtpModels");
 const otpgenerator = require("otp-generator");
 const bcrypt = require("bcrypt");
 const Email = process.env.Email
-
 const pass = process.env.pass
-console.log("assd",Email,pass);
 const key_id = process.env.key_id
 const key_secret = process.env.key_secret
 const nodemailer = require("nodemailer");

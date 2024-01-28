@@ -39,7 +39,7 @@ const singleproduct = async (req, res) => {
       select: "name",
     });
 
-    const type = product.type;
+    const type = product.displaytype;
     const convertedId = new ObjectId(pid);
 
     const result = await productModel.aggregate([
@@ -66,7 +66,7 @@ const singleproduct = async (req, res) => {
 
     // Use product._id instead of _id
     const similar = await productModel
-      .find({ type: type, _id: { $ne: product._id } })
+      .find({ displaytype: type, _id: { $ne: product._id } })
       .limit(4);
 
     res.render("user/singleproduct", {
