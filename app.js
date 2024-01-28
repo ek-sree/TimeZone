@@ -1,13 +1,29 @@
 const express = require('express');
+require('dotenv').config()
 const path = require('path');
 const usrouter = require('./server/routers/userRoute')
 const adrouter = require('./server/routers/adminRoute')
 const flash = require('express-flash');
 const session = require('express-session');
+const mongoose = require('mongoose')
 const multer = require('multer')
 const nocache = require('nocache')
 
 const app = express();
+
+const MONGO_URL = process.env.MONGO_URL
+
+
+
+
+mongoose
+.connect(MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+.then(()=>{
+  console.log("Database connected");
+})
+.catch((err)=>{
+  console.log(err);
+})
 
 app.use(function(req,res,next){
     res.header('Cache-Control','private, no-cache, no-store, must-revalidate')

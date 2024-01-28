@@ -2,7 +2,12 @@ const userModels = require("../model/userModels");
 const otpModel = require("../model/userOtpModels");
 const otpgenerator = require("otp-generator");
 const bcrypt = require("bcrypt");
-const { Email, pass, key_id, key_secret } = require("../../.env");
+const Email = process.env.Email
+
+const pass = process.env.pass
+console.log("assd",Email,pass);
+const key_id = process.env.key_id
+const key_secret = process.env.key_secret
 const nodemailer = require("nodemailer");
 const {
   nameValid,
@@ -32,7 +37,6 @@ const home = async (req, res) => {
     const products = await productModel.find().limit(6);
     const banners = await bannerModel.find();
     res.render("user/index", { products, banners });
-    // console.log(banners);
   } catch (error) {
     console.log(error);
     res.render("user/serverError");
@@ -96,7 +100,7 @@ const generateReferralCode = () => {
     const randomIndex = Math.floor(Math.random() * characters.length);
     code += characters[randomIndex];
   }
-  return code;
+  return code.toString();
 };
 
 const signuppost = async (req, res) => {
@@ -215,9 +219,9 @@ const verifyotp = async (req, res) => {
               referralCode: referal,
             });
             const idUser = userIdObject._id;
-            console.log("user id obj", idUser);
+           
             const refeWallet = await walletModel.findOne({ userId: idUser });
-            if (idUser) {
+            if (refeWallet) {
               const updateWallet = refeWallet.wallet + 50;
 
               const walletUpdateResult = await walletModel.findOneAndUpdate(
@@ -470,47 +474,48 @@ const newAddresspost = async (req, res) => {
     const phoneValid = adphoneValid(phone);
     if (!saveasvalid) {
       return res.render("user/newAddress", {
-        saveaserror: "Enter valid address type",
+          saveaserror: "Enter valid address type",
       });
-    }
-    if (!fullnamevalid) {
+  }
+  if (!fullnamevalid) {
       return res.render("user/newAddress", {
-        fullnameerror: "Enter a valid fullname",
+          fullnameerror: "Enter a valid fullname",
       });
-    }
-    if (!adnameValid) {
+  }
+  if (!adnameValid) {
       return res.render("user/newAddress", {
-        adnameerror: "Enter a valid house or flat name",
+          adnameerror: "Enter a valid house or flat name",
       });
-    }
-    if (!streetValid) {
+  }
+  if (!streetValid) {
       return res.render("user/newAddress", {
-        streeterror: "Enter a valid street name",
+          streeterror: "Enter a valid street name",
       });
-    }
-    if (!pinvalid) {
+  }
+  if (!pinvalid) {
       return res.render("user/newAddress", {
-        pinerror: "Enter a valid pincode",
+          pinerror: "Enter a valid pincode",
       });
-    }
-    if (!cityValid) {
+  }
+  if (!cityValid) {
       return res.render("user/newAddress", { cityerror: "Enter a valid city" });
-    }
-    if (!stateValid) {
+  }
+  if (!stateValid) {
       return res.render("user/newAddress", {
-        stateerror: "Enter a valid state",
+          stateerror: "Enter a valid state",
       });
-    }
-    if (!countryValid) {
+  }
+  if (!countryValid) {
       return res.render("user/newAddress", {
-        countryerror: "Enter a valid country",
+          countryerror: "Enter a valid country",
       });
-    }
-    if (!phoneValid) {
+  }
+  if (!phoneValid) {
       return res.render("user/newAddress", {
-        phoneerror: "Enter a valid Phone number",
+          phoneerror: "Enter a valid Phone number",
       });
-    }
+  }
+  
     console.log("validation of address completed");
     if (userExisted) {
       const addressExist = await userModels.findOne({
@@ -550,7 +555,7 @@ const newAddresspost = async (req, res) => {
       }
     }
   } catch (error) {
-    console.log("error happened new address adding");
+    console.log("error happened new address adding",error);
     res.render("user/serverError");
   }
 };
@@ -1409,24 +1414,23 @@ const ratingUser = async (req, res) => {
   }
 };
 
-const contact = async(req,res)=>{
+const contact = async (req, res) => {
   try {
-    res.render('user/contact')
+    res.render("user/contact");
   } catch (error) {
     console.log("not rendering conatct page");
     es.render("user/serverError");
   }
-}
+};
 
-
-const about = async(req,res)=>{
+const about = async (req, res) => {
   try {
-    res.render('user/about')
+    res.render("user/about");
   } catch (error) {
     console.log("not rendering conatct page");
     res.render("user/serverError");
   }
-}
+};
 
 const logout = async (req, res) => {
   try {
@@ -1486,5 +1490,5 @@ module.exports = {
   ratingUser,
   generateReferralCode,
   contact,
-  about
+  about,
 };

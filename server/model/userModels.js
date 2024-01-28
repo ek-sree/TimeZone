@@ -2,10 +2,7 @@ const mongoose = require("mongoose");
 const bcyrpt = require("bcrypt");
 const generateReferralCode = require("../controller/userController");
 
-mongoose
-  .connect("mongodb://127.0.0.1:27017/TimeZone")
-  .then(console.log("user database connected"))
-  .catch((err) => console.log(err));
+
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -77,8 +74,7 @@ const userSchema = new mongoose.Schema({
 
   referralCode: {
     type: String,
-    unique: true,
-    default: generateReferralCode,
+    unique: true
   },
 });
 

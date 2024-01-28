@@ -1,10 +1,9 @@
 const nodemailer = require("nodemailer");
-const { Email, pass } = require("../../.env");
+const Email = process.env.Email
+const pass = process.env.pass
 
-console.log(Email);
 const contactSend = async (req, res) => {
   const { name, emails, subject, message } = req.body;
-  console.log("Received request:", { name, emails, subject, message });
 
   const transporter = nodemailer.createTransport({
     service: "gmail",

@@ -158,6 +158,15 @@
 		color: #3b5d50;
 		font-weight: bold;
 	}
+	.btn-sm{
+		margin-top: 50px!important;
+	}
+
+	.me-2{
+		width: 300px!important; /* Set the desired width */
+  padding: 10px!important;
+		
+	}
   </style>
 
 		<!-- Bootstrap CSS -->
@@ -372,7 +381,30 @@
 		              <div class="p-3 p-lg-5 border bg-white">
 						<!-- Add a button to open the modal -->
 <button onclick="openModal()"><h2>Available Coupons</h2></button>
-
+<div id="couponModal" class="modal">
+	<div class="modal-content">
+	  <span class="close" onclick="closeModal()">&times;</span>
+	  <ul>
+		<% availableCoupons.forEach(coupon => { %>
+		  <li>
+			  <div class="row">
+			  <div class="col-3">
+				  <%= coupon.couponCode %> &nbsp;&nbsp;
+				  <% if (coupon.type === "percentageDiscount") { %>
+					<p><%= coupon.discount %>% off on Rs.<%= coupon.minimumPrice %> purchase (Maximum Redeemable: <%= coupon.maxRedeem %>)</p><br>
+				  <% } else { %>
+					<p> Flat Rs. <%= coupon.discount %>% off on <%= coupon.minimumPrice %> purchase</p><br>
+				  <% } %>
+				</div>
+				<div class="col-3 mt-2 ">
+				  <button onclick="copyToClipboard('<%= coupon.couponCode %>')">Copy Code</button>
+				</div>
+			  </div>
+		  </li>
+		<% }); %>
+	  </ul>
+	</div>
+  </div>
 <!-- The Modal -->
 
 						

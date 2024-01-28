@@ -67,8 +67,8 @@ const checkOutView = async (req, res) => {
       categories,
       cart,
       cartId,
-      cartId: cartId,
     });
+    
   } catch (error) {
     console.log("cant show checkout page");
     res.render("user/serverError");

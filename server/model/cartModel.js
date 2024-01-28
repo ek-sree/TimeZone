@@ -1,9 +1,6 @@
 const mangoose = require("mongoose");
 
-mangoose
-  .connect("mongodb://127.0.0.1:27017/TimeZone")
-  .then(console.log("Cart database connected"))
-  .catch((error) => console.error("Error connecting cart database", error));
+
 
 const cartSchema = new mangoose.Schema({
   userId: {

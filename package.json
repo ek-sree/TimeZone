@@ -12,6 +12,7 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
+    "dotenv": "^16.4.1",
     "easyinvoice": "^3.0.32",
     "ejs": "^3.1.9",
     "excel4node": "^1.8.2",

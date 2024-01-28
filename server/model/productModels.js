@@ -1,10 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-mongoose
-  .connect("mongodb://127.0.0.1:27017/TimeZone")
-  .then(console.log("Product database is connected"))
-  .catch((err) => console.log("cant connect", err));
+
 
 const productSchema = new mongoose.Schema({
   name: {

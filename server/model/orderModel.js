@@ -1,10 +1,7 @@
 const { ObjectId } = require("mongodb");
 const mongoose = require("mongoose");
 
-mongoose
-  .connect("mongodb://127.0.0.1:27017/TimeZone")
-  .then(console.log("order database connected"))
-  .catch((err) => console.log(err));
+
 
 const orderSchema = mongoose.Schema({
   orderId: {
