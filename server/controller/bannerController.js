@@ -213,7 +213,7 @@ const bannerUrl = async (req, res) => {
     } else if (banners.label == "product") {
       const productId = new mongoose.Types.ObjectId(banners.bannerlink);
       const product = await productModel.findOne({ _id: productId });
-      res.redirect(`/shop?product=${productId}`);
+      res.redirect(`/singleproduct/${productId}`);
     } else if (banners.label == "coupon") {
       const couponId = new mongoose.Types.ObjectId(banners.bannerlink);
       const coupon = await couponModel.findOne({ _id: couponId });
