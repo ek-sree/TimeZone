@@ -174,6 +174,11 @@ const checkoutreload = async (req, res) => {
       await userExisted.save();
     }
 
+    const user = req.session.userId
+    const availableCoupons = await couponModel.find({
+      couponCode: { $nin: user.usedCoupons },
+      status: true,
+    });
     const categories = await categoryModel.find();
     const addresslist = await userModels.findOne({
       _id: userId,
@@ -182,7 +187,6 @@ const checkoutreload = async (req, res) => {
     if (!addresslist) {
       return res.status(404).send("User not found");
     }
-
     const addresses = addresslist.address.types;
 
     const cartItems = cart.item.map((cartItem) => ({
@@ -197,6 +201,7 @@ const checkoutreload = async (req, res) => {
       cartItems,
       categories,
       cart,
+      availableCoupons
     });
   } catch (error) {
     console.log("Error in checkout reload:", error);
