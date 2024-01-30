@@ -209,7 +209,7 @@ const bannerUrl = async (req, res) => {
     if (banners.label == "category") {
       const categoryId = new mongoose.Types.ObjectId(banners.bannerlink);
       const category = await categoryModel.findOne({ _id: categoryId });
-      res.redirect(`/shop?category=${categoryId}`);
+      res.redirect(`/shop/${categoryId}`);
     } else if (banners.label == "product") {
       const productId = new mongoose.Types.ObjectId(banners.bannerlink);
       const product = await productModel.findOne({ _id: productId });
