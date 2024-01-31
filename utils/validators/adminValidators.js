@@ -14,7 +14,7 @@ const zerotonine = (str) => {
 }
 
 const uppercaseAlphanumValid = (input) => {
-    const regex = /^[A-Z0-9]*$/;
+    const regex = /^[A-Z]*$/;
     return regex.test(input);
 }
 

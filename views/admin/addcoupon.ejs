@@ -51,13 +51,16 @@
                 <h1 class="mb-4">Add Coupons</h1>
         
                 <form action="/admin/add_coupon" method="post">
-                    <div class="mb-3">
-                        <label for="couponCode" class="form-label">Coupon Code:</label>
-                        <input type="text" class="form-control" id="couponCode" name="couponCode" required>
-                        <% if(locals.couponExisterror){%>
-                          <div class="alter text-danger text-start"><%= couponExisterror%></div>
-                        <%}%>
-                    </div>
+                  <div class="mb-3">
+                    <label for="couponCode" class="form-label">Coupon Code:</label>
+                    <input type="text" class="form-control" id="couponCode" name="couponCode" required>
+                    <% if(expressFlash.couponCodeError){ %>
+                      <div class="alter text-danger text-start"><%= expressFlash.couponCodeError %></div>
+                    <% } %>
+                    <% if(expressFlash.couponExisterror){ %>
+                      <div class="alter text-danger text-start"><%= expressFlash.couponExisterror %></div>
+                    <% } %>
+                  </div>
 
                     <div class="mb-3">
                       <label for="couponType" class="form-label">Coupon Type:</label>
@@ -86,8 +89,11 @@
 
 
                         <div class="mb-3">
-                            <label for="expiry" class="form-label">Expiry:</label>
-                            <input type="date" class="form-control" id="expiry" name="expiry" required>
+                          <label for="expiry" class="form-label">Expiry:</label>
+                          <input type="date" class="form-control" id="expiry" name="expiry" required>
+                          <% if(expressFlash.expiryError && expressFlash.expiryError.length > 0){ %>
+                            <div class="alert text-danger text-start"><%= expressFlash.expiryError %></div>
+                          <% } %>                          
                             </div>
         
                     <button type="submit" class="btn btn-primary">Add Coupon</button>

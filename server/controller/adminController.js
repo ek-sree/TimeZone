@@ -15,6 +15,8 @@ const {
   alphanumValid,
   onlyNumbers,
   zerotonine,
+  isFutureDate,
+  uppercaseAlphanumValid
 } = require("../../utils/validators/adminValidators");
 const flash = require("express-flash");
 const Excel = require("excel4node");
@@ -675,7 +677,12 @@ const couponView = async (req, res) => {
 
 const addCouponView = async (req, res) => {
   try {
-    res.render("admin/addcoupon");
+    res.render("admin/addcoupon", {
+      expressFlash: {
+        expiryError: req.flash("expiryError"),
+        couponCodeError: req.flash("couponCodeError"),
+      },
+    });
   } catch (error) {}
 };
 
@@ -689,6 +696,17 @@ const createCoupon = async (req, res) => {
       maxRedeem,
       expiry,
     } = req.body;
+
+    const couponCodeValid = uppercaseAlphanumValid(couponCode)
+    const expiryValid = isFutureDate(expiry)
+    if (!couponCodeValid) {
+      req.flash('couponCodeError',"Coupon code must be uppercase alphabet")
+      return res.redirect('/admin/newcoupon')
+    }
+    if(!expiryValid){
+      req.flash("expiryError","Invaild Date")
+      return res.redirect('/admin/newcoupon')
+    }
     const couponExist = await couponModel.findOne({ couponCode: couponCode });
 
     if (couponExist) {
@@ -707,7 +725,7 @@ const createCoupon = async (req, res) => {
       res.redirect("/admin/couponList");
     }
   } catch (error) {
-    console.log("coupon adding is not working");
+    console.log("coupon adding is not working",error);
     res.status(404).send("adding new coupon error", error);
   }
 };
@@ -731,7 +749,9 @@ const editCoupon = async (req, res) => {
     const coupon = await couponModel.findOne({ _id: id });
     res.render("admin/editcoupon", {
       coupon,
-      expressFlash: { existingCouponError: req.flash("existingCouponError") },
+      expressFlash: { existingCouponError: req.flash("existingCouponError"),
+      expiryError: req.flash("expiryError"),
+      couponCodeError: req.flash("couponCodeError"), },
     });
   } catch (error) {
     console.log("error rendering coupon page");
@@ -750,7 +770,17 @@ const editCouponPost = async (req, res) => {
       expiry,
     } = req.body;
     const id = req.params.id;
-    console.log("coupon", id);
+    const couponCodeValid = uppercaseAlphanumValid(couponCode)
+    const expiryValid = isFutureDate(expiry)
+
+    if (!couponCodeValid) {
+      req.flash("couponCodeError", "Coupon code must be alphabet");
+      return res.redirect(`/admin/editCouponGet/${id}`);
+    }
+    if (!expiryValid) {
+      req.flash("expiryError","Invaild Date")
+      return res.redirect(`/admin/editCouponGet/${id}`)
+    }
 
     const existingCoupon = await couponModel.findOne({
       couponCode,
