@@ -133,7 +133,7 @@
                                             <div class="popular-caption">
                                                 <h3><%= product.name %></h3>
                                                <strike style="color: red;"><i><span><%= product.mrp %></span></i></strike>
-                                              <b> <span>INR <%= product.price %></span></b> 
+                                              <b> <span>Rs. <%= product.price %></span></b> 
                                             </div>
                                         </div>
                                     </a>
@@ -327,7 +327,8 @@ async function fetchProducts(sortOrder) {
                 </div>
                 <div class="popular-caption">
                     <h3>${product.name}</h3>
-                    <span>$ ${product.price}</span>
+                    <span><strike style="color: red;">Rs. ${product.mrp}</strike></span>
+                    <span>Rs. ${product.price}</span>
                 </div>
             </div>
         </a>
